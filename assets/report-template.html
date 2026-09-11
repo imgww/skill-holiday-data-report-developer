@@ -6,10 +6,9 @@
 <title>【目标年度】【节假日】消费数据报告</title>
 <style>
 /* ============================================================
-   节促数据观察台 · 报告统一设计系统 (Design System)  v4 (升级版)
-   依据《UI评估与设计提案/设计实施规格.md》与线上数据系统报告样式同步升级：
+   节假日消费数据报告 · 统一设计系统 (Design System)  v4.0
    - 单一设计令牌（含明暗双主题，自动 + 手动切换）
-   - 应用骨架（appbar / breadcrumb / footer-nav）
+   - 无吸顶导航（v4.0 移除 appbar）：正文自报头开篇，便于整体嵌入任意主页框架
    - 组件库（报头 / 数字带 / Hero 卡 / 徽章 / callout / 预测块 / 图表 / 表格 / 纵向模块）
    - 核心体验零 JS 可用，交互层渐进增强（暗色自动生效，按钮仅切换偏好）
    使用说明见文件末尾注释。
@@ -23,7 +22,7 @@
   --line:#C8BBA0;   --gold:#A3803F;    --gold-soft:#F0E4CD;
   --green:#2E6B3E;  --blue:#1F4E5F;    --blue2:#2E7C92;   --night:#171511;
   --shadow:0 6px 22px rgba(33,28,20,.16);
-  --max:1180px; --bar-h:50px;
+  --max:1180px;
   --font-stack:Georgia,"Noto Serif SC","Songti SC","STSong","SimSun",serif;
   --ui-stack:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
   --mono:"SFMono-Regular",Consolas,"Courier New",monospace;
@@ -56,14 +55,11 @@
 html{scroll-behavior:smooth;}
 body{background:var(--paper);color:var(--ink);font-family:var(--font-stack);line-height:1.66;transition:background .25s,color .25s;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 22px;}
-/* 锚点定位避开吸顶顶栏 */
-section[id],h2[id],h3[id],div[id]{scroll-margin-top:calc(var(--bar-h) + 14px);}
+/* 锚点定位留白（v4.0 无吸顶导航） */
+section[id],h2[id],h3[id],div[id]{scroll-margin-top:14px;}
 /* 防御：flex/grid 子项允许收缩，避免被内容最小宽度撑破视口（移动端横向溢出根因） */
 .card,.cell,.grid,.card-grid,.report-layout,.toc,.main-content,.hero-stats,.h-card,.fig-strip,.fig,.stat{min-width:0;}
 .table-wrap,.csv-preview-wrap,.chart{min-width:0;max-width:100%;}
-.appbar .inner{flex-wrap:wrap;}
-.appbar .search{flex:0 1 auto;min-width:0;}
-.appbar .theme-btn,.appbar .logo{flex-shrink:0;}
 a{color:var(--red);}
 img,svg{max-width:100%;vertical-align:middle;}
 code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--line);padding:1px 5px;font-size:12.5px;}
@@ -74,24 +70,15 @@ code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--lin
 .skip-link:focus{left:0;top:0;}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
 
-/* ---------- 3. 应用骨架（门户导航，四件套同目录时指向 index.html；可整段删除用于纯单页） ---------- */
-.appbar{position:sticky;top:0;z-index:100;background:var(--ink);color:var(--paper);box-shadow:var(--shadow);transition:background .25s;}
-.appbar .inner{max-width:var(--max);margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:16px;height:var(--bar-h);}
-.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--paper);white-space:nowrap;}
-.logo .cn{font-size:17px;font-weight:900;letter-spacing:1px;}
-.logo .en{font-size:10px;color:var(--gold);letter-spacing:1px;font-family:var(--ui-stack);text-transform:uppercase;}
-.global-nav{display:flex;gap:2px;margin-left:auto;}
-.global-nav a{color:rgba(245,239,226,.82);text-decoration:none;font-size:13px;font-family:var(--ui-stack);padding:6px 11px;border-radius:2px;transition:background .15s;white-space:nowrap;}
-.global-nav a:hover,.global-nav a.active{background:rgba(255,255,255,.14);color:#fff;}
-.appbar .search{font-family:var(--ui-stack);font-size:13px;padding:6px 12px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.08);color:var(--paper);width:170px;outline:none;}
-.appbar .search::placeholder{color:rgba(245,239,226,.55);}
-.theme-btn{cursor:pointer;background:rgba(255,255,255,.12);border:1px solid var(--line);color:var(--paper);font-size:12px;padding:6px 12px;border-radius:2px;font-family:var(--ui-stack);transition:background .15s;}
-.theme-btn:hover{background:rgba(255,255,255,.2);}
-
-.breadcrumb{max-width:var(--max);margin:0 auto;padding:12px 22px 0;font-size:12.5px;color:var(--ink3);font-family:var(--ui-stack);letter-spacing:.5px;}
+/* ---------- 3. 页面骨架（v4.0：无吸顶导航；面包屑为可选块，整体嵌入主页时可删除） ---------- */
+.breadcrumb{max-width:var(--max);margin:0 auto;padding:14px 22px 0;font-size:12.5px;color:var(--ink3);font-family:var(--ui-stack);letter-spacing:.5px;}
 .breadcrumb a{color:var(--ink2);text-decoration:none;}
 .breadcrumb a:hover{color:var(--red);text-decoration:underline;}
 .breadcrumb span{color:var(--red);}
+/* 明暗主题切换按钮：置于报头右端（v4.0 由原吸顶 appbar 迁移至此） */
+.theme-btn{cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--ink2);font-size:11.5px;padding:2px 10px;border-radius:2px;font-family:var(--ui-stack);letter-spacing:1px;transition:background .15s,color .15s,border-color .15s;}
+.theme-btn:hover{background:var(--paper3);color:var(--red);border-color:var(--red);}
+.masthead-top .masthead-meta{display:inline-flex;align-items:center;gap:12px;}
 
 /* ---------- 4. 报头 / 排版 ---------- */
 .masthead-top{display:flex;justify-content:space-between;align-items:baseline;border-top:4px double var(--ink);border-bottom:1px solid var(--ink);padding:7px 2px;font-size:12px;letter-spacing:1px;color:var(--ink2);margin-top:20px;}
@@ -102,6 +89,9 @@ code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--lin
 .masthead h1 .accent{color:var(--red);}
 .masthead .sub{margin-top:14px;font-size:14px;letter-spacing:3px;color:var(--ink2);}
 .masthead .rule{width:88px;height:3px;background:var(--red);margin:20px auto 0;}
+.ticker{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:center;align-items:baseline;padding:14px 6px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink2);font-family:var(--ui-stack);letter-spacing:.5px;}
+.ticker span{white-space:nowrap;}
+.ticker b{color:var(--red);font-size:15px;font-variant-numeric:tabular-nums;}
 
 .sec{margin:44px 0 8px;border-bottom:4px double var(--ink);padding-bottom:10px;}
 .sec h2{font-size:clamp(22px,3vw,30px);font-weight:900;letter-spacing:1px;}
@@ -199,7 +189,7 @@ h4{font-size:17px;font-weight:900;color:var(--ink);margin:20px 0 9px;letter-spac
 /* ---------- 10. 数据表 ---------- */
 .table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);-webkit-overflow-scrolling:touch;}
 table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;background:var(--paper2);}
-table.data th{position:sticky;top:var(--bar-h);background:var(--paper3);border-top:3px double var(--ink);border-bottom:1px solid var(--ink);padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;z-index:10;}
+table.data th{position:sticky;top:0;background:var(--paper3);border-top:3px double var(--ink);border-bottom:1px solid var(--ink);padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;z-index:10;}
 table.data td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top;font-variant-numeric:tabular-nums;}
 table.data td.num{text-align:right;font-weight:bold;font-variant-numeric:tabular-nums;white-space:nowrap;}
 table.data tr:last-child td{border-bottom:3px double var(--ink);}
@@ -233,7 +223,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 
 /* ---------- 13. 打印 ---------- */
 @media print{
-  .appbar,.breadcrumb,.footer-nav,.theme-btn,.skip-link,.back-top-float,.noscript-note{display:none !important;}
+  .breadcrumb,.footer-nav,.theme-btn,.skip-link,.back-top-float,.noscript-note{display:none !important;}
   body{background:#fff;color:#000;}
   .wrap{max-width:100%;padding:0;}
   table.data th{position:static;}
@@ -253,28 +243,19 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
   .footer-nav .grid-3{grid-template-columns:1fr;gap:18px;}
 }
 @media (max-width:720px){
-  :root{--bar-h:50px;}
   .wrap{padding:0 16px;}
   .breadcrumb{padding:10px 16px 0;font-size:11.5px;}
-  .appbar .inner{flex-wrap:wrap;height:auto;padding:6px 12px;gap:8px;align-items:center;}
-  .logo .cn{font-size:15px;}
-  .global-nav{order:3;width:100%;margin:2px -6px 0;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-  .global-nav::-webkit-scrollbar{display:none;}
-  .global-nav a{white-space:nowrap;padding:8px 12px;font-size:13px;}
-  .appbar .search{width:130px;}
   .masthead-top{flex-wrap:wrap;gap:4px;}
   .masthead{padding:26px 6px 20px;}
   .sec{margin:32px 0 6px;}
   table.data th{position:static;}
   .fig-strip{grid-template-columns:repeat(3,1fr);}
   .fig:nth-child(3n){border-right:none;}
-  section[id],h2[id],h3[id],div[id]{scroll-margin-top:104px;}
+  section[id],h2[id],h3[id],div[id]{scroll-margin-top:14px;}
 }
 @media (max-width:620px){
   .hero-stats{grid-template-columns:1fr;}
-  .appbar .search{width:112px;}
-  .logo .en{display:none;}
-  .theme-btn{padding:6px 9px;font-size:11px;}
+  .theme-btn{padding:3px 9px;font-size:11px;}
 }
 @media (max-width:520px){
   .wrap{padding:0 12px;}
@@ -285,7 +266,6 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
   .fig:nth-child(even){border-right:none;}
   .chart{overflow-x:auto;}
   .chart svg{min-width:420px;}
-  .appbar .search{width:100px;}
 }
 @media (max-width:420px){
   .masthead-top{font-size:10.5px;}
@@ -294,13 +274,11 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 }
 /* 触控设备：加大点按目标（≥ 40px 有效高度） */
 @media (hover:none) and (pointer:coarse){
-  .global-nav a{padding:10px 12px;}
-  .theme-btn{padding:9px 14px;}
+  .theme-btn{padding:5px 12px;}
   .back-top-float{width:48px;height:48px;}
 }
 /* 刘海屏安全区 */
 @supports (padding-top:env(safe-area-inset-top)){
-  .appbar{padding-top:env(safe-area-inset-top);}
   .footer{padding-bottom:max(50px,env(safe-area-inset-bottom));}
 }
 /* 弱动效偏好 */
@@ -311,40 +289,25 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 </style>
 </head>
 <body>
-<!-- DATASYS-SKIP -->
+<!-- A11Y-SKIP -->
 <a class="skip-link" href="#main">跳到主内容</a>
 <span id="top" aria-hidden="true"></span>
-<!-- /DATASYS-SKIP -->
+<!-- /A11Y-SKIP -->
 
-<!-- DATASYS-APPBAR · 四件套同目录时链接指向 index.html；纯单页可整段删除 -->
-<header class="appbar">
-  <div class="inner">
-    <a class="logo" href="index.html"><span class="cn">节促数据观察台</span><span class="en">Holiday Consumption Data Observatory</span></a>
-    <nav class="global-nav" aria-label="全局导航">
-      <a href="index.html" class="">总览</a>
-      <a href="消费数据报告.html" class="active">报告</a>
-      <a href="数据真实性说明.html" class="">溯源</a>
-      <a href="【年度】【节假日】消费数据集.csv" class="">数据集</a>
-    </nav>
-    <button class="theme-btn" id="themeBtn" title="切换明暗主题" aria-label="切换明暗主题">明暗</button>
-  </div>
-</header>
-<!-- /DATASYS-APPBAR -->
+<!-- BREADCRUMB -->
+<nav class="breadcrumb" aria-label="面包屑"><a href="index.html">首页</a> <span aria-hidden="true">/</span> <span aria-current="page">【目标年度】【节假日】消费数据报告</span></nav>
+<!-- /BREADCRUMB -->
 
-<!-- DATASYS-CRUMB -->
-<nav class="breadcrumb" aria-label="面包屑"><a href="index.html">总门户</a> <span aria-hidden="true">/</span> <span aria-current="page">【目标年度】【节假日】消费数据报告</span></nav>
-<!-- /DATASYS-CRUMB -->
-
-<!-- DATASYS-NOSCRIPT -->
+<!-- NOSCRIPT-NOTE -->
 <noscript><div class="noscript-note"><b>JavaScript 未启用：</b>主题切换与表格排序等增强功能不可用；全部报告、图表与数据仍可正常浏览和下载。</div></noscript>
-<!-- /DATASYS-NOSCRIPT -->
+<!-- /NOSCRIPT-NOTE -->
 
 <div class="wrap" id="main">
 
   <!-- ===== 报头 ===== -->
   <div class="masthead-top">
     <span class="left">本报告由 AI 生成【生成日期】</span>
-    <span>【目标年度】 &middot; 【节假日】</span>
+    <span class="masthead-meta">【目标年度】 &middot; 【节假日】<button class="theme-btn" id="themeBtn" title="切换明暗主题" aria-label="切换明暗主题">明暗</button></span>
   </div>
   <header class="masthead">
     <div class="kicker">CONSUMPTION DATA REPORT</div>
@@ -542,8 +505,8 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
         <a href="【年度】【节假日】消费数据集.csv" download>下载消费数据集（CSV）</a>
       </div>
       <div>
-        <h4>门户</h4>
-        <a href="index.html">返回四件套首页</a>
+        <h4>首页</h4>
+        <a href="index.html">返回首页</a>
         <a class="back-top" href="#top">回到顶部 ↑</a>
       </div>
     </div>
@@ -554,7 +517,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
     <p><b>数据来源：</b>机构一（报告名，年份）&middot; 机构二（报告名，年份）……</p>
     <p><b>说明：</b>标注"测算"的指标为推算值；各数据详细溯源见《数据真实性说明》。</p>
     <p>本报告数据来自互联网公开来源，每条数据均可在《数据真实性说明》中追溯至原始页面。</p>
-    <p class="deploy-note">本报告由 AI 按 consumption-data-report 技能生成，单文件 HTML、全部资源内联、无外链，可部署至静态托管（如 EdgeOne）。</p>
+    <p class="deploy-note">本报告为单文件 HTML，全部资源内联、无外链，可直接部署至任意静态托管。</p>
   </footer>
 
 </div>
@@ -604,16 +567,24 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 </html>
 <!--
 ====================================================================
-使用说明（report-template.html · v4 升级版）
+使用说明（report-template.html · v4.0）
 ====================================================================
-1. 本模板已对齐线上数据系统「节促数据观察台」最新报告样式（统一设计系统）：
-   - 明暗双主题：无 JS 自动跟随系统偏好；点击右上「明暗」按钮手动切换并记忆。
+1. v4.0 设计要点：
+   - 无吸顶导航（已移除 header.appbar）：正文自报头开篇，可整体嵌入任意主页框架；
+     明暗切换按钮位于报头右端（`.masthead-top .masthead-meta` 内）。
+   - 明暗双主题：无 JS 自动跟随系统偏好；点击报头右端「明暗」按钮手动切换并记忆。
    - 可达性：skip-link、焦点环、语义化标签、min-width 防御移动端溢出。
-   - 组件库：报头 / 数字带 / Hero 卡（可选）/ 徽章 / callout / 预测块 / 图表 / 表格（吸顶+排序）/ 纵向模块 / 页脚导航。
+   - 组件库：报头 / 滚动条 / 数字带 / Hero 卡（可选）/ 徽章 / callout / 预测块 /
+     图表 / 表格（吸顶+排序）/ 纵向模块 / 页脚导航。
 2. 替换占位符：【目标年度】【节假日】【生成日期】→ 实际值；XX.X / XXXX → 数据集真实值。
-3. 取数铁律：每个数字须有《数据集》或预测台账对应条目；推算标"测算（D 级）"，预计进预测卡标置信度，禁止混栏。
-4. 纵向延续与前瞻（第二部分）为 SKILL 框架强制：2.1–2.6 六子节齐备；首期无历史时优雅降级标注，不编造。
-5. 应用骨架（appbar/breadcrumb）：四件套同目录时链接指向 index.html；若仅生成单页报告，可整段删除 DATASYS-APPBAR / DATASYS-CRUMB 注释块。
-6. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式。
+3. 取数铁律：每个数字须有《数据集》或预测台账对应条目；推算标"测算（D 级）"，
+   预计进预测卡标置信度，禁止混栏。
+4. 纵向延续与前瞻（第二部分）为 SKILL 框架强制：2.1–2.6 六子节齐备；
+   首期无历史时优雅降级标注，不编造。
+5. 内容整洁原则（v4.0 硬性）：正文与页脚只出现与本节假日消费数据相关的内容，
+   禁止保留站点门户品牌、外部数据系统、部署平台名、技能内部代号等无关字眼。
+6. 面包屑（BREADCRUMB 注释块）为可选：同目录存在首页时指向 index.html；
+   纯单页或需整体嵌入主页时整段删除。
+7. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式。
 ====================================================================
 -->

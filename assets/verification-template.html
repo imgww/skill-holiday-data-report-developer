@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>【目标年度】年【节假日】消费数据 · 数据真实性说明</title>
+<style>
+:root{
+  --paper:#F5EFE2;  --paper2:#EFE6D2;  --paper3:#EAE0C9;  --paper-glass:rgba(245,239,226,.92);
+  --ink:#211C14;    --ink2:#4B4436;    --ink3:#7A715F;
+  --red:#8C1F28;    --red2:#A83A45;    --red-soft:#F3D4D6;
+  --line:#C8BBA0;   --gold:#A3803F;    --gold-soft:#F0E4CD;
+  --green:#2E6B3E;  --blue:#1F4E5F;    --blue2:#2E7C92;   --night:#171511;
+  --shadow:0 6px 22px rgba(33,28,20,.16);
+  --max:1180px; --bar-h:50px;
+  --font-stack:Georgia,"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --ui-stack:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Courier New",monospace;
+}
+[data-theme="dark"]{
+  --paper:#171511; --paper2:#211E18; --paper3:#2C2820; --paper-glass:rgba(23,21,17,.95);
+  --ink:#EAE3D4; --ink2:#C8BCA6; --ink3:#9E927E;
+  --red:#D6606B; --red2:#E07C86; --red-soft:#4A2426;
+  --line:#4D4639; --gold:#C9A65B; --gold-soft:#3A3324;
+  --green:#5CA872; --blue:#5DA9BF; --blue2:#7CC4D8; --night:#0E0C09;
+  --shadow:0 6px 28px rgba(0,0,0,.45);
+}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#171511; --paper2:#211E18; --paper3:#2C2820; --paper-glass:rgba(23,21,17,.95);
+    --ink:#EAE3D4; --ink2:#C8BCA6; --ink3:#9E927E;
+    --red:#D6606B; --red2:#E07C86; --red-soft:#4A2426;
+    --line:#4D4639; --gold:#C9A65B; --gold-soft:#3A3324;
+    --green:#5CA872; --blue:#5DA9BF; --blue2:#7CC4D8; --night:#0E0C09;
+    --shadow:0 6px 28px rgba(0,0,0,.45);
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-stack);line-height:1.66;transition:background .25s,color .25s;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 22px;}
+section[id],h2[id],h3[id],div[id]{scroll-margin-top:calc(var(--bar-h) + 14px);}
+.card,.cell,.grid,.card-grid,.report-layout,.toc,.main-content,.hero-stats,.h-card,.fig-strip,.fig,.stat{min-width:0;}
+.table-wrap,.csv-preview-wrap,.chart{min-width:0;max-width:100%;}
+a{color:var(--red);}
+img,svg{max-width:100%;vertical-align:middle;}
+code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--line);padding:1px 5px;font-size:12.5px;}
+::selection{background:var(--red);color:var(--paper);}
+.skip-link{position:absolute;left:-999px;top:0;z-index:200;background:var(--red);color:var(--paper);padding:10px 16px;font-weight:bold;font-size:13px;text-decoration:none;}
+.skip-link:focus{left:0;top:0;}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+.theme-btn{cursor:pointer;background:rgba(255,255,255,.12);border:1px solid var(--line);color:var(--paper);font-size:12px;padding:6px 12px;border-radius:2px;font-family:var(--ui-stack);transition:background .15s;}
+.theme-btn:hover{background:rgba(255,255,255,.2);}
+.masthead-top{display:flex;justify-content:space-between;align-items:baseline;border-top:4px double var(--ink);border-bottom:1px solid var(--ink);padding:7px 2px;font-size:12px;letter-spacing:1px;color:var(--ink2);margin-top:20px;}
+.masthead-top .left{font-weight:bold;color:var(--red);}
+.masthead{text-align:center;padding:36px 10px 26px;border-bottom:4px double var(--ink);}
+.masthead .kicker{font-size:12px;letter-spacing:6px;color:var(--red);text-transform:uppercase;margin-bottom:14px;font-weight:bold;}
+.masthead h1{font-size:clamp(32px,5.4vw,58px);font-weight:900;letter-spacing:2px;line-height:1.14;}
+.masthead h1 .accent{color:var(--red);}
+.masthead .sub{margin-top:14px;font-size:14px;letter-spacing:3px;color:var(--ink2);}
+.masthead .rule{width:88px;height:3px;background:var(--red);margin:20px auto 0;}
+.sec{margin:44px 0 8px;border-bottom:4px double var(--ink);padding-bottom:10px;}
+.sec h2{font-size:clamp(22px,3vw,30px);font-weight:900;letter-spacing:1px;}
+.sec h2 .no{color:var(--red);}
+.sec .meta{font-size:12px;color:var(--ink3);letter-spacing:1px;margin-top:4px;font-family:var(--ui-stack);}
+.lead{font-size:15.5px;padding:18px 0 6px;}
+.lead p{margin-bottom:12px;text-align:justify;}
+.lead h2{font-size:clamp(22px,3.2vw,36px);line-height:1.28;font-weight:900;}
+.lead h2 .red{color:var(--red);}
+.lead .standfirst{font-size:16px;color:var(--ink2);border-left:4px solid var(--red);padding-left:14px;margin-top:10px;max-width:880px;}
+.dropcap::first-letter{float:left;font-size:3.4em;line-height:.82;padding:5px 9px 0 0;font-weight:bold;color:var(--red);}
+.section-head{display:flex;align-items:center;gap:12px;margin:34px 0 16px;}
+.section-head::before{content:"";display:block;width:34px;height:3px;background:var(--red);}
+.section-head h3{font-size:clamp(19px,2.3vw,26px);font-weight:900;letter-spacing:1px;}
+.section-head .no{margin-left:auto;font-size:13px;color:var(--ink3);letter-spacing:2px;border:1px solid var(--line);padding:2px 8px;}
+.cols{font-size:15px;}
+.cols p{margin-bottom:12px;text-align:justify;}
+.src{display:block;font-size:11.5px;color:var(--ink3);margin-top:4px;font-style:italic;}
+.src b{color:var(--red);font-style:normal;}
+.hero{padding:18px 0 4px;}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:22px 0;}
+.h-card{background:var(--paper2);border-top:3px double var(--ink);border-bottom:3px double var(--ink);padding:18px 16px;position:relative;}
+.h-card::before{content:"";position:absolute;top:-3px;left:0;width:44px;height:3px;background:var(--red);}
+.h-card .n{font-size:clamp(26px,3vw,38px);font-weight:900;color:var(--red);line-height:1;font-variant-numeric:tabular-nums;}
+.h-card .l{font-size:12px;color:var(--ink3);margin-top:6px;letter-spacing:.5px;}
+.h-card .spark{height:40px;margin-top:10px;}
+.stats{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;margin:30px 0 6px;border-top:3px double var(--ink);border-bottom:3px double var(--ink);padding:18px 0;}
+.stat{text-align:center;}
+.stat .num{font-size:clamp(26px,3vw,40px);font-weight:900;color:var(--red);line-height:1;font-variant-numeric:tabular-nums;}
+.stat .lbl{font-size:12px;color:var(--ink2);margin-top:6px;letter-spacing:1px;}
+.note{background:var(--gold-soft);border-left:5px solid var(--gold);padding:12px 16px;margin:14px 0;font-size:13.5px;color:var(--ink2);}
+.note b{color:var(--red);}
+.note-banner{background:var(--paper3);border:1px solid var(--gold);border-left:5px solid var(--gold);padding:14px 18px;margin:22px 0 8px;font-size:13.5px;color:var(--ink2);}
+.note-banner b{color:var(--red);}
+.fig-strip{display:grid;grid-template-columns:repeat(6,1fr);border-top:3px double var(--ink);border-bottom:3px double var(--ink);margin:22px 0 6px;}
+.fig{padding:16px 10px;text-align:center;border-right:1px solid var(--line);}
+.fig:last-child{border-right:none;}
+.fig .num{font-size:clamp(19px,2.1vw,28px);font-weight:900;color:var(--red);line-height:1.1;font-variant-numeric:tabular-nums;}
+.fig .lbl{font-size:11px;color:var(--ink2);margin-top:6px;letter-spacing:.5px;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:1px 7px;border:1px solid;letter-spacing:.5px;font-weight:bold;font-family:var(--ui-stack);white-space:nowrap;}
+.badge.a{color:var(--green);border-color:var(--green);}
+.badge.d{color:var(--red);border-color:var(--red);}
+.badge.p{color:var(--gold);border-color:var(--gold);}
+.callout{background:var(--paper2);border-left:5px solid var(--red);padding:16px 18px;margin:18px 0;}
+.callout h4{color:var(--red);font-size:14px;letter-spacing:1px;margin-bottom:8px;}
+.callout p{font-size:14px;color:var(--ink2);text-align:justify;margin-bottom:6px;}
+.callout p:last-child{margin-bottom:0;}
+details.src{font-size:12px;color:var(--ink3);margin-top:4px;}
+details.src summary{cursor:pointer;color:var(--red);font-weight:bold;list-style:none;}
+details.src summary::before{content:"[来源] ";}
+details.src[open] summary::before{content:"[收起] ";}
+details.src summary::-webkit-details-marker{display:none;}
+.pred{background:var(--paper3);border:1px solid var(--red);border-left:5px solid var(--red);padding:14px 18px;margin:18px 0;font-size:14px;}
+.pred h4{color:var(--red);font-size:14px;letter-spacing:1px;margin-bottom:6px;}
+.up{color:var(--red);}
+h4{font-size:17px;font-weight:900;color:var(--ink);margin:20px 0 9px;letter-spacing:.5px;border-left:3px solid var(--red);padding-left:10px;}
+.forecast-card{border:1px solid var(--line);border-top:3px double var(--red);padding:14px 16px;margin:12px 0;background:var(--paper2);}
+.fc-head{font-size:13px;letter-spacing:2px;color:var(--red);font-weight:bold;margin-bottom:8px;text-transform:uppercase;}
+.fc-body{font-size:14.5px;}
+.fc-row{display:flex;align-items:baseline;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);}
+.fc-row span{color:var(--ink2);min-width:96px;}
+.fc-row b{color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums;}
+.fc-row i{color:var(--ink3);font-style:italic;font-size:12.5px;margin-left:auto;}
+.fc-note{font-size:12px;color:var(--ink2);margin-top:9px;padding-top:9px;border-top:1px solid var(--line);line-height:1.6;}
+.conf-badge{display:inline-block;padding:1px 9px;border-radius:2px;font-size:11px;font-weight:bold;font-style:normal;border:1px solid transparent;}
+.conf-badge.high{background:var(--red);color:var(--paper);}
+.conf-badge.mid{background:var(--gold);color:var(--paper);}
+.conf-badge.low{background:var(--ink3);color:var(--paper);}
+.deviation-card{border:1px solid var(--line);padding:12px 14px;margin:12px 0;background:var(--paper2);}
+.dc-head{font-size:13px;letter-spacing:2px;color:var(--red);font-weight:bold;margin-bottom:8px;}
+.inflection{border-left:4px solid var(--gold);padding:9px 14px;margin:12px 0;background:var(--paper3);font-size:14px;color:var(--ink2);line-height:1.7;}
+.inflection b{color:var(--red);}
+.chart{background:var(--paper2);border:1px solid var(--line);padding:18px;margin:18px 0;}
+.chart .title{font-size:15px;font-weight:900;margin-bottom:2px;}
+.chart .subtitle{font-size:12px;color:var(--ink3);margin-bottom:10px;}
+.chart svg{width:100%;display:block;}
+.chart .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--ink3);font-family:var(--ui-stack);}
+.chart .legend span{display:flex;align-items:center;gap:6px;}
+.chart .legend i{width:12px;height:12px;display:inline-block;}
+.chart-dl{font-size:12px;color:var(--ink3);margin-top:12px;font-family:var(--ui-stack);}
+.chart-dl a{color:var(--red);font-weight:bold;}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);-webkit-overflow-scrolling:touch;}
+table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;background:var(--paper2);}
+table.data th{position:sticky;top:var(--bar-h);background:var(--paper3);border-top:3px double var(--ink);border-bottom:1px solid var(--ink);padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;z-index:10;}
+table.data td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top;font-variant-numeric:tabular-nums;}
+table.data td.num{text-align:right;font-weight:bold;font-variant-numeric:tabular-nums;white-space:nowrap;}
+table.data tr:last-child td{border-bottom:3px double var(--ink);}
+table.data tr:hover td{background:rgba(140,31,40,.04);}
+table.data .sub td{border-bottom:1px dashed var(--line);color:var(--ink3);font-size:12px;}
+table.data .center td{text-align:center;}
+th.sortable{cursor:pointer;user-select:none;}
+th.sortable:hover{background:var(--gold-soft);}
+th.sortable::after{content:" ⇅";font-size:10px;color:var(--ink3);}
+th.sortable.sort-asc::after{content:" ↑";color:var(--red);}
+th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
+.footer-nav{border-top:4px double var(--ink);margin-top:48px;padding:20px 0 8px;}
+.footer-nav .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+.footer-nav h4{font-size:12px;letter-spacing:2px;color:var(--ink3);text-transform:uppercase;font-family:var(--ui-stack);margin-bottom:10px;font-weight:900;border:none;padding:0;}
+.footer-nav a{display:block;font-size:13px;color:var(--ink2);text-decoration:none;padding:3px 0;font-family:var(--ui-stack);}
+.footer-nav a:hover{color:var(--red);}
+.footer-nav .back-top{display:inline-block;margin-top:14px;font-size:13px;font-weight:bold;color:var(--red);text-decoration:none;border:1px solid var(--red);padding:6px 14px;font-family:var(--ui-stack);}
+.footer-nav .back-top:hover{background:var(--red);color:var(--paper);}
+.footer{border-top:4px double var(--ink);margin-top:30px;padding:20px 0 50px;font-size:12px;color:var(--ink3);line-height:1.8;}
+.footer b{color:var(--ink2);}
+.footer .deploy-note{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3);}
+.noscript-note{background:var(--gold-soft);border:1px solid var(--gold);border-left:5px solid var(--gold);padding:10px 16px;margin:10px 0;font-size:13px;color:var(--ink2);font-family:var(--ui-stack);}
+.noscript-note b{color:var(--red);}
+.back-top-float{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:150;width:44px;height:44px;border-radius:50%;background:var(--red);color:var(--paper);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:19px;line-height:1;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.28);font-family:var(--ui-stack);}
+.back-top-float:hover{background:var(--red2);color:#fff;}
+.back-top-float:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+@media print{
+.footer-nav,.theme-btn,.skip-link,.back-top-float,.noscript-note{display:none !important;}
+body{background:#fff;color:#000;}
+.wrap{max-width:100%;padding:0;}
+table.data th{position:static;}
+.h-card,.chart{box-shadow:none;break-inside:avoid;}
+a{color:#000;}
+}
+@media (max-width:1080px){
+.hero-stats{grid-template-columns:repeat(2,1fr);gap:14px;}
+}
+@media (max-width:980px){
+.grid{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:900px){
+.card-grid{grid-template-columns:1fr;}
+.footer-nav .grid-3{grid-template-columns:1fr;gap:18px;}
+}
+@media (max-width:720px){
+:root{--bar-h:50px;}
+.wrap{padding:0 16px;}
+.masthead-top{flex-wrap:wrap;gap:4px;}
+.masthead{padding:26px 6px 20px;}
+.sec{margin:32px 0 6px;}
+table.data th{position:static;}
+.fig-strip{grid-template-columns:repeat(3,1fr);}
+.fig:nth-child(3n){border-right:none;}
+section[id],h2[id],h3[id],div[id]{scroll-margin-top:104px;}
+}
+@media (max-width:620px){
+.hero-stats{grid-template-columns:1fr;}
+.theme-btn{padding:6px 9px;font-size:11px;}
+}
+@media (max-width:520px){
+.wrap{padding:0 12px;}
+.lead p,.cols p{text-align:left;}
+.dropcap::first-letter{font-size:2.6em;padding:4px 6px 0 0;}
+.fig-strip{grid-template-columns:repeat(2,1fr);}
+.fig:nth-child(3n){border-right:1px solid var(--line);}
+.fig:nth-child(even){border-right:none;}
+.chart{overflow-x:auto;}
+.chart svg{min-width:420px;}
+}
+@media (max-width:420px){
+.masthead-top{font-size:10.5px;}
+.section-head{gap:8px;}
+.footer{font-size:11.5px;}
+}
+@media (hover:none) and (pointer:coarse){
+.theme-btn{padding:9px 14px;}
+.back-top-float{width:48px;height:48px;}
+}
+@supports (padding-top:env(safe-area-inset-top)){
+.footer{padding-bottom:max(50px,env(safe-area-inset-bottom));}
+}
+@media (prefers-reduced-motion:reduce){
+html{scroll-behavior:auto;}
+*{transition:none !important;animation:none !important;}
+}
+.dl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:16px;margin:22px 0 8px;}
+.dl-card{display:flex;flex-direction:column;padding:20px 20px 16px;background:var(--paper2);
+  border:1px solid var(--line);border-top:3px solid var(--red);text-decoration:none;color:var(--ink);
+  transition:transform .16s,box-shadow .16s,border-color .16s;}
+.dl-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-top-color:var(--gold);}
+.dl-kicker{font:700 11px/1 var(--ui-stack);letter-spacing:.2em;color:var(--red);text-transform:uppercase;margin-bottom:10px;}
+.dl-title{font:700 19px/1.35 var(--font-stack);margin-bottom:9px;}
+.dl-desc{font-size:13.5px;line-height:1.62;color:var(--ink2);flex:1;margin-bottom:14px;}
+.dl-foot{display:flex;justify-content:space-between;align-items:baseline;
+  border-top:1px dashed var(--line);padding-top:10px;font:600 12.5px/1 var(--ui-stack);}
+.dl-size{color:var(--ink3);}
+.dl-go{color:var(--red);letter-spacing:.04em;}
+.tb-row{display:flex;align-items:center;gap:12px;padding:6px 0;font-size:13.5px;}
+.tb-l{width:92px;flex:none;color:var(--ink2);font-weight:600;}
+.tb-bar{flex:1;height:14px;background:var(--paper3);border:1px solid var(--line);position:relative;overflow:hidden;}
+.tb-bar i{display:block;height:100%;background:var(--red);opacity:.82;}
+.tb-bar i.gA{background:#2E6B3E;}
+.tb-bar i.gB{background:#5A8A63;}
+.tb-bar i.gC{background:#A3803F;}
+.tb-bar i.gD{background:#8C1F28;}
+.tb-n{width:104px;flex:none;text-align:right;font-family:var(--mono);font-size:12.5px;color:var(--ink3);}
+.concl{counter-reset:c;list-style:none;margin:14px 0 4px;}
+.concl li{counter-increment:c;position:relative;padding:13px 0 13px 46px;border-bottom:1px dashed var(--line);line-height:1.7;}
+.concl li:last-child{border-bottom:0;}
+.concl li::before{content:counter(c);position:absolute;left:0;top:13px;width:28px;height:28px;line-height:28px;
+  text-align:center;background:var(--red);color:var(--paper);font:700 14px/28px Georgia,serif;border-radius:2px;}
+.concl b{color:var(--ink);}
+.concl .ev{display:block;font-size:12.5px;color:var(--ink3);margin-top:4px;font-family:var(--mono);}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);margin:18px 0;}
+.meta-cell{background:var(--paper);padding:13px 15px;}
+.meta-cell .k{font:600 11.5px/1.4 var(--ui-stack);letter-spacing:.1em;color:var(--ink3);text-transform:uppercase;}
+.meta-cell .v{font:700 17px/1.5 var(--font-stack);color:var(--ink);margin-top:4px;}
+.strip-note{font-size:13px;color:var(--ink3);line-height:1.65;margin-top:10px;}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主内容</a>
+  <span id="top" aria-hidden="true"></span>
+  <noscript><div class="noscript-note"><b>JavaScript 未启用：</b>主题切换与表格排序不可用；全部溯源内容仍可正常浏览。</div></noscript>
+
+  <div class="wrap" id="main">
+
+    <!-- ============ 报头（v4.0：无吸顶导航，明暗按钮置于报头右端） ============ -->
+    <div class="masthead-top">
+      <span class="left">【目标年度】年【节假日】消费数据 · 数据真实性说明</span>
+      <span class="masthead-meta">【生成日期】 ｜ 数据截止【数据截止日】<button class="theme-btn" id="themeBtn" title="切换明暗主题" aria-label="切换明暗主题">明暗</button></span>
+    </div>
+
+    <header class="masthead">
+      <div class="kicker">【目标年度】 【节假日】 · DATA PROVENANCE</div>
+      <h1 class="title">【目标年度】年【节假日】消费数据<br>数据真实性说明</h1>
+      <div class="subtitle">本页对同期《消费数据报告》所引每一笔数据点的来源、口径、可信度与勾稽关系作出逐条披露，并公开预测复盘与缺口。所有数字均取自统一采集数据集（L1/L2 合并，含 <code>layer</code> 判别字段）。</div>
+      <div class="rule"></div>
+    </header>
+
+    <!-- ============ 目录 ============ -->
+    <nav class="toc" aria-label="说明目录">
+      <div class="toc-h">目录 CONTENTS</div>
+      <ol>
+        <li><a href="#s1">一　引言：本说明的效力范围</a></li>
+        <li><a href="#s2">二　可信度分级标准<span class="toc-s">A/B/C/D 判定 · 强制 D 级 · D 级全清单</span></a></li>
+        <li><a href="#s3">三　台账差异与修正声明<span class="toc-s">结构性修正 · 刻意保留的冲突</span></a></li>
+        <li><a href="#s4">四　逐条溯源表<span class="toc-s">按等级排序 · 附原文链接 · 备注含同源双录</span></a></li>
+        <li><a href="#s5">五　预测台账与回填声明<span class="toc-s">本期预测复盘 · 下期回填安排</span></a></li>
+        <li><a href="#s6">六　来源机构清单<span class="toc-s">机构数与等级分布</span></a></li>
+        <li><a href="#s7">附　L2 现象素材库<span class="toc-s">定性素材 · 不参与量化</span></a></li>
+      </ol>
+    </nav>
+
+    <!-- ============ s1 引言 ============ -->
+    <section id="s1" class="sec">
+      <h2 class="section-head">一　引言：本说明的效力范围</h2>
+      <p>本说明与《【目标年度】年【节假日】消费数据报告》配套，覆盖【地域粒度】范围内的全部数据点。下列情形不在本说明保证范围内，已在报告中以「测算」「预计」标注：</p>
+      <ul>
+        <li>标注<code>数据性质=推算</code>（含 per-day 人均）的 D 级点位；</li>
+        <li>标注<code>数据性质=预计</code>的预测点位（见 s5 预测台账）；</li>
+        <li>因基期天数不同而未折算的绝对增量叙事。</li>
+      </ul>
+      <div class="callout note">所有数字统一取自采集数据集 <code>holiday-data-fetch.json</code> 的 <code>items</code> 数组（L1/L2 合并，按 <code>layer</code> 字段区分）。报告、本说明、数据集三者数字一致，以数据集为唯一事实来源（SSOT）。</div>
+    </section>
+
+    <!-- ============ s2 可信度分级 ============ -->
+    <section id="s2" class="sec">
+      <h2 class="section-head">二　可信度分级标准</h2>
+      <p>每个数据点依来源权威性与口径清晰度归入 A/B/C/D 四级；<b>强制 D 级规则</b>：凡推算、预计、口径缺失或来源不可复核者一律 D 级，不参与实测数字栏。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>等级</th><th>判定标准</th><th>本期条数</th><th>占比</th><th>使用限制</th></tr></thead>
+          <tbody>
+            <tr><td><span class="conf-badge high">A</span></td><td>官方/权威机构实测总量或份额</td><td>【A 数】</td><td>【A%】</td><td>可直接引用</td></tr>
+            <tr><td><span class="conf-badge mid">B</span></td><td>行业平台/上市公司披露</td><td>【B 数】</td><td>【B%】</td><td>可引用，注明平台</td></tr>
+            <tr><td><span class="conf-badge low">C</span></td><td>媒体转引/样本推算</td><td>【C 数】</td><td>【C%】</td><td>仅作佐证</td></tr>
+            <tr><td><span class="conf-badge low">D</span></td><td>推算/预计/缺口</td><td>【D 数】</td><td>【D%】</td><td>不计入实测栏</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="src">数据来源：统一采集数据集 <code>items</code> 字段 <code>可信度等级</code> 聚合 ｜ 口径版本：【caliber_version】</p>
+    </section>
+
+    <!-- ============ s3 台账差异与修正 ============ -->
+    <section id="s3" class="sec">
+      <h2 class="section-head">三　台账差异与修正声明</h2>
+      <p>多轮采集（R1–R5）合并后，存在结构性修正与刻意保留的冲突，逐条列示如下。</p>
+      <h3>3.1　结构性修正</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>主题</th><th>数据点</th><th>数值</th><th>触发条件（性质／口径／数值类型）</th><th>来源机构</th><th>备注</th></tr></thead>
+          <tbody>
+            <tr><td>【主题】</td><td>【数据点】</td><td>【数值】</td><td>【触发条件】</td><td>【来源机构】</td><td>【修正备注】</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>3.2　刻意保留的冲突</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>冲突组</th><th>各方记录</th><th>不归并的理由</th></tr></thead>
+          <tbody>
+            <tr><td>【冲突组】</td><td>【各方记录】</td><td>【保留理由】</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="deviation-card"><div class="dc-head">偏差披露</div><p>上述冲突均已在报告中以脚注或 callout 显式标注，未做静默取舍。</p></div>
+    </section>
+
+    <!-- ============ s4 逐条溯源表 ============ -->
+    <section id="s4" class="sec">
+      <h2 class="section-head">四　逐条溯源表（【L1 条数】条）</h2>
+      <p>按可信度等级排序；<code>原文</code>列附来源网页快照链接，<code>备注</code>含并入的同源双录（L2 同源合并标注于 <code>观测关联</code>）。</p>
+      <div class="table-wrap trace-scroll">
+        <table>
+          <thead><tr>
+            <th>#</th><th>主题</th><th>数据点</th><th>数值</th><th>单位</th><th>统计窗口</th>
+            <th>口径类型</th><th>数据性质</th><th>来源机构</th><th>发布时间</th><th>等级</th><th>原文</th><th>备注（含同源双录）</th><th>缺口标记</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>1</td><td>【主题】</td><td>【数据点】</td><td>【数值】</td><td>【单位】</td><td>【窗口】</td><td>【口径】</td><td>【性质】</td><td>【机构】</td><td>【发布】</td><td><span class="conf-badge high">A</span></td><td><a href="【快照路径】">原文</a></td><td>【备注】</td><td>空</td></tr>
+            <tr><td>2</td><td>【主题】</td><td>【数据点】</td><td>【数值】</td><td>【单位】</td><td>【窗口】</td><td>【口径】</td><td>【性质】</td><td>【机构】</td><td>【发布】</td><td><span class="conf-badge mid">B</span></td><td><a href="【快照路径】">原文</a></td><td>【备注】</td><td>空</td></tr>
+            <!-- 由统一数据集 items（layer=L1）按等级排序后循环渲染；此处为 2 行占位示例 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ s5 预测台账 ============ -->
+    <section id="s5" class="sec">
+      <h2 class="section-head">五　预测台账与回填声明</h2>
+      <p>本期报告中的预测点位（<code>数据性质=预计</code>）逐条登记，并于下期采集后回填实测值。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>数据点</th><th>数值</th><th>窗口</th><th>口径类型</th><th>来源机构</th><th>缺口标记</th><th>等级</th></tr></thead>
+          <tbody>
+            <tr><td>【预测数据点】</td><td>【预测值】</td><td>【窗口】</td><td>【口径】</td><td>【机构】</td><td>【缺口】</td><td><span class="conf-badge low">D</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout note">下期回填安排：于下一采集轮次（R+1）以实测值更新上述点位，并在报告偏差卡中披露偏差方向。</div>
+    </section>
+
+    <!-- ============ s6 来源机构清单 ============ -->
+    <section id="s6" class="sec">
+      <h2 class="section-head">六　来源机构清单（【机构数】家）</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>来源机构</th><th>记录数</th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>【机构名】</td><td>【数】</td><td>【A】</td><td>【B】</td><td>【C】</td><td>【D】</td></tr>
+            <!-- 由 items 按 来源机构 聚合循环渲染 -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ s7 L2 现象素材库 ============ -->
+    <section id="s7" class="sec">
+      <h2 class="section-head">附　L2 现象素材库（【L2 条数】条）</h2>
+      <p>L2 为定性现象素材（<code>layer=L2</code>），用于报告「分主题深度分析」的丰度支撑，<b>不参与量化</b>。下表为摘要，完整内容见 <code>现象素材库.json/.md</code>。</p>
+      <div class="tag-cloud">
+        <span class="tag">【现象标签】</span><span class="tag">【现象标签】</span><span class="tag">【现象标签】</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>主题归属</th><th>现象描述</th><th>现象标签</th><th>素材类型</th><th>来源机构</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>【主题归属】</td><td>【现象描述】</td><td>【标签】</td><td>【素材类型】</td><td>【机构】</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 页脚 ============ -->
+    <footer class="footer">
+      <div class="rule"></div>
+      <p>来源机构：【来源机构列表】　｜　报告年份：【目标年度】　｜　口径版本：【caliber_version】</p>
+      <p class="src">本页数字均取自统一采集数据集（L1/L2 合并，含 <code>layer</code> 字段）；推算/预计点位已标注，不计入实测栏。生成日期：【生成日期】。</p>
+    </footer>
+
+    <nav class="footer-nav" aria-label="页脚导航">
+      <div class="fn-col">
+        <span class="fn-h">返回</span>
+        <a href="index.html">总览首页</a>
+        <a href="消费数据报告.html">消费数据报告</a>
+      </div>
+      <div class="fn-col">
+        <span class="fn-h">本页文件</span>
+        <a href="【目标年度】【节假日】消费数据集.csv">数据集 CSV</a>
+        <a href="holiday-data-fetch.json">统一采集 JSON</a>
+      </div>
+      <div class="fn-col">
+        <span class="fn-h">跨年专题</span>
+        <a href="【跨年专题链接】">纵向延续与前瞻</a>
+      </div>
+      <a class="fn-top" href="#top">回到顶部 ↑</a>
+    </nav>
+
+  </div>
+
+  <button class="back-top-float" id="backTop" aria-label="回到顶部">↑</button>
+
+  <script>
+    (function(){
+      var root=document.documentElement, btn=document.getElementById('themeBtn'),
+          bt=document.getElementById('backTop');
+      try{var t=localStorage.getItem('theme'); if(t) root.setAttribute('data-theme',t);}catch(e){}
+      if(btn) btn.addEventListener('click',function(){
+        var cur=root.getAttribute('data-theme')==='dark'?'light':'dark';
+        root.setAttribute('data-theme',cur);
+        try{localStorage.setItem('theme',cur);}catch(e){}
+      });
+      if(bt) bt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+    })();
+  </script>
+</body>
+</html>

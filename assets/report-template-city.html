@@ -6,8 +6,9 @@
 <title>【目标年度】【节假日】城市消费数据报告</title>
 <style>
 /* ============================================================
-   节促数据观察台 · 城市视角报告 · 设计系统 v4（继承自 consumption-data-report）
-   全部令牌/组件同父技能；本模板仅增量「城市总览与勾稽」章节与图表组件（C1–C6）。
+   节假日城市消费数据报告 · 统一设计系统 (Design System)  v4.0
+   令牌与组件同全国版模板；本模板仅增量「城市总览与勾稽」章节与图表组件（C1–C6）。
+   v4.0 移除吸顶 appbar：正文自报头开篇，便于整体嵌入任意主页框架。
    使用说明见文件末尾注释。
    ============================================================ */
 :root{
@@ -17,7 +18,7 @@
   --line:#C8BBA0;   --gold:#A3803F;    --gold-soft:#F0E4CD;
   --green:#2E6B3E;  --blue:#1F4E5F;    --blue2:#2E7C92;   --night:#171511;
   --shadow:0 6px 22px rgba(33,28,20,.16);
-  --max:1180px; --bar-h:50px;
+  --max:1180px;
   --font-stack:Georgia,"Noto Serif SC","Songti SC","STSong","SimSun",serif;
   --ui-stack:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
   --mono:"SFMono-Regular",Consolas,"Courier New",monospace;
@@ -45,12 +46,9 @@
 html{scroll-behavior:smooth;}
 body{background:var(--paper);color:var(--ink);font-family:var(--font-stack);line-height:1.66;transition:background .25s,color .25s;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 22px;}
-section[id],h2[id],h3[id],div[id]{scroll-margin-top:calc(var(--bar-h) + 14px);}
+section[id],h2[id],h3[id],div[id]{scroll-margin-top:14px;}
 .card,.cell,.grid,.card-grid,.report-layout,.toc,.main-content,.hero-stats,.h-card,.fig-strip,.fig,.stat{min-width:0;}
 .table-wrap,.csv-preview-wrap,.chart{min-width:0;max-width:100%;}
-.appbar .inner{flex-wrap:wrap;}
-.appbar .search{flex:0 1 auto;min-width:0;}
-.appbar .theme-btn,.appbar .logo{flex-shrink:0;}
 a{color:var(--red);}
 img,svg{max-width:100%;vertical-align:middle;}
 code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--line);padding:1px 5px;font-size:12.5px;}
@@ -58,22 +56,15 @@ code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--lin
 .skip-link{position:absolute;left:-999px;top:0;z-index:200;background:var(--red);color:var(--paper);padding:10px 16px;font-weight:bold;font-size:13px;text-decoration:none;}
 .skip-link:focus{left:0;top:0;}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
-.appbar{position:sticky;top:0;z-index:100;background:var(--ink);color:var(--paper);box-shadow:var(--shadow);transition:background .25s;}
-.appbar .inner{max-width:var(--max);margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:16px;height:var(--bar-h);}
-.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--paper);white-space:nowrap;}
-.logo .cn{font-size:17px;font-weight:900;letter-spacing:1px;}
-.logo .en{font-size:10px;color:var(--gold);letter-spacing:1px;font-family:var(--ui-stack);text-transform:uppercase;}
-.global-nav{display:flex;gap:2px;margin-left:auto;}
-.global-nav a{color:rgba(245,239,226,.82);text-decoration:none;font-size:13px;font-family:var(--ui-stack);padding:6px 11px;border-radius:2px;transition:background .15s;white-space:nowrap;}
-.global-nav a:hover,.global-nav a.active{background:rgba(255,255,255,.14);color:#fff;}
-.appbar .search{font-family:var(--ui-stack);font-size:13px;padding:6px 12px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.08);color:var(--paper);width:170px;outline:none;}
-.appbar .search::placeholder{color:rgba(245,239,226,.55);}
-.theme-btn{cursor:pointer;background:rgba(255,255,255,.12);border:1px solid var(--line);color:var(--paper);font-size:12px;padding:6px 12px;border-radius:2px;font-family:var(--ui-stack);transition:background .15s;}
-.theme-btn:hover{background:rgba(255,255,255,.2);}
-.breadcrumb{max-width:var(--max);margin:0 auto;padding:12px 22px 0;font-size:12.5px;color:var(--ink3);font-family:var(--ui-stack);letter-spacing:.5px;}
+/* ---------- 3. 页面骨架（v4.0：无吸顶导航；面包屑为可选块，整体嵌入主页时可删除） ---------- */
+.breadcrumb{max-width:var(--max);margin:0 auto;padding:14px 22px 0;font-size:12.5px;color:var(--ink3);font-family:var(--ui-stack);letter-spacing:.5px;}
 .breadcrumb a{color:var(--ink2);text-decoration:none;}
 .breadcrumb a:hover{color:var(--red);text-decoration:underline;}
 .breadcrumb span{color:var(--red);}
+/* 明暗主题切换按钮：置于报头右端（v4.0 由原吸顶 appbar 迁移至此） */
+.theme-btn{cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--ink2);font-size:11.5px;padding:2px 10px;border-radius:2px;font-family:var(--ui-stack);letter-spacing:1px;transition:background .15s,color .15s,border-color .15s;}
+.theme-btn:hover{background:var(--paper3);color:var(--red);border-color:var(--red);}
+.masthead-top .masthead-meta{display:inline-flex;align-items:center;gap:12px;}
 .masthead-top{display:flex;justify-content:space-between;align-items:baseline;border-top:4px double var(--ink);border-bottom:1px solid var(--ink);padding:7px 2px;font-size:12px;letter-spacing:1px;color:var(--ink2);margin-top:20px;}
 .masthead-top .left{font-weight:bold;color:var(--red);}
 .masthead{text-align:center;padding:36px 10px 26px;border-bottom:4px double var(--ink);}
@@ -82,6 +73,9 @@ code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--lin
 .masthead h1 .accent{color:var(--red);}
 .masthead .sub{margin-top:14px;font-size:14px;letter-spacing:3px;color:var(--ink2);}
 .masthead .rule{width:88px;height:3px;background:var(--red);margin:20px auto 0;}
+.ticker{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:center;align-items:baseline;padding:14px 6px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink2);font-family:var(--ui-stack);letter-spacing:.5px;}
+.ticker span{white-space:nowrap;}
+.ticker b{color:var(--red);font-size:15px;font-variant-numeric:tabular-nums;}
 .sec{margin:44px 0 8px;border-bottom:4px double var(--ink);padding-bottom:10px;}
 .sec h2{font-size:clamp(22px,3vw,30px);font-weight:900;letter-spacing:1px;}
 .sec h2 .no{color:var(--red);}
@@ -173,7 +167,7 @@ h4{font-size:17px;font-weight:900;color:var(--ink);margin:20px 0 9px;letter-spac
 .city-card .cc-share{margin-top:10px;}
 .table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);-webkit-overflow-scrolling:touch;}
 table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;background:var(--paper2);}
-table.data th{position:sticky;top:var(--bar-h);background:var(--paper3);border-top:3px double var(--ink);border-bottom:1px solid var(--ink);padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;z-index:10;}
+table.data th{position:sticky;top:0;background:var(--paper3);border-top:3px double var(--ink);border-bottom:1px solid var(--ink);padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;z-index:10;}
 table.data td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top;font-variant-numeric:tabular-nums;}
 table.data td.num{text-align:right;font-weight:bold;font-variant-numeric:tabular-nums;white-space:nowrap;}
 table.data tr:last-child td{border-bottom:3px double var(--ink);}
@@ -201,7 +195,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 .back-top-float:hover{background:var(--red2);color:#fff;}
 .back-top-float:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
 @media print{
-  .appbar,.breadcrumb,.footer-nav,.theme-btn,.skip-link,.back-top-float,.noscript-note{display:none !important;}
+  .breadcrumb,.footer-nav,.theme-btn,.skip-link,.back-top-float,.noscript-note{display:none !important;}
   body{background:#fff;color:#000;}
   .wrap{max-width:100%;padding:0;}
   table.data th{position:static;}
@@ -212,24 +206,17 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 @media (max-width:980px){ .grid{grid-template-columns:repeat(3,1fr);} }
 @media (max-width:900px){ .card-grid{grid-template-columns:1fr;} .footer-nav .grid-3{grid-template-columns:1fr;gap:18px;} }
 @media (max-width:720px){
-  :root{--bar-h:50px;}
   .wrap{padding:0 16px;}
   .breadcrumb{padding:10px 16px 0;font-size:11.5px;}
-  .appbar .inner{flex-wrap:wrap;height:auto;padding:6px 12px;gap:8px;align-items:center;}
-  .logo .cn{font-size:15px;}
-  .global-nav{order:3;width:100%;margin:2px -6px 0;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-  .global-nav::-webkit-scrollbar{display:none;}
-  .global-nav a{white-space:nowrap;padding:8px 12px;font-size:13px;}
-  .appbar .search{width:130px;}
   .masthead-top{flex-wrap:wrap;gap:4px;}
   .masthead{padding:26px 6px 20px;}
   .sec{margin:32px 0 6px;}
   table.data th{position:static;}
   .fig-strip{grid-template-columns:repeat(3,1fr);}
   .fig:nth-child(3n){border-right:none;}
-  section[id],h2[id],h3[id],div[id]{scroll-margin-top:104px;}
+  section[id],h2[id],h3[id],div[id]{scroll-margin-top:14px;}
 }
-@media (max-width:620px){ .hero-stats{grid-template-columns:1fr;} .appbar .search{width:112px;} .logo .en{display:none;} .theme-btn{padding:6px 9px;font-size:11px;} }
+@media (max-width:620px){ .hero-stats{grid-template-columns:1fr;} .theme-btn{padding:3px 9px;font-size:11px;} }
 @media (max-width:520px){
   .wrap{padding:0 12px;}
   .lead p,.cols p{text-align:left;}
@@ -239,11 +226,10 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
   .fig:nth-child(even){border-right:none;}
   .chart{overflow-x:auto;}
   .chart svg{min-width:420px;}
-  .appbar .search{width:100px;}
 }
 @media (max-width:420px){ .masthead-top{font-size:10.5px;} .section-head{gap:8px;} .footer{font-size:11.5px;} }
-@media (hover:none) and (pointer:coarse){ .global-nav a{padding:10px 12px;} .theme-btn{padding:9px 14px;} .back-top-float{width:48px;height:48px;} }
-@supports (padding-top:env(safe-area-inset-top)){ .appbar{padding-top:env(safe-area-inset-top);} .footer{padding-bottom:max(50px,env(safe-area-inset-bottom));} }
+@media (hover:none) and (pointer:coarse){ .theme-btn{padding:5px 12px;} .back-top-float{width:48px;height:48px;} }
+@supports (padding-top:env(safe-area-inset-top)){ .footer{padding-bottom:max(50px,env(safe-area-inset-bottom));} }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto;} *{transition:none !important;animation:none !important;} }
 </style>
 </head>
@@ -251,20 +237,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 <a class="skip-link" href="#main">跳到主内容</a>
 <span id="top" aria-hidden="true"></span>
 
-<header class="appbar">
-  <div class="inner">
-    <a class="logo" href="index.html"><span class="cn">节促数据观察台</span><span class="en">City Consumption Observatory</span></a>
-    <nav class="global-nav" aria-label="全局导航">
-      <a href="index.html" class="">总览</a>
-      <a href="城市消费数据报告.html" class="active">城市报告</a>
-      <a href="数据真实性说明.html" class="">溯源</a>
-      <a href="【年度】【节假日】城市消费数据集.csv" class="">城市数据集</a>
-    </nav>
-    <button class="theme-btn" id="themeBtn" title="切换明暗主题" aria-label="切换明暗主题">明暗</button>
-  </div>
-</header>
-
-<nav class="breadcrumb" aria-label="面包屑"><a href="index.html">总门户</a> <span aria-hidden="true">/</span> <span aria-current="page">【目标年度】【节假日】城市消费数据报告</span></nav>
+<nav class="breadcrumb" aria-label="面包屑"><a href="index.html">首页</a> <span aria-hidden="true">/</span> <span aria-current="page">【目标年度】【节假日】城市消费数据报告</span></nav>
 
 <noscript><div class="noscript-note"><b>JavaScript 未启用：</b>主题切换与表格排序等增强功能不可用；全部报告、图表与数据仍可正常浏览和下载。</div></noscript>
 
@@ -273,7 +246,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
   <!-- ===== 报头（城市视角） ===== -->
   <div class="masthead-top">
     <span class="left">本报告由 AI 生成【生成日期】</span>
-    <span>【目标年度】 &middot; 【节假日】 &middot; 城市视角</span>
+    <span class="masthead-meta">【目标年度】 &middot; 【节假日】 &middot; 城市视角<button class="theme-btn" id="themeBtn" title="切换明暗主题" aria-label="切换明暗主题">明暗</button></span>
   </div>
   <header class="masthead">
     <div class="kicker">CITY CONSUMPTION DATA REPORT</div>
@@ -600,10 +573,10 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
   </nav>
 
   <footer class="footer">
-    <p><b>数据来源：</b>各市文旅局/市监/商务局（A/B）&middot; 携程/同程/美团城市榜（C，平台自身口径）&middot; 全国 SSOT（父技能 consumption-data-report）</p>
+    <p><b>数据来源：</b>各市文旅局/市监/商务局（A/B）&middot; 携程/同程/美团城市榜（C，平台自身口径）&middot; 全国 SSOT（全国消费数据集）</p>
     <p><b>说明：</b>标注"测算"的指标为推算值；城市数据已与全国数据集勾稽闭合，详细溯源见《数据真实性说明》。</p>
     <p>本报告城市数据来自互联网公开来源，每条数据均可在《数据真实性说明》中追溯至原始页面；占比含未披露残差。</p>
-    <p class="deploy-note">本报告由 AI 按 consumption-data-city-report 技能生成，单文件 HTML、全部资源内联、无外链，可部署至静态托管（如 EdgeOne）。</p>
+    <p class="deploy-note">本报告为单文件 HTML，全部资源内联、无外链，可直接部署至任意静态托管。</p>
   </footer>
 
 </div>
@@ -635,14 +608,21 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 </html>
 <!--
 ====================================================================
-使用说明（report-template.html · 城市版 v1.1）
+使用说明（report-template-city.html · 城市版 v1.2）
 ====================================================================
-1. 设计系统继承自 consumption-data-report（v4 令牌/组件/明暗双主题/响应式），仅增量城市章节与图表。
+1. 设计系统同全国版模板（v4.0 令牌 / 组件 / 明暗双主题 / 响应式），仅增量城市章节与图表。
+   无吸顶导航（已移除 header.appbar）：正文自报头开篇，可整体嵌入任意主页框架。
 2. 替换占位符：【目标年度】【节假日】【生成日期】→ 实际值；XX.X / XXXX → 城市数据集真实值。
-3. 取数铁律：每个城市数字须有《城市数据集》行（30 字段）并关联全国指标键；推算标"测算（D 级）"，预计进预测卡标置信度。
-4. 勾稽必含：§2.2 勾稽总表 + C1 排名图 + C2 区域图 + C3 对比图；占比图须含"其他/未披露"残差扇区。
-5. 图表 SVG 片段可直接从 assets/chart-kit.html 复制（C1–C6）；图表与数据表双轨（图表直观、表格可核验）。
+3. 取数铁律：每个城市数字须有《城市数据集》行（30 字段）并关联全国指标键；
+   推算标"测算（D 级）"，预计进预测卡标置信度。
+4. 勾稽必含：勾稽总表 + C1 排名图 + C2 区域图 + C3 对比图；占比图须含"其他/未披露"残差扇区。
+5. 图表 SVG 片段可直接从 assets/chart-kit.html 复制（C1–C6）；图表与数据表双轨
+   （图表直观、表格可核验）。
 6. 平台城市榜标 C 级 + "平台自身口径，非全市场"；覆盖率 < 40% 排名标"局部样本"。
-7. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式、明暗双主题。
+7. 内容整洁原则（v4.0 硬性）：正文与页脚只出现与本节假日城市消费数据相关的内容，
+   禁止保留站点门户品牌、外部数据系统、部署平台名、技能内部代号等无关字眼。
+8. 面包屑（BREADCRUMB 注释块）为可选：同目录存在首页时指向 index.html；
+   纯单页或需整体嵌入主页时整段删除。
+9. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式、明暗双主题。
 ====================================================================
 -->

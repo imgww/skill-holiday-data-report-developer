@@ -1,7 +1,7 @@
 ---
 name: holiday-data-report
 description: "Generates holiday consumption data report packages for any year and any Chinese holiday (Spring Festival, Dragon Boat, May Day, Summer Vacation, Mid-Autumn, National Day), at either the NATIONAL (全国) or CITY (城市) dimension. National mode produces the four-deliverable set (dataset CSV + Economist/FT-style HTML report + data provenance + landing page) using a five-stage pipeline with a 22-field caliber dictionary and a continuity/forecast framework. City mode adds a 30-field city layer that reconciles (勾稽) to the national SSOT dataset, with inline-SVG visualizations. Before any collection, the skill resolves three parameters — [年份] (defaults to current year), [节日] (defaults to the festival of the current date), [地域] (defaults to 全国; a named city triggers city mode) — and proactively prompts the user when any cannot be derived. Use when the user requests a Chinese-holiday consumption/spending data report, nationally or for a specific city."
-version: 3.8.0
+version: 4.0.0
 author: workbuddy
 agent_created: true
 ---
@@ -13,13 +13,30 @@ agent_created: true
 This skill produces a **four-deliverable package** (四件套) for holiday consumption data reports,
 with data verification built in *before* the report is written -- never after:
 
-1. **消费数据集** -- structured dataset file (CSV) where every data point carries its source metadata
+1. **消费数据集** -- unified dataset file `holiday-data-fetch.json` (schema/meta/items, each item carries a `layer` field of L1/L2) that is the single source of truth; a 22-field CSV (L1 view) and optional L2 JSON/MD are derived views
 2. **消费数据报告** -- single-file HTML report in Economist/FT newspaper style
 3. **数据真实性说明** -- single-file HTML provenance document, tracing every figure to its source with clickable URLs
-4. **首页 (index.html)** -- single-file HTML landing page that serves as a portal, featuring report headline, provenance introduction, and CSV preview with links to all three deliverables; designed for EdgeOne deployment
+4. **首页 (index.html)** -- single-file HTML landing page that serves as a portal, featuring report headline, provenance introduction, and CSV preview with links to all three deliverables; designed for 静态托管平台 deployment
 
 Core methodology: **data first, report last** (先建数据集后出报告). Any data problem is caught
 before the report exists, so the report never needs rework for sourcing reasons.
+
+### v4.0 变更（页面形态）
+
+1. **移除吸顶导航 `header.appbar`**（`report-template.html` / `report-template-city.html` /
+   `landing-page-template.html` / `landing-page-template-city.html` 全部四个模板）。
+   产出页面自报头（masthead）直接开篇，不再有深色吸顶栏，便于整体嵌入任意主页框架；
+   原导航栏中的「明暗」主题切换按钮迁移至报头右端（`.masthead-top .masthead-meta`）。
+2. **内容整洁红线**：模板与最终产出页面**只出现与本节假日消费数据相关的内容**。
+   禁止出现与本节假日消费数据无关的站点门户品牌、外部数据系统称谓、部署平台名、技能内部代号等字眼；面包屑仅保留同目录相对路径，可整段删除。
+3. 首页模板（`landing-page-template*.html`）同步移除面包屑块，页脚导航全部改为同目录相对链接。
+
+### v4.1 变更（数据采集格式 + 真实性说明模板）
+
+1. **L1/L2 统一为单一数据集**：阶段二不再分写「数据集 CSV」与「现象素材库 JSON/MD」两份文件，全部采集记录写入同一份 `holiday-data-fetch.json`（`schema`/`meta`/`items`，每条带 `layer` ∈ `{L1, L2}` 字段）。CSV 与现象素材库 JSON/MD 仅作为按 `layer` 派生的可读视图，SSOT 仍是 JSON（详见 `references/data-architecture.md` v2.0 与 `references/templates.md` 第 2/8 节）。
+2. **新增「数据真实性说明」模板**：`assets/verification-template.html`（v4.1 新增），与报告/首页共用同一设计系统（无吸顶 appbar、明暗双主题按钮置于报头右端、全部内联 CSS/JS），含目录 + 七节溯源与质量声明，样式参照 `D:\Prj\000001_datasys_auto\data_report\20260902-2026暑假\数据真实性说明.html`。
+3. **模板样式定制**：`landing-page-template.html`（首页）、`report-template.html`（消费数据报告）、`verification-template.html`（数据真实性说明）三者均对齐参考产出的 FT/Economist 排版（米色底、衬线标题、暗红强调、中英双语标签、全内联、响应式）。
+4. 版本号由 4.0.0 升至 **4.1.0**。
 
 ## Parameter Resolution (参数确认 · 必先于一切采集)
 
@@ -91,7 +108,7 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 | 1b | 现象素材库（`现象素材库.json` + `.md`） | JSON + Markdown | **L2 非结构化层**：该节日时点特有现象/榜单/区间/定性/政策素材,含来源 URL（详见 `references/data-architecture.md`） |
 | 2 | 数据报告（`消费数据报告.html`） | 单文件 HTML | 面向读者阅读,经济学人/FT 风格（L1 撑纵向, L2 撑本期现象） |
 | 3 | 数据真实性说明（`数据真实性说明.html`） | 单文件 HTML | 逐条溯源与质量声明（含 L2 现象素材清单） |
-| 4 | 首页（`index.html`） | 单文件 HTML | 门户入口,收录三件套精华,可发布到 EdgeOne |
+| 4 | 首页（`index.html`） | 单文件 HTML | 门户入口,收录三件套精华,可发布到静态托管平台 |
 
 > **双轨原则**：L1 保延续性（22 字段口径治理）,L2 保时点丰度（榜单/区间/定性/政策全保留,不因入不了 22 字段而被丢弃）。二者分栏呈现、不混同；L2 素材进入正文须标"现象级/定性素材"。详见 `references/data-architecture.md`。
 
@@ -103,7 +120,7 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 | 1 | 城市数据集（`[年度][节假日][城市]消费数据集.csv`） | CSV（30 字段） | 城市台账,含城市 8 字段 + 勾稽元数据 |
 | 2 | 城市消费数据报告（`城市消费数据报告.html`） | 单文件 HTML（图文） | 城市视角主报告,含勾稽总表与可视化 |
 | 3 | 数据真实性说明（`数据真实性说明.html`） | 单文件 HTML | 逐条溯源 + 勾稽校验与覆盖率声明 |
-| 4 | 首页（`index.html`） | 单文件 HTML | 门户入口,收录四件套精华,可发 EdgeOne |
+| 4 | 首页（`index.html`） | 单文件 HTML | 门户入口,收录四件套精华,可发 静态托管平台 |
 | 5 | （勾稽基准）全国数据集 | CSV（22 字段） | 来自全国模式,城市层**引用不重造** |
 
 > 全国四件套由全国模式产出（或用户既有）；城市模式在其之上叠加城市层。若用户仅要城市剖面,仍须先确认/生成或读取全国数据集作为勾稽基准（详见「城市维度扩展」）。城市模式同样产出 L2 现象素材库（城市视角榜单/现象,存 `现象素材库-city.json/.md`）。
@@ -259,7 +276,7 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 10. **预测入账（闭环机制）**：阶段四若给出下一节假日前瞻/中长期点位预测,须在本数据集以独立行记录：`数据性质=预计`、`缺口标记=预判待回填`、备注写 `预测ID=[年度][节假日]-F0X` 与「中心值/区间/置信度」；预测不得混入实测栏,且报告正文须用预测卡并标置信度。
 11. 阶段产出：《数据集》(CSV),**强制 22 字段**：
    `主题 | 数据点 | 数值 | 单位 | 单位粒度 | 统计起止日 | 统计窗口 | 口径版本 | 指标口径类型 | 口径类型 | 数据性质 | 基期 | 假期天数 | 数值类型 | 采集日期 | 缺口标记 | 来源机构 | 报告/资料名 | 发布时间 | 可信度等级 | URL | 备注`
-12. **L2 现象素材库整理（v3.5 新增）**：将采集日志中**入不了 L1 22 字段**的素材（榜单/区间/定性/政策/热点）整理进 `现象素材库.json` + `现象素材库.md`：贴 `现象标签`、按 9 类字典归 `主题归属`、记 `来源URL/采集日期/与L1指标键`（可空）、HTML 快照入 `素材快照/`。**素材不因口径门槛被丢弃**（唯一删除条件：无 URL 佐证的纯臆测）。同一现象标签连续 ≥2 期出现且可量化 → 记入备注"建议升 L1 跟踪",下期写入 `holiday-config.md` 检索词/指标清单。
+12. **L2 现象素材库整理（v4.1 统一数据集）**：将采集日志中**入不了 L1 22 字段**的素材（榜单/区间/定性/政策/热点）作为 `layer=L2` 记录写入同一份 `holiday-data-fetch.json`：`现象标签`、按 9 类字典归 `主题归属`、记 `来源URL/采集日期/与L1指标键`（可空）、HTML 快照入 `素材快照/`；并可视需派生 `现象素材库.json` + `现象素材库.md`（与 L1 同处一份统一数据集,不再独立成文件）。**素材不因口径门槛被丢弃**（唯一删除条件：无 URL 佐证的纯臆测）。同一现象标签连续 ≥2 期出现且可量化 → 记入备注"建议升 L1 跟踪",下期写入 `holiday-config.md` 检索词/指标清单。
 
 **阶段门禁 Checklist（阶段二结束前核对）**：
 - [ ] 去重、单位、类型已统一,缺失率已知
@@ -306,6 +323,8 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
    - **第四部分 · 口径与数据质量声明**：摘要（详细见真实性说明）。
 3. 排版与风格：严格按 `references/style-guide.md` 执行;可直接套用 `assets/report-template.html` 骨架（已含纵向模块与预测/偏差/拐点组件）。
 4. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式。
+4b. **页面形态（v4.0 硬性）**：报告页面**不得出现吸顶导航 `header.appbar`**,正文自报头开篇,明暗切换按钮置于报头右端;套用 `assets/report-template.html` 时不得回填原导航栏。
+4c. **内容整洁红线（v4.0 硬性）**：页面正文、页脚与使用说明中**只保留与本节假日消费数据相关的内容**;禁止出现与本节假日消费数据无关的站点门户品牌、外部数据系统称谓、部署平台名、技能内部代号等字眼。面包屑仅指向同目录 `index.html`,需整体嵌入主页时整段删除。
 5. 测算/预计标注：数据集 `数据性质=推算`（含 per-day 人均）标"测算（D 级）";`数据性质=预计` 的预测点位用预测卡并标置信度,**不得混入实测数字栏**;页脚注明来源机构与报告年份。涉及"创新高"等规模叙事且基期天数不同时,必须显式折算并标注口径版本,禁止未折算绝对增量。
 6. 阶段产出：`消费数据报告.html`。
 
@@ -319,6 +338,8 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 - [ ] 人均口径合规：仅 per-trip 称"人均消费",per-day 称"人均每日消费（测算, D 级）"
 - [ ] 探索性主题栏目依阶段二圈定清单搭建,未凭印象自建章节
 - [ ] 排版符合 `style-guide.md`（CSS/JS 内联、无外链、无 emoji、简体中文、响应式）
+- [ ] **无吸顶导航（v4.0）**：页面未出现 `header.appbar`,明暗按钮已置于报头右端
+- [ ] **内容整洁（v4.0）**：无站点门户品牌 / 外部数据系统 / 部署平台 / 技能内部代号等无关字眼
 - [ ] 探索性主题栏目依阶段二圈定清单搭建,未预固化业态、未凭印象自建章节
 
 ### 阶段五：成果交付 (Delivery)
@@ -330,13 +351,13 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
    - 卡片二：摘录数据真实性说明的**引言部分**（方法说明 + 数据局限声明）,链接指向 `数据真实性说明.html`
    - 卡片三：数据集 CSV **前 5 行**以表格形式预览,链接指向 CSV 文件下载
    - **连续性高亮条（推荐）**：当存在跨年纵向报告或下一节假日前瞻时,在卡片上方加一条"纵向趋势 / 下一节假日前瞻"入口,链向跨年专题报告或报告第二部分
-   - 首页文件名固定为 `index.html`（EdgeOne 默认入口）
+   - 首页文件名固定为 `index.html`（静态托管默认入口）
    - 技术约束同报告：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式
 3. **一致性校验**：报告所有数字 <-> 数据集 <-> 真实性说明一一对应,首页链接全部可达,缺失即返工。跨年纵向专题报告（若产出）须与其引用的各年份数据集三方一致。
 4. 目录结构（**分年分节持久化,v3.5**）：
    ```
    data/{年份}/{节假日}/              # 每年每节独立目录,与历史基线库同构,持续沉淀
-   ├── index.html                  # 首页（EdgeOne 默认入口）
+   ├── index.html                  # 首页（静态托管默认入口）
    ├── 消费数据报告.html             # 完整报告（L1 纵向 + L2 本期现象）
    ├── 数据真实性说明.html            # 真实性说明（含 L2 素材清单）
    ├── [年度][节假日]消费数据集.csv    # L1 结构化数据集（22 字段）
@@ -347,7 +368,7 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
    ```
    > 每期完成后将 `数据集.csv` + `现象素材库.json` 同步至历史基线上游（atomgit `g_ww/holiday_data_reports`）,实现跨期资产沉淀（见 `references/data-architecture.md` 第二节）。
 5. 交付说明：各文件用途、使用方法、数据等级分布概览（含 L1/L2 数量）。
-6. **EdgeOne 发布说明**（如用户需要）：首页 index.html 为 EdgeOne 部署入口,部署后读者通过首页访问三件套全部资源。
+6. **静态托管发布说明**（如用户需要）：首页 index.html 为 静态托管部署入口,部署后读者通过首页访问三件套全部资源。
 
 **阶段门禁 Checklist（阶段五结束前核对）**：
 - [ ] 交付物齐备：数据集(L1) + 现象素材库(L2) + 数据报告 + 数据真实性说明 + 首页 `index.html`
@@ -472,8 +493,8 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 **Q10：历史纵向数据从哪拿？历史 CSV 和当年 22 字段对不上怎么办？**
 历史纵向基线**默认实时拉取**（v3.6 起）：阶段一第 4c 步在 `.baseline-cache/` 执行 `git clone --depth 1 https://atomgit.com/g_ww/holiday_data_reports.git`（首次）/ `git -C .baseline-cache pull --depth 1`（增量），保证用上游最新数据；**技能包不内置快照**,离线或拉取失败时纵向模块降级为首期基线标注（页脚 `未获取`）,不编造历史。历史 CSV 为专家团 P0 的 17 字段版本,是 22 字段的**严格子集**,按 `references/historical-data-source.md` 接入：补 5 个派生字段（单位粒度/统计起止日/口径版本/指标口径类型/数据性质）→ **数据点 canon 规范化**（去年份/节假日名）→ 枚举归一（`复合值`→`复合`、`政策与宏观`→`消费宏观`、`热门新消费`→`新消费`、`目的地`/`跨境`/`出入境`→`景区目的地`）。跨年可比四元键 `(节假日, canon, 口径类型, 地域scope)` 一致且 ≥2 年才可比,否则标"单年/不可比"。2026 各 CSV 多为进行中/前瞻数据（如 2026 十一仅 6 行全为放假安排）,属预测台账输入,不得当实测。
 
-**Q11：会不会为了口径规范而丢掉该节日特有的现象信息？（双层数据模型）**
-会,这正是 v3.5 要解决的。实证：2026 暑假早版 78 行 vs 22 字段版 46 行,同名数据点仅 1 个,丢失的 77 条几乎全是榜单/区间/定性/政策等"现象层"素材。解法是**数据双轨**（`references/data-architecture.md`）：统计性质强、可直接入趋势线的进 **L1 结构化层**（22 字段,保延续性）;榜单/区间/定性句/政策事件等进 **L2 非结构化现象层**（`现象素材库.json/.md` + 原文快照,保时点丰度）。L2 不因入不了 22 字段而被丢弃（唯一删除条件：无 URL 佐证的纯臆测）;进入报告正文须标"现象级/定性素材,非统计口径"。同一现象连续 ≥2 期出现且可量化 → 升级为 L1 跟踪指标,形成"现象→指标"正向循环。每期按 `data/{年份}/{节假日}/` 分目录持久化,并与历史基线库（atomgit 仓库）同构沉淀,跨期资产持续积累。
+**Q11：会不会为了口径规范而丢掉该节日特有的现象信息？（统一数据集双轨）**
+会,这正是 v3.5 要解决的。实证：2026 暑假早版 78 行 vs 22 字段版 46 行,同名数据点仅 1 个,丢失的 77 条几乎全是榜单/区间/定性/政策等"现象层"素材。解法是**统一数据集双轨**（`references/data-architecture.md`）：全部采集记录进入同一份 `holiday-data-fetch.json`,`layer` ∈ `{L1, L2}` 为唯一判别字段——统计性质强、可直接入趋势线的进 **L1 结构化层**（22 字段,保延续性）;榜单/区间/定性句/政策事件等进 **L2 非结构化现象层**（保时点丰度,可派生 `现象素材库.json/.md` + 原文快照）。L2 不因入不了 22 字段而被丢弃（唯一删除条件：无 URL 佐证的纯臆测）;进入报告正文须标"现象级/定性素材,非统计口径"。同一现象连续 ≥2 期出现且可量化 → 升级为 L1 跟踪指标,形成"现象→指标"正向循环。每期按 `data/{年份}/{节假日}/` 分目录持久化,并与历史基线库（atomgit 仓库）同构沉淀,跨期资产持续积累。
 
 **Q12：历史基线是每次调用都实时下载吗？离线怎么办？**
 是的,v3.6 起**默认每次调用实时拉取**：阶段一第 4c 步在输出目录 `.baseline-cache/` 执行 `git clone --depth 1`（首次,约 9 秒）或 `git pull --depth 1`（增量,秒级）,保证使用上游 atomgit 仓库最新数据。**技能包不内置快照（v3.7 已删除）**：离线/拉取失败时纵向模块降级为首期基线标注（页脚 `未获取`）,不中断流程、不编造历史。镜像目录可写、不污染技能安装目录;可用参数 `baseline_dir=` 指定其他位置。若用户希望本次跳过拉取（如纯离线分析）,可显式说明"不刷新基线",SKILL 将跳过 4c 步并以"无历史基线"处理。
@@ -490,9 +511,10 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 - `references/historical-data-source.md` -- **历史纵向基线数据源 v1.2**：atomgit 仓库（`g_ww/holiday_data_reports`）唯一权威源、**调用时实时拉取机制（`.baseline-cache/`,clone/pull 实测可行;v1.2 起不内置快照,离线降级为首期基线）**、历史 17 字段 → SKILL 22 字段**对账适配器**（5 派生字段 + 枚举归一表）、**数据点 canon 规范化**（跨年 join 铁律）、去年同期/本年上期取数流程、R13–R15 质量规则实证
 - `references/mcp-retrieval-layer.md` -- **MCP 实时检索层 v1.0（v3.8 新增）**：`holiday-data-mcp` 的 6 工具与技能阶段映射、调用纪律（引用必附 URL+采集日期 / 实际-预计-推算分离 / `reliability=?` 不引用 / 口径告警先对齐）、接入点（阶段一 4d 取数交叉验证、阶段二第 9 步纵向上游、阶段三溯源）、离线降级;作为 atomgit 基线的结构化检索互补层
 - `references/data-architecture.md` -- **数据架构 v1.0（v3.5 新增）**：L1 结构化层(22字段,保延续性) + L2 非结构化现象层(榜单/区间/定性/政策素材库,保时点丰度)双层模型;分年分节持久化目录 `data/{年份}/{节假日}/`;L2 素材库 JSON/MD schema;现象→指标升级通道;双轨质量红线
-- `references/style-guide.md` -- 经济学人/FT 排版规范：CSS 变量、字体、颜色、组件清单（含首页组件、预测卡/偏差卡/拐点判据/置信度徽章）
-- `assets/report-template.html` -- 经济学人/FT 风格单文件 HTML 报告骨架模板（v4 设计系统：明暗双主题 + 纵向延续与前瞻模块 + 预测卡/偏差卡/拐点判据/置信度徽章 + 可信组件[徽章/callout/预测块/来源披露] + Hero 卡/图表 + 页脚导航 + 可达性 + 响应式 + 全部内联 CSS；使用说明见文件末尾注释）
-- `assets/landing-page-template.html` -- 经济学人/FT 风格单文件 HTML 首页门户骨架（v4 设计系统：明暗双主题、appbar/breadcrumb 骨架、三卡片入口 + 连续性高亮条 + footer-nav、全部内联 CSS/JS；使用说明见文件末尾注释）
+- `references/style-guide.md` -- 经济学人/FT 排版规范：CSS 变量、字体、颜色、组件清单（含首页组件、预测卡/偏差卡/拐点判据/置信度徽章）；**v4.0 起无吸顶导航组件**
+- `assets/report-template.html` -- 经济学人/FT 风格单文件 HTML 报告骨架模板（v4.0 设计系统：**无吸顶 appbar，正文自报头开篇** + 明暗双主题[按钮置于报头右端] + 纵向延续与前瞻模块 + 预测卡/偏差卡/拐点判据/置信度徽章 + 可信组件[徽章/callout/预测块/来源披露] + 数字带/Hero 卡/图表 + 可选面包屑 + 页脚导航 + 可达性 + 响应式 + 全部内联 CSS；使用说明见文件末尾注释）
+- `assets/landing-page-template.html` -- 经济学人/FT 风格单文件 HTML 首页骨架（v4.0 设计系统：**无吸顶 appbar、无面包屑** + 明暗双主题[按钮置于报头右端] + 三卡片入口 + 连续性高亮条 + footer-nav[同目录相对链接] + 可达性 + 响应式、全部内联 CSS/JS；使用说明见文件末尾注释）
+- `assets/verification-template.html` -- 经济学人/FT 风格单文件 HTML「数据真实性说明」骨架（v4.1 新增,设计系统与报告/首页一致：**无吸顶 appbar** + 明暗双主题[按钮置于报头右端] + 目录(TOC) + 七节溯源与质量声明[s1 引言/s2 可信度分级/s3 台账差异与修正/s4 逐条溯源表/s5 预测台账与回填/s6 来源机构清单/s7 L2 现象素材库] + 页脚相对链接导航 + 全部内联 CSS/JS）
 - `assets/icon.jpg` -- 技能图标（1024x1024 JPG,体积<5MB）,简洁大气：折叠报刊文档+递增柱形图+圆形核验徽章
 - `assets/icon.svg` -- 上述图标的 256x256 SVG 矢量源文件,便于后续修改
 - `assets/` -- 报告/首页模板、图表片段库、图标（**不含历史基线快照**:v3.7 起基线随调用实时拉取至输出目录 `.baseline-cache/`,见 `references/historical-data-source.md`）
@@ -503,8 +525,8 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 - `references/holiday-config-city.md` -- 城市级数据源矩阵 v1.1（城市来源优先级、纳入城市集合约 40 城、区域分组、覆盖率预期、检索词）
 - `references/style-guide-viz.md` -- 城市可视化规范 v1.1（图表选型、配色、口径标注、SVG 组件约定、图文配比）
 - `references/development-prompt-city.md` -- 城市版五阶段操作细则
-- `assets/report-template-city.html` -- 城市版单文件 HTML 报告骨架（含图表容器与示例组件）
-- `assets/landing-page-template-city.html` -- 城市版首页门户骨架
+- `assets/report-template-city.html` -- 城市版单文件 HTML 报告骨架（v4.0：无吸顶 appbar、明暗按钮置于报头右端；含图表容器与示例组件）
+- `assets/landing-page-template-city.html` -- 城市版首页骨架（v4.0：无吸顶 appbar、无面包屑）
 - `assets/chart-kit.html` -- 内联 SVG 图表片段库（C1 排名条 / C2 区域条 / C3 发散条 / C4 占比环 / C5 热力矩阵 / C6 折线）
 
 ## Usage Notes
@@ -515,4 +537,4 @@ Also use when the user asks to *re-run* the pipeline for a new year/holiday comb
 - 城市模式须先有全国 SSOT：域名为城市时,确保本次已生成或用户已提供对应 [年度][节日] 的全国数据集,作为勾稽基准。
 - 若用户只要四件套中的某几件,可按需裁剪,但报告取数仍须来自数据集。
 - 交付后用 present_files 打开 HTML 文件（首页、报告与真实性说明）供读者预览;数据集与说明文档以卡片列出。
-- 若用户需要发布到 EdgeOne：将整个报告目录作为静态站点部署,首页 `index.html` 自动作为默认入口。
+- 若用户需要发布到静态托管平台：将整个报告目录作为静态站点部署,首页 `index.html` 自动作为默认入口。
