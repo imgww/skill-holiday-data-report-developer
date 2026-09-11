@@ -46,7 +46,7 @@ Core principle: **data first, report last** (先建数据集后出报告).
 
 ## When to Use
 
-Trigger when the user asks for a holiday consumption / travel spending data report for **any year** and **any Chinese holiday**, including 春节 / 端午 / 五一 / 暑假 / 中秋 / 十一。也用于按新年/新节假日**重跑**管线。节假日日期范围与天数详见 `references/holiday-config.md`。
+Trigger when the user asks for a holiday consumption / travel spending data report for **any year** and **any Chinese holiday**, including 春节 / 端午 / 五一 / 暑期 / 中秋 / 十一。也用于按新年/新节假日**重跑**管线。节假日日期范围与天数详见 `references/holiday-config.md`。
 
 ### 不适用场景
 非中国节假日、无公开来源、需秒级实时、非消费主题、需原创调研/抽样、跨境全球对比——即"数据可溯源 + 中国节假日 + 消费主题 + 周期性产出"四要素任一不满足即不适用；明确告知用户并建议改用其他方案。
