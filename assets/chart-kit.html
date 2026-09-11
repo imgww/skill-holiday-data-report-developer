@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>城市报告图表组件库 · Chart Kit（C1–C6）</title>
+<style>
+/* 仅本片段库预览用令牌；复制到 report-template.html 后由该模板令牌接管（勿重复定义） */
+:root{
+  --paper:#F5EFE2; --paper2:#EFE6D2; --paper3:#EAE0C9;
+  --ink:#211C14; --ink2:#4B4436; --ink3:#7A715F;
+  --red:#8C1F28; --red2:#A83A45; --gold:#A3803F; --green:#2E6B3E; --line:#C8BBA0;
+  --ui-stack:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
+}
+body{background:var(--paper);color:var(--ink);font-family:var(--ui-stack);margin:0;padding:28px;}
+h1{font-size:22px;letter-spacing:1px;}
+h2{font-size:16px;color:var(--red);margin-top:34px;border-bottom:3px double var(--ink);padding-bottom:6px;}
+.note{background:var(--paper2);border-left:5px solid var(--gold);padding:12px 16px;font-size:13px;color:var(--ink2);margin:10px 0;}
+svg{width:100%;max-width:760px;display:block;background:var(--paper2);border:1px solid var(--line);margin:10px 0;}
+code{background:var(--paper3);padding:2px 6px;font-size:12px;}
+</style>
+</head>
+<body>
+<h1>城市报告图表组件库 · Chart Kit</h1>
+<p class="note">本库提供 6 类可直接复制的内联 SVG 图表（<b>C1 排名条 / C2 区域条 / C3 发散条 / C4 占比环 / C5 热力矩阵 / C6 折线</b>）。复制到 <code>assets/report-template.html</code> 的 <code>.chart</code> 容器中即可。SVG 使用 <code>var(--xxx)</code> 设计令牌，明暗双主题自动适配；窄屏由外层 <code>.chart{overflow-x:auto}</code> 处理。替换为真实数据时，按比例重算条长/坐标，并同步更新下方数据表与来源脚注。</p>
+
+<!-- ============ C1 横向排名条形图 ============ -->
+<h2>C1 · 横向排名条形图（城市 TOP N 排名）</h2>
+<p class="note">用途：城市出游人次/总花费/RevPAR 排名。条长按数值，右端标数值与同比。示例：2026 十一 · 7天口径 · 纳入 36 城 · 官方发布（A/B）。</p>
+<svg viewBox="0 0 760 430" role="img" aria-label="重点旅游城市出游人次 TOP 10（2026 十一，7天口径）">
+  <!-- 轴线 -->
+  <line x1="150" y1="58" x2="150" y2="404" stroke="var(--line)"/>
+  <text x="150" y="40" font-size="12" fill="var(--ink3)">0</text>
+  <text x="400" y="40" font-size="12" fill="var(--ink3)">900</text>
+  <text x="650" y="40" font-size="12" fill="var(--ink3)">1800万</text>
+  <line x1="400" y1="58" x2="400" y2="404" stroke="var(--line)" stroke-dasharray="3 3"/>
+  <line x1="650" y1="58" x2="650" y2="404" stroke="var(--line)" stroke-dasharray="3 3"/>
+  <!-- 10 行：城市 | 值(万) | 条长(px, scale=520/1800=0.289) -->
+  <g font-family="var(--ui-stack)" font-size="13">
+    <text x="142" y="83" text-anchor="end" fill="var(--ink2)">北京</text><rect x="150" y="68" width="477" height="22" fill="var(--red)"/><text x="635" y="84" fill="var(--ink)">1650</text><text x="690" y="84" fill="var(--red2)" font-size="11">+8.2%</text>
+    <text x="142" y="117" text-anchor="end" fill="var(--ink2)">重庆</text><rect x="150" y="102" width="428" height="22" fill="var(--red)"/><text x="586" y="118" fill="var(--ink)">1480</text><text x="641" y="118" fill="var(--red2)" font-size="11">+6.1%</text>
+    <text x="142" y="151" text-anchor="end" fill="var(--ink2)">上海</text><rect x="150" y="136" width="410" height="22" fill="var(--red)"/><text x="568" y="152" fill="var(--ink)">1420</text><text x="623" y="152" fill="var(--red2)" font-size="11">+4.5%</text>
+    <text x="142" y="185" text-anchor="end" fill="var(--ink2)">成都</text><rect x="150" y="170" width="370" height="22" fill="var(--red)"/><text x="528" y="186" fill="var(--ink)">1280</text><text x="583" y="186" fill="var(--red2)" font-size="11">+9.7%</text>
+    <text x="142" y="219" text-anchor="end" fill="var(--ink2)">广州</text><rect x="150" y="204" width="341" height="22" fill="var(--red)"/><text x="499" y="220" fill="var(--ink)">1180</text><text x="554" y="220" fill="var(--red2)" font-size="11">+5.0%</text>
+    <text x="142" y="253" text-anchor="end" fill="var(--ink2)">西安</text><rect x="150" y="238" width="303" height="22" fill="var(--red)"/><text x="461" y="254" fill="var(--ink)">1050</text><text x="516" y="254" fill="var(--red2)" font-size="11">+11.3%</text>
+    <text x="142" y="287" text-anchor="end" fill="var(--ink2)">杭州</text><rect x="150" y="272" width="283" height="22" fill="var(--red)"/><text x="441" y="288" fill="var(--ink)">980</text><text x="496" y="288" fill="var(--red2)" font-size="11">+3.8%</text>
+    <text x="142" y="321" text-anchor="end" fill="var(--ink2)">武汉</text><rect x="150" y="306" width="263" height="22" fill="var(--red)"/><text x="421" y="322" fill="var(--ink)">910</text><text x="476" y="322" fill="var(--green)" font-size="11">-1.2%</text>
+    <text x="142" y="355" text-anchor="end" fill="var(--ink2)">南京</text><rect x="150" y="340" width="248" height="22" fill="var(--red)"/><text x="406" y="356" fill="var(--ink)">860</text><text x="461" y="356" fill="var(--red2)" font-size="11">+2.4%</text>
+    <text x="142" y="389" text-anchor="end" fill="var(--ink2)">长沙</text><rect x="150" y="374" width="237" height="22" fill="var(--red)"/><text x="395" y="390" fill="var(--ink)">820</text><text x="450" y="390" fill="var(--red2)" font-size="11">+7.6%</text>
+  </g>
+  <text x="150" y="424" font-size="11" fill="var(--ink3)">数据来源：各市文旅局（A/B）· 2026 十一 · 7天口径 · 纳入 36 城 · 已披露覆盖率 78.5%（其余为其他/未披露测算行）</text>
+</svg>
+
+<!-- ============ C2 区域分布条形 ============ -->
+<h2>C2 · 区域分布条形图（七大区汇总）</h2>
+<p class="note">用途：七大区出游人次汇总与区域占比。按固定顺序（华北→华东→华南→华中→西南→西北→东北）。示例：2026 十一。</p>
+<svg viewBox="0 0 760 360" role="img" aria-label="七大区域出游人次分布（2026 十一）">
+  <line x1="120" y1="50" x2="120" y2="318" stroke="var(--line)"/>
+  <g font-family="var(--ui-stack)" font-size="13">
+    <text x="112" y="73" text-anchor="end" fill="var(--ink2)">华北</text><rect x="120" y="58" width="120" height="22" fill="var(--gold)"/><text x="250" y="74" fill="var(--ink)">1850万</text><text x="330" y="74" fill="var(--ink3)" font-size="11">12.4%</text>
+    <text x="112" y="105" text-anchor="end" fill="var(--ink2)">华东</text><rect x="120" y="90" width="400" height="22" fill="var(--red)"/><text x="530" y="106" fill="var(--ink)">6200万</text><text x="610" y="106" fill="var(--ink3)" font-size="11">41.5%</text>
+    <text x="112" y="137" text-anchor="end" fill="var(--ink2)">华南</text><rect x="120" y="122" width="210" height="22" fill="var(--gold)"/><text x="340" y="138" fill="var(--ink)">3240万</text><text x="420" y="138" fill="var(--ink3)" font-size="11">21.7%</text>
+    <text x="112" y="169" text-anchor="end" fill="var(--ink2)">华中</text><rect x="120" y="154" width="150" height="22" fill="var(--gold)"/><text x="280" y="170" fill="var(--ink)">2320万</text><text x="360" y="170" fill="var(--ink3)" font-size="11">15.5%</text>
+    <text x="112" y="201" text-anchor="end" fill="var(--ink2)">西南</text><rect x="120" y="186" width="250" height="22" fill="var(--red2)"/><text x="380" y="202" fill="var(--ink)">3870万</text><text x="460" y="202" fill="var(--ink3)" font-size="11">25.9%</text>
+    <text x="112" y="233" text-anchor="end" fill="var(--ink2)">西北</text><rect x="120" y="218" width="95" height="22" fill="var(--gold)"/><text x="225" y="234" fill="var(--ink)">1470万</text><text x="305" y="234" fill="var(--ink3)" font-size="11">9.8%</text>
+    <text x="112" y="265" text-anchor="end" fill="var(--ink2)">东北</text><rect x="120" y="250" width="80" height="22" fill="var(--gold)"/><text x="210" y="266" fill="var(--ink)">1240万</text><text x="290" y="266" fill="var(--ink3)" font-size="11">8.3%</text>
+  </g>
+  <text x="120" y="320" font-size="11" fill="var(--ink3)">数据来源：区域汇总自各市文旅局（A/B）· 2026 十一 · 7天口径 · 区域占比合计含未披露残差</text>
+</svg>
+
+<!-- ============ C3 发散对比条 ============ -->
+<h2>C3 · 发散对比条（城市增速 vs 全国增速）</h2>
+<p class="note">用途：城市增速相对全国均值的分化。中轴=全国增速（+5.0%，中国惯例涨红跌绿）。右侧(红)=高于全国，左侧(绿)=低于全国。示例：2026 十一。</p>
+<svg viewBox="0 0 760 330" role="img" aria-label="重点城市出游增速 vs 全国（中轴+5.0%）">
+  <!-- 中轴 = +5.0% 位于 x=380 -->
+  <line x1="380" y1="46" x2="380" y2="300" stroke="var(--ink2)" stroke-width="2"/>
+  <text x="380" y="36" text-anchor="middle" font-size="12" fill="var(--ink2)">全国 +5.0%</text>
+  <g font-family="var(--ui-stack)" font-size="13">
+    <!-- 高于全国：向右红。每 +1% = 28px -->
+    <text x="150" y="69" text-anchor="end" fill="var(--ink2)">西安</text><rect x="380" y="54" width="170" height="20" fill="var(--red)"/><text x="558" y="69" fill="var(--red)">+11.3%</text>
+    <text x="150" y="101" text-anchor="end" fill="var(--ink2)">成都</text><rect x="380" y="86" width="134" height="20" fill="var(--red)"/><text x="522" y="101" fill="var(--red)">+9.7%</text>
+    <text x="150" y="133" text-anchor="end" fill="var(--ink2)">北京</text><rect x="380" y="118" width="90" height="20" fill="var(--red)"/><text x="478" y="133" fill="var(--red)">+8.2%</text>
+    <text x="150" y="165" text-anchor="end" fill="var(--ink2)">长沙</text><rect x="380" y="150" width="73" height="20" fill="var(--red)"/><text x="461" y="165" fill="var(--red)">+7.6%</text>
+    <!-- 低于全国：向左绿 -->
+    <text x="610" y="197" text-anchor="start" fill="var(--ink2)">杭州</text><rect x="343" y="182" width="37" height="20" fill="var(--green)"/><text x="320" y="197" text-anchor="end" fill="var(--green)">+3.8%</text>
+    <text x="610" y="229" text-anchor="start" fill="var(--ink2)">南京</text><rect x="310" y="214" width="70" height="20" fill="var(--green)"/><text x="287" y="229" text-anchor="end" fill="var(--green)">+2.4%</text>
+    <text x="610" y="261" text-anchor="start" fill="var(--ink2)">武汉</text><rect x="243" y="246" width="137" height="20" fill="var(--green)"/><text x="220" y="261" text-anchor="end" fill="var(--green)">-1.2%</text>
+  </g>
+  <text x="150" y="312" font-size="11" fill="var(--ink3)">数据来源：各市文旅局（A/B）· 增速为同比 · 中轴=全国出游人次同比 +5.0% · 仅同口径城市可比</text>
+</svg>
+
+<!-- ============ C4 占比环 ============ -->
+<h2>C4 · 占比环（单城占全国比重 + 残差）</h2>
+<p class="note">用途：重点城市占全国比重。必须含「其他/未披露」残差扇区（斜纹），禁止把部分披露伪装成 100%。示例：成都占全国出游 8.6%。</p>
+<svg viewBox="0 0 760 300" role="img" aria-label="成都占全国出游比重 8.6%（含未披露残差）">
+  <!-- 环：外 r=100 内 r=62，圆心 (200,150)。成都 8.6% ≈ 31° -->
+  <circle cx="200" cy="150" r="100" fill="var(--paper3)" stroke="var(--line)"/>
+  <path d="M200,150 L200,50 A100,100 0 0 1 290,120 Z" fill="var(--red)"/>
+  <circle cx="200" cy="150" r="62" fill="var(--paper2)"/>
+  <text x="200" y="144" text-anchor="middle" font-size="26" font-weight="bold" fill="var(--red)">8.6%</text>
+  <text x="200" y="168" text-anchor="middle" font-size="12" fill="var(--ink2)">成都占比</text>
+  <!-- 图例 -->
+  <g font-family="var(--ui-stack)" font-size="13">
+    <rect x="380" y="90" width="16" height="16" fill="var(--red)"/><text x="406" y="103" fill="var(--ink)">成都 · 1280万（8.6%）</text>
+    <rect x="380" y="120" width="16" height="16" fill="var(--paper3)" stroke="var(--line)"/><text x="406" y="133" fill="var(--ink3)">其他/未披露城市 · 13620万（91.4%，测算 D 级）</text>
+    <text x="380" y="170" font-size="12" fill="var(--ink3)">数据来源：成都市文广旅局（B）· 全国总量=1.5亿（文旅部 A）</text>
+    <text x="380" y="190" font-size="12" fill="var(--ink3)">2026 十一 · 7天口径 · 已披露覆盖率 78.5%</text>
+  </g>
+</svg>
+
+<!-- ============ C5 热力矩阵 ============ -->
+<h2>C5 · 热力矩阵（城市 × 指标 强度）</h2>
+<p class="note">用途：多指标横向扫描找结构差异。色深=归一化强度（var(--paper3)→var(--red)）。行=城市，列=指标。示例：5 城 × 4 指标（强度 0–100 归一）。</p>
+<svg viewBox="0 0 760 320" role="img" aria-label="城市×指标热力矩阵">
+  <g font-family="var(--ui-stack)" font-size="12">
+    <!-- 表头 -->
+    <text x="120" y="40" fill="var(--ink2)">城市</text>
+    <text x="220" y="40" text-anchor="middle" fill="var(--ink2)">出游强度</text>
+    <text x="340" y="40" text-anchor="middle" fill="var(--ink2)">收入强度</text>
+    <text x="460" y="40" text-anchor="middle" fill="var(--ink2)">RevPAR</text>
+    <text x="580" y="40" text-anchor="middle" fill="var(--ink2)">新消费</text>
+    <!-- 行：北京 -->
+    <text x="115" y="74" text-anchor="end" fill="var(--ink)">北京</text>
+    <rect x="160" y="58" width="100" height="26" fill="var(--red)"/><text x="210" y="75" text-anchor="middle" fill="#fff" font-size="11">100</text>
+    <rect x="280" y="58" width="100" height="26" fill="var(--red)"/><text x="330" y="75" text-anchor="middle" fill="#fff" font-size="11">96</text>
+    <rect x="400" y="58" width="100" height="26" fill="#C96A6F"/><text x="450" y="75" text-anchor="middle" fill="#fff" font-size="11">72</text>
+    <rect x="520" y="58" width="100" height="26" fill="#E0A7AB"/><text x="570" y="75" text-anchor="middle" fill="var(--ink)" font-size="11">38</text>
+    <!-- 成都 -->
+    <text x="115" y="110" text-anchor="end" fill="var(--ink)">成都</text>
+    <rect x="160" y="94" width="100" height="26" fill="#C96A6F"/><text x="210" y="111" text-anchor="middle" fill="#fff" font-size="11">78</text>
+    <rect x="280" y="94" width="100" height="26" fill="#D98C90"/><text x="330" y="111" text-anchor="middle" fill="#fff" font-size="11">60</text>
+    <rect x="400" y="94" width="100" height="26" fill="var(--red)"/><text x="450" y="111" text-anchor="middle" fill="#fff" font-size="11">88</text>
+    <rect x="520" y="94" width="100" height="26" fill="var(--red)"/><text x="570" y="111" text-anchor="middle" fill="#fff" font-size="11">92</text>
+    <!-- 西安 -->
+    <text x="115" y="146" text-anchor="end" fill="var(--ink)">西安</text>
+    <rect x="160" y="130" width="100" height="26" fill="#B5575C"/><text x="210" y="147" text-anchor="middle" fill="#fff" font-size="11">64</text>
+    <rect x="280" y="130" width="100" height="26" fill="#C96A6F"/><text x="330" y="147" text-anchor="middle" fill="#fff" font-size="11">70</text>
+    <rect x="400" y="130" width="100" height="26" fill="#A8494E"/><text x="450" y="147" text-anchor="middle" fill="#fff" font-size="11">52</text>
+    <rect x="520" y="130" width="100" height="26" fill="#E0A7AB"/><text x="570" y="147" text-anchor="middle" fill="var(--ink)" font-size="11">40</text>
+    <!-- 武汉 -->
+    <text x="115" y="182" text-anchor="end" fill="var(--ink)">武汉</text>
+    <rect x="160" y="166" width="100" height="26" fill="#D98C90"/><text x="210" y="183" text-anchor="middle" fill="#fff" font-size="11">55</text>
+    <rect x="280" y="166" width="100" height="26" fill="#B5575C"/><text x="330" y="183" text-anchor="middle" fill="#fff" font-size="11">64</text>
+    <rect x="400" y="166" width="100" height="26" fill="#E0A7AB"/><text x="450" y="183" text-anchor="middle" fill="var(--ink)" font-size="11">42</text>
+    <rect x="520" y="166" width="100" height="26" fill="#F0CFD1"/><text x="570" y="183" text-anchor="middle" fill="var(--ink)" font-size="11">28</text>
+    <!-- 三亚 -->
+    <text x="115" y="218" text-anchor="end" fill="var(--ink)">三亚</text>
+    <rect x="160" y="202" width="100" height="26" fill="#E0A7AB"/><text x="210" y="219" text-anchor="middle" fill="var(--ink)" font-size="11">36</text>
+    <rect x="280" y="202" width="100" height="26" fill="#A8494E"/><text x="330" y="219" text-anchor="middle" fill="#fff" font-size="11">50</text>
+    <rect x="400" y="202" width="100" height="26" fill="var(--red)"/><text x="450" y="219" text-anchor="middle" fill="#fff" font-size="11">95</text>
+    <rect x="520" y="202" width="100" height="26" fill="#C96A6F"/><text x="570" y="219" text-anchor="middle" fill="#fff" font-size="11">66</text>
+  </g>
+  <text x="120" y="270" font-size="11" fill="var(--ink3)">色深=指标归一化强度(0–100) · 仅同口径城市可比 · 数值为示意，须替换为真实归一值</text>
+  <text x="120" y="290" font-size="11" fill="var(--ink3)">数据来源：各市文旅局/饭店协会（A/B/C）· 2026 十一 · 7天口径</text>
+</svg>
+
+<!-- ============ C6 折线趋势 ============ -->
+<h2>C6 · 折线趋势（城市跨年演变）</h2>
+<p class="note">用途：头部城市排名/数值跨年演变（有历史时）。实线=实测，虚线=预计（待回填）。示例：2023–2026 十一 出游人次（万，per-day 折算后）。</p>
+<svg viewBox="0 0 760 320" role="img" aria-label="头部城市十一出游人次跨年演变（per-day 折算）">
+  <line x1="80" y1="40" x2="80" y2="270" stroke="var(--line)"/>
+  <line x1="80" y1="270" x2="700" y2="270" stroke="var(--line)"/>
+  <g font-family="var(--ui-stack)" font-size="11" fill="var(--ink3)">
+    <text x="80" y="32" text-anchor="middle">2000</text><text x="80" y="290" text-anchor="middle">0</text>
+    <text x="180" y="290" text-anchor="middle">2023</text>
+    <text x="320" y="290" text-anchor="middle">2024</text>
+    <text x="460" y="290" text-anchor="middle">2025</text>
+    <text x="600" y="290" text-anchor="middle">2026E</text>
+  </g>
+  <!-- 北京 实测 2023-2025 + 预计 2026(虚线) -->
+  <polyline points="180,210 320,180 460,150 600,130" fill="none" stroke="var(--red)" stroke-width="2.5"/>
+  <polyline points="460,150 600,130" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="5 4" opacity=".7"/>
+  <circle cx="180" cy="210" r="4" fill="var(--red)"/><circle cx="320" cy="180" r="4" fill="var(--red)"/><circle cx="460" cy="150" r="4" fill="var(--red)"/>
+  <!-- 成都 -->
+  <polyline points="180,240 320,210 460,170 600,140" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+  <polyline points="460,170 600,140" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="5 4" opacity=".7"/>
+  <circle cx="180" cy="240" r="4" fill="var(--gold)"/><circle cx="320" cy="210" r="4" fill="var(--gold)"/><circle cx="460" cy="170" r="4" fill="var(--gold)"/>
+  <g font-family="var(--ui-stack)" font-size="12">
+    <rect x="600" y="40" width="14" height="14" fill="var(--red)"/><text x="620" y="52" fill="var(--ink)">北京（实=实测 虚=预计）</text>
+    <rect x="600" y="62" width="14" height="14" fill="var(--gold)"/><text x="620" y="74" fill="var(--ink)">成都</text>
+  </g>
+  <text x="80" y="305" font-size="11" fill="var(--ink3)">数据来源：各市文旅局（A/B）· per-day 折算后 · 2026E 为预测（置信度中，待回填）</text>
+</svg>
+
+<p class="note">复制提示：将上述任意 <code>&lt;svg&gt;…&lt;/svg&gt;</code> 整体放入报告 <code>&lt;div class="chart"&gt;</code>，并配套一段 <code>&lt;table class="data"&gt;</code> 作为可核验双轨表（图表直观、表格可溯源）。所有颜色用 <code>var(--xxx)</code>，勿写死 # 值。</p>
+
+</body>
+</html>

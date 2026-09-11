@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>【目标年度】【节假日】城市消费数据报告</title>
+<style>
+/* ============================================================
+   节促数据观察台 · 城市视角报告 · 设计系统 v4（继承自 consumption-data-report）
+   全部令牌/组件同父技能；本模板仅增量「城市总览与勾稽」章节与图表组件（C1–C6）。
+   使用说明见文件末尾注释。
+   ============================================================ */
+:root{
+  --paper:#F5EFE2;  --paper2:#EFE6D2;  --paper3:#EAE0C9;  --paper-glass:rgba(245,239,226,.92);
+  --ink:#211C14;    --ink2:#4B4436;    --ink3:#7A715F;
+  --red:#8C1F28;    --red2:#A83A45;    --red-soft:#F3D4D6;
+  --line:#C8BBA0;   --gold:#A3803F;    --gold-soft:#F0E4CD;
+  --green:#2E6B3E;  --blue:#1F4E5F;    --blue2:#2E7C92;   --night:#171511;
+  --shadow:0 6px 22px rgba(33,28,20,.16);
+  --max:1180px; --bar-h:50px;
+  --font-stack:Georgia,"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --ui-stack:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Courier New",monospace;
+}
+[data-theme="dark"]{
+  --paper:#171511; --paper2:#211E18; --paper3:#2C2820; --paper-glass:rgba(23,21,17,.95);
+  --ink:#EAE3D4; --ink2:#C8BCA6; --ink3:#9E927E;
+  --red:#D6606B; --red2:#E07C86; --red-soft:#4A2426;
+  --line:#4D4639; --gold:#C9A65B; --gold-soft:#3A3324;
+  --green:#5CA872; --blue:#5DA9BF; --blue2:#7CC4D8; --night:#0E0C09;
+  --shadow:0 6px 28px rgba(0,0,0,.45);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#171511; --paper2:#211E18; --paper3:#2C2820; --paper-glass:rgba(23,21,17,.95);
+    --ink:#EAE3D4; --ink2:#C8BCA6; --ink3:#9E927E;
+    --red:#D6606B; --red2:#E07C86; --red-soft:#4A2426;
+    --line:#4D4639; --gold:#C9A65B; --gold-soft:#3A3324;
+    --green:#5CA872; --blue:#5DA9BF; --blue2:#7CC4D8; --night:#0E0C09;
+    --shadow:0 6px 28px rgba(0,0,0,.45);
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-stack);line-height:1.66;transition:background .25s,color .25s;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 22px;}
+section[id],h2[id],h3[id],div[id]{scroll-margin-top:calc(var(--bar-h) + 14px);}
+.card,.cell,.grid,.card-grid,.report-layout,.toc,.main-content,.hero-stats,.h-card,.fig-strip,.fig,.stat{min-width:0;}
+.table-wrap,.csv-preview-wrap,.chart{min-width:0;max-width:100%;}
+.appbar .inner{flex-wrap:wrap;}
+.appbar .search{flex:0 1 auto;min-width:0;}
+.appbar .theme-btn,.appbar .logo{flex-shrink:0;}
+a{color:var(--red);}
+img,svg{max-width:100%;vertical-align:middle;}
+code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--line);padding:1px 5px;font-size:12.5px;}
+::selection{background:var(--red);color:var(--paper);}
+.skip-link{position:absolute;left:-999px;top:0;z-index:200;background:var(--red);color:var(--paper);padding:10px 16px;font-weight:bold;font-size:13px;text-decoration:none;}
+.skip-link:focus{left:0;top:0;}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+.appbar{position:sticky;top:0;z-index:100;background:var(--ink);color:var(--paper);box-shadow:var(--shadow);transition:background .25s;}
+.appbar .inner{max-width:var(--max);margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:16px;height:var(--bar-h);}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--paper);white-space:nowrap;}
+.logo .cn{font-size:17px;font-weight:900;letter-spacing:1px;}
+.logo .en{font-size:10px;color:var(--gold);letter-spacing:1px;font-family:var(--ui-stack);text-transform:uppercase;}
+.global-nav{display:flex;gap:2px;margin-left:auto;}
+.global-nav a{color:rgba(245,239,226,.82);text-decoration:none;font-size:13px;font-family:var(--ui-stack);padding:6px 11px;border-radius:2px;transition:background .15s;white-space:nowrap;}
+.global-nav a:hover,.global-nav a.active{background:rgba(255,255,255,.14);color:#fff;}
+.appbar .search{font-family:var(--ui-stack);font-size:13px;padding:6px 12px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.08);color:var(--paper);width:170px;outline:none;}
+.appbar .search::placeholder{color:rgba(245,239,226,.55);}
+.theme-btn{cursor:pointer;background:rgba(255,255,255,.12);border:1px solid var(--line);color:var(--paper);font-size:12px;padding:6px 12px;border-radius:2px;font-family:var(--ui-stack);transition:background .15s;}
+.theme-btn:hover{background:rgba(255,255,255,.2);}
+.breadcrumb{max-width:var(--max);margin:0 auto;padding:12px 22px 0;font-size:12.5px;color:var(--ink3);font-family:var(--ui-stack);letter-spacing:.5px;}
+.breadcrumb a{color:var(--ink2);text-decoration:none;}
+.breadcrumb a:hover{color:var(--red);text-decoration:underline;}
+.breadcrumb span{color:var(--red);}
+.masthead-top{display:flex;justify-content:space-between;align-items:baseline;border-top:4px double var(--ink);border-bottom:1px solid var(--ink);padding:7px 2px;font-size:12px;letter-spacing:1px;color:var(--ink2);margin-top:20px;}
+.masthead-top .left{font-weight:bold;color:var(--red);}
+.masthead{text-align:center;padding:36px 10px 26px;border-bottom:4px double var(--ink);}
+.masthead .kicker{font-size:12px;letter-spacing:6px;color:var(--red);text-transform:uppercase;margin-bottom:14px;font-weight:bold;}
+.masthead h1{font-size:clamp(32px,5.4vw,58px);font-weight:900;letter-spacing:2px;line-height:1.14;}
+.masthead h1 .accent{color:var(--red);}
+.masthead .sub{margin-top:14px;font-size:14px;letter-spacing:3px;color:var(--ink2);}
+.masthead .rule{width:88px;height:3px;background:var(--red);margin:20px auto 0;}
+.sec{margin:44px 0 8px;border-bottom:4px double var(--ink);padding-bottom:10px;}
+.sec h2{font-size:clamp(22px,3vw,30px);font-weight:900;letter-spacing:1px;}
+.sec h2 .no{color:var(--red);}
+.sec .meta{font-size:12px;color:var(--ink3);letter-spacing:1px;margin-top:4px;font-family:var(--ui-stack);}
+.lead{font-size:15.5px;padding:18px 0 6px;}
+.lead p{margin-bottom:12px;text-align:justify;}
+.lead h2{font-size:clamp(22px,3.2vw,36px);line-height:1.28;font-weight:900;}
+.lead h2 .red{color:var(--red);}
+.lead .standfirst{font-size:16px;color:var(--ink2);border-left:4px solid var(--red);padding-left:14px;margin-top:10px;max-width:880px;}
+.dropcap::first-letter{float:left;font-size:3.4em;line-height:.82;padding:5px 9px 0 0;font-weight:bold;color:var(--red);}
+.section-head{display:flex;align-items:center;gap:12px;margin:34px 0 16px;}
+.section-head::before{content:"";display:block;width:34px;height:3px;background:var(--red);}
+.section-head h3{font-size:clamp(19px,2.3vw,26px);font-weight:900;letter-spacing:1px;}
+.section-head .no{margin-left:auto;font-size:13px;color:var(--ink3);letter-spacing:2px;border:1px solid var(--line);padding:2px 8px;}
+.cols{font-size:15px;}
+.cols p{margin-bottom:12px;text-align:justify;}
+.src{display:block;font-size:11.5px;color:var(--ink3);margin-top:4px;font-style:italic;}
+.src b{color:var(--red);font-style:normal;}
+.hero{padding:18px 0 4px;}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:22px 0;}
+.h-card{background:var(--paper2);border-top:3px double var(--ink);border-bottom:3px double var(--ink);padding:18px 16px;position:relative;}
+.h-card::before{content:"";position:absolute;top:-3px;left:0;width:44px;height:3px;background:var(--red);}
+.h-card .n{font-size:clamp(26px,3vw,38px);font-weight:900;color:var(--red);line-height:1;font-variant-numeric:tabular-nums;}
+.h-card .l{font-size:12px;color:var(--ink3);margin-top:6px;letter-spacing:.5px;}
+.h-card .spark{height:40px;margin-top:10px;}
+.stats{display:flex;flex-wrap:wrap;gap:22px;justify-content:center;margin:30px 0 6px;border-top:3px double var(--ink);border-bottom:3px double var(--ink);padding:18px 0;}
+.stat{text-align:center;}
+.stat .num{font-size:clamp(26px,3vw,40px);font-weight:900;color:var(--red);line-height:1;font-variant-numeric:tabular-nums;}
+.stat .lbl{font-size:12px;color:var(--ink2);margin-top:6px;letter-spacing:1px;}
+.note{background:var(--gold-soft);border-left:5px solid var(--gold);padding:12px 16px;margin:14px 0;font-size:13.5px;color:var(--ink2);}
+.note b{color:var(--red);}
+.note-banner{background:var(--paper3);border:1px solid var(--gold);border-left:5px solid var(--gold);padding:14px 18px;margin:22px 0 8px;font-size:13.5px;color:var(--ink2);}
+.note-banner b{color:var(--red);}
+.fig-strip{display:grid;grid-template-columns:repeat(6,1fr);border-top:3px double var(--ink);border-bottom:3px double var(--ink);margin:22px 0 6px;}
+.fig{padding:16px 10px;text-align:center;border-right:1px solid var(--line);}
+.fig:last-child{border-right:none;}
+.fig .num{font-size:clamp(19px,2.1vw,28px);font-weight:900;color:var(--red);line-height:1.1;font-variant-numeric:tabular-nums;}
+.fig .lbl{font-size:11px;color:var(--ink2);margin-top:6px;letter-spacing:.5px;}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:1px 7px;border:1px solid;letter-spacing:.5px;font-weight:bold;font-family:var(--ui-stack);white-space:nowrap;}
+.badge.a{color:var(--green);border-color:var(--green);}
+.badge.d{color:var(--red);border-color:var(--red);}
+.badge.p{color:var(--gold);border-color:var(--gold);}
+.callout{background:var(--paper2);border-left:5px solid var(--red);padding:16px 18px;margin:18px 0;}
+.callout h4{color:var(--red);font-size:14px;letter-spacing:1px;margin-bottom:8px;}
+.callout p{font-size:14px;color:var(--ink2);text-align:justify;margin-bottom:6px;}
+.callout p:last-child{margin-bottom:0;}
+details.src{font-size:12px;color:var(--ink3);margin-top:4px;}
+details.src summary{cursor:pointer;color:var(--red);font-weight:bold;list-style:none;}
+details.src summary::before{content:"[来源] ";}
+details.src[open] summary::before{content:"[收起] ";}
+details.src summary::-webkit-details-marker{display:none;}
+.pred{background:var(--paper3);border:1px solid var(--red);border-left:5px solid var(--red);padding:14px 18px;margin:18px 0;font-size:14px;}
+.pred h4{color:var(--red);font-size:14px;letter-spacing:1px;margin-bottom:6px;}
+.up{color:var(--red);}
+h4{font-size:17px;font-weight:900;color:var(--ink);margin:20px 0 9px;letter-spacing:.5px;border-left:3px solid var(--red);padding-left:10px;}
+.forecast-card{border:1px solid var(--line);border-top:3px double var(--red);padding:14px 16px;margin:12px 0;background:var(--paper2);}
+.fc-head{font-size:13px;letter-spacing:2px;color:var(--red);font-weight:bold;margin-bottom:8px;text-transform:uppercase;}
+.fc-body{font-size:14.5px;}
+.fc-row{display:flex;align-items:baseline;gap:10px;padding:6px 0;border-bottom:1px dashed var(--line);}
+.fc-row span{color:var(--ink2);min-width:96px;}
+.fc-row b{color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums;}
+.fc-row i{color:var(--ink3);font-style:italic;font-size:12.5px;margin-left:auto;}
+.fc-note{font-size:12px;color:var(--ink2);margin-top:9px;padding-top:9px;border-top:1px solid var(--line);line-height:1.6;}
+.conf-badge{display:inline-block;padding:1px 9px;border-radius:2px;font-size:11px;font-weight:bold;font-style:normal;border:1px solid transparent;}
+.conf-badge.high{background:var(--red);color:var(--paper);}
+.conf-badge.mid{background:var(--gold);color:var(--paper);}
+.conf-badge.low{background:var(--ink3);color:var(--paper);}
+.deviation-card{border:1px solid var(--line);padding:12px 14px;margin:12px 0;background:var(--paper2);}
+.dc-head{font-size:13px;letter-spacing:2px;color:var(--red);font-weight:bold;margin-bottom:8px;}
+.inflection{border-left:4px solid var(--gold);padding:9px 14px;margin:12px 0;background:var(--paper3);font-size:14px;color:var(--ink2);line-height:1.7;}
+.inflection b{color:var(--red);}
+.chart{background:var(--paper2);border:1px solid var(--line);padding:18px;margin:18px 0;}
+.chart .title{font-size:15px;font-weight:900;margin-bottom:2px;}
+.chart .subtitle{font-size:12px;color:var(--ink3);margin-bottom:10px;}
+.chart svg{width:100%;display:block;}
+.chart .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--ink3);font-family:var(--ui-stack);}
+.chart .legend span{display:flex;align-items:center;gap:6px;}
+.chart .legend i{width:12px;height:12px;display:inline-block;}
+.chart-dl{font-size:12px;color:var(--ink3);margin-top:12px;font-family:var(--ui-stack);}
+.chart-dl a{color:var(--red);font-weight:bold;}
+/* 重点城市画像卡网格 */
+.city-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:18px 0;}
+.city-card{background:var(--paper2);border-top:3px double var(--ink);border-bottom:3px double var(--ink);padding:16px 16px 18px;}
+.city-card .cc-name{font-size:17px;font-weight:900;letter-spacing:1px;}
+.city-card .cc-region{font-size:11.5px;color:var(--ink3);letter-spacing:1px;float:right;}
+.city-card .cc-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line);}
+.city-card .cc-row span{color:var(--ink2);}
+.city-card .cc-row b{color:var(--ink);font-variant-numeric:tabular-nums;}
+.city-card .cc-share{margin-top:10px;}
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);-webkit-overflow-scrolling:touch;}
+table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px;background:var(--paper2);}
+table.data th{position:sticky;top:var(--bar-h);background:var(--paper3);border-top:3px double var(--ink);border-bottom:1px solid var(--ink);padding:9px 10px;text-align:left;font-size:12px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;z-index:10;}
+table.data td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top;font-variant-numeric:tabular-nums;}
+table.data td.num{text-align:right;font-weight:bold;font-variant-numeric:tabular-nums;white-space:nowrap;}
+table.data tr:last-child td{border-bottom:3px double var(--ink);}
+table.data tr:hover td{background:rgba(140,31,40,.04);}
+table.data .sub td{border-bottom:1px dashed var(--line);color:var(--ink3);font-size:12px;}
+.center td{text-align:center;}
+th.sortable{cursor:pointer;user-select:none;}
+th.sortable:hover{background:var(--gold-soft);}
+th.sortable::after{content:" ⇅";font-size:10px;color:var(--ink3);}
+th.sortable.sort-asc::after{content:" ↑";color:var(--red);}
+th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
+.footer-nav{border-top:4px double var(--ink);margin-top:48px;padding:20px 0 8px;}
+.footer-nav .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+.footer-nav h4{font-size:12px;letter-spacing:2px;color:var(--ink3);text-transform:uppercase;font-family:var(--ui-stack);margin-bottom:10px;font-weight:900;border:none;padding:0;}
+.footer-nav a{display:block;font-size:13px;color:var(--ink2);text-decoration:none;padding:3px 0;font-family:var(--ui-stack);}
+.footer-nav a:hover{color:var(--red);}
+.footer-nav .back-top{display:inline-block;margin-top:14px;font-size:13px;font-weight:bold;color:var(--red);text-decoration:none;border:1px solid var(--red);padding:6px 14px;font-family:var(--ui-stack);}
+.footer-nav .back-top:hover{background:var(--red);color:var(--paper);}
+.footer{border-top:4px double var(--ink);margin-top:30px;padding:20px 0 50px;font-size:12px;color:var(--ink3);line-height:1.8;}
+.footer b{color:var(--ink2);}
+.footer .deploy-note{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3);}
+.noscript-note{background:var(--gold-soft);border:1px solid var(--gold);border-left:5px solid var(--gold);padding:10px 16px;margin:10px 0;font-size:13px;color:var(--ink2);font-family:var(--ui-stack);}
+.noscript-note b{color:var(--red);}
+.back-top-float{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:150;width:44px;height:44px;border-radius:50%;background:var(--red);color:var(--paper);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:19px;line-height:1;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.28);font-family:var(--ui-stack);}
+.back-top-float:hover{background:var(--red2);color:#fff;}
+.back-top-float:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+@media print{
+  .appbar,.breadcrumb,.footer-nav,.theme-btn,.skip-link,.back-top-float,.noscript-note{display:none !important;}
+  body{background:#fff;color:#000;}
+  .wrap{max-width:100%;padding:0;}
+  table.data th{position:static;}
+  .h-card,.chart,.city-card{box-shadow:none;break-inside:avoid;}
+  a{color:#000;}
+}
+@media (max-width:1080px){ .hero-stats{grid-template-columns:repeat(2,1fr);gap:14px;} }
+@media (max-width:980px){ .grid{grid-template-columns:repeat(3,1fr);} }
+@media (max-width:900px){ .card-grid{grid-template-columns:1fr;} .footer-nav .grid-3{grid-template-columns:1fr;gap:18px;} }
+@media (max-width:720px){
+  :root{--bar-h:50px;}
+  .wrap{padding:0 16px;}
+  .breadcrumb{padding:10px 16px 0;font-size:11.5px;}
+  .appbar .inner{flex-wrap:wrap;height:auto;padding:6px 12px;gap:8px;align-items:center;}
+  .logo .cn{font-size:15px;}
+  .global-nav{order:3;width:100%;margin:2px -6px 0;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .global-nav::-webkit-scrollbar{display:none;}
+  .global-nav a{white-space:nowrap;padding:8px 12px;font-size:13px;}
+  .appbar .search{width:130px;}
+  .masthead-top{flex-wrap:wrap;gap:4px;}
+  .masthead{padding:26px 6px 20px;}
+  .sec{margin:32px 0 6px;}
+  table.data th{position:static;}
+  .fig-strip{grid-template-columns:repeat(3,1fr);}
+  .fig:nth-child(3n){border-right:none;}
+  section[id],h2[id],h3[id],div[id]{scroll-margin-top:104px;}
+}
+@media (max-width:620px){ .hero-stats{grid-template-columns:1fr;} .appbar .search{width:112px;} .logo .en{display:none;} .theme-btn{padding:6px 9px;font-size:11px;} }
+@media (max-width:520px){
+  .wrap{padding:0 12px;}
+  .lead p,.cols p{text-align:left;}
+  .dropcap::first-letter{font-size:2.6em;padding:4px 6px 0 0;}
+  .fig-strip{grid-template-columns:repeat(2,1fr);}
+  .fig:nth-child(3n){border-right:1px solid var(--line);}
+  .fig:nth-child(even){border-right:none;}
+  .chart{overflow-x:auto;}
+  .chart svg{min-width:420px;}
+  .appbar .search{width:100px;}
+}
+@media (max-width:420px){ .masthead-top{font-size:10.5px;} .section-head{gap:8px;} .footer{font-size:11.5px;} }
+@media (hover:none) and (pointer:coarse){ .global-nav a{padding:10px 12px;} .theme-btn{padding:9px 14px;} .back-top-float{width:48px;height:48px;} }
+@supports (padding-top:env(safe-area-inset-top)){ .appbar{padding-top:env(safe-area-inset-top);} .footer{padding-bottom:max(50px,env(safe-area-inset-bottom));} }
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto;} *{transition:none !important;animation:none !important;} }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主内容</a>
+<span id="top" aria-hidden="true"></span>
+
+<header class="appbar">
+  <div class="inner">
+    <a class="logo" href="index.html"><span class="cn">节促数据观察台</span><span class="en">City Consumption Observatory</span></a>
+    <nav class="global-nav" aria-label="全局导航">
+      <a href="index.html" class="">总览</a>
+      <a href="城市消费数据报告.html" class="active">城市报告</a>
+      <a href="数据真实性说明.html" class="">溯源</a>
+      <a href="【年度】【节假日】城市消费数据集.csv" class="">城市数据集</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" title="切换明暗主题" aria-label="切换明暗主题">明暗</button>
+  </div>
+</header>
+
+<nav class="breadcrumb" aria-label="面包屑"><a href="index.html">总门户</a> <span aria-hidden="true">/</span> <span aria-current="page">【目标年度】【节假日】城市消费数据报告</span></nav>
+
+<noscript><div class="noscript-note"><b>JavaScript 未启用：</b>主题切换与表格排序等增强功能不可用；全部报告、图表与数据仍可正常浏览和下载。</div></noscript>
+
+<div class="wrap" id="main">
+
+  <!-- ===== 报头（城市视角） ===== -->
+  <div class="masthead-top">
+    <span class="left">本报告由 AI 生成【生成日期】</span>
+    <span>【目标年度】 &middot; 【节假日】 &middot; 城市视角</span>
+  </div>
+  <header class="masthead">
+    <div class="kicker">CITY CONSUMPTION DATA REPORT</div>
+    <h1>【目标年度】<span class="accent">【节假日】</span>城市消费数据报告</h1>
+    <div class="sub">城市排名 &middot; 区域分布 &middot; 重点城市画像 &middot; 县域下沉 &middot; 勾稽校验</div>
+    <div class="rule"></div>
+  </header>
+
+  <!-- ===== 滚动条 ===== -->
+  <div class="ticker">
+    <span>全国出游 <b>XX.X</b> 亿</span>
+    <span>纳入城市 <b>XX</b> 城</span>
+    <span>披露覆盖率 <b>XX%</b></span>
+    <span>榜首 <b>城市</b> +XX%</span>
+    <span>华东占比 <b>XX%</b></span>
+    <span>县域 <b>+XX%</b></span>
+  </div>
+
+  <!-- ===== 数字带（6 卡：城市视角核心指标） ===== -->
+  <div class="fig-strip">
+    <div class="fig"><div class="num">XX.X</div><div class="lbl">全国出游（亿人次）</div></div>
+    <div class="fig"><div class="num">XXXX</div><div class="lbl">全国总花费（亿元）</div></div>
+    <div class="fig"><div class="num">XXXX</div><div class="lbl">头部城市出游（万）</div></div>
+    <div class="fig"><div class="num">XX%</div><div class="lbl">已披露覆盖率</div></div>
+    <div class="fig"><div class="num">+X.X%</div><div class="lbl">榜首城市增速</div></div>
+    <div class="fig"><div class="num">XX%</div><div class="lbl">华东区域占比</div></div>
+  </div>
+
+  <!-- ===== 第一部分 · 导语与核心结论（城市视角） ===== -->
+  <section class="lead">
+    <h2>标题：<span class="red">空间集中</span>与区域分化，数字从数据集取数</h2>
+    <p class="standfirst">导语段：点明【目标年度】【节假日】消费的空间格局——头部城市拉动、区域集中度、县域下沉亮点，结论先行。</p>
+    <div class="lead-body">
+      <p class="dropcap">首段正文（首字下沉）……每条关键数字后附来源注记；强调城市数据已与全国 SSOT 勾稽闭合（覆盖率 XX%）。</p>
+      <span class="src">数据来源：<b>机构名</b> &middot; 报告/资料名 &middot; 年份</span>
+      <p>第二段正文……例如：华东区域贡献全国出游 XX%，成都/西安增速领跑；县域"奔县"热度上行。所有城市数字均可在《城市数据集》与《数据真实性说明》中溯源。</p>
+      <p>关键判断示例：某城市创历史新高 <span class="badge a">A 级</span>；某平台城市榜须标注 <span class="badge p">C 级·平台自身口径</span>。</p>
+    </div>
+  </section>
+
+  <!-- ===== 第二部分 · 城市总览与勾稽（CITY OVERVIEW & RECONCILIATION） ===== -->
+  <section>
+    <div class="section-head">
+      <h3>城市总览与勾稽</h3>
+      <span class="no">CITY & RECON</span>
+    </div>
+
+    <h4>2.1 口径裁决（城市维度）</h4>
+    <div class="cols">
+      <p>先定规矩：同口径才可比（城市行与全国行口径版本/窗口/天数一致）；占比可小于 100%（未披露残差），不可大于 100%（R-CITY-1 阻断）；缺失不臆造，残差仅测算兜底（D 级）；排名仅在同口径城市间有效。详见口径字典第〇节。</p>
+    </div>
+
+    <h4>2.2 全国 ↔ 城市勾稽总表</h4>
+    <div class="table-wrap">
+    <table class="data">
+      <tr><th scope="col">全国指标（关联键）</th><th scope="col">全国总量</th><th scope="col">已披露加总</th><th scope="col">占比合计</th><th scope="col">其他/未披露</th><th scope="col">勾稽状态</th></tr>
+      <tr><td>总体|[节假日]出游人次</td><td class="num">XXXX万</td><td class="num">XXXX万</td><td class="num">78.5%</td><td class="num">21.5%</td><td>部分勾稽</td></tr>
+      <tr><td>景区|[节假日]重点景区接待量</td><td class="num">XXXX万</td><td class="num">XXXX万</td><td class="num">63.0%</td><td class="num">37.0%</td><td>口径差异</td></tr>
+      <tr><td>酒店|[节假日]RevPAR</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td>未披露</td></tr>
+    </table>
+    </div>
+    <p class="src">覆盖率 = 已披露城市同口径值 ÷ 全国总量；残差 = 全国 − 已披露加总（测算行兜底）。</p>
+
+    <h4>2.3 城市排名 TOP（C1 横向条形图）</h4>
+    <div class="chart">
+      <div class="title">重点旅游城市出游人次 TOP 10</div>
+      <div class="subtitle">2026 十一 · 7天口径 · 纳入 36 城 · 官方发布（A/B） · 已披露覆盖率 78.5%</div>
+      <svg viewBox="0 0 760 430" role="img" aria-label="重点旅游城市出游人次 TOP 10">
+        <line x1="150" y1="58" x2="150" y2="404" stroke="var(--line)"/>
+        <text x="150" y="40" font-size="12" fill="var(--ink3)">0</text>
+        <text x="400" y="40" font-size="12" fill="var(--ink3)">900</text>
+        <text x="650" y="40" font-size="12" fill="var(--ink3)">1800万</text>
+        <line x1="400" y1="58" x2="400" y2="404" stroke="var(--line)" stroke-dasharray="3 3"/>
+        <line x1="650" y1="58" x2="650" y2="404" stroke="var(--line)" stroke-dasharray="3 3"/>
+        <g font-family="var(--ui-stack)" font-size="13">
+          <text x="142" y="83" text-anchor="end" fill="var(--ink2)">北京</text><rect x="150" y="68" width="477" height="22" fill="var(--red)"/><text x="635" y="84" fill="var(--ink)">1650</text><text x="690" y="84" fill="var(--red2)" font-size="11">+8.2%</text>
+          <text x="142" y="117" text-anchor="end" fill="var(--ink2)">重庆</text><rect x="150" y="102" width="428" height="22" fill="var(--red)"/><text x="586" y="118" fill="var(--ink)">1480</text><text x="641" y="118" fill="var(--red2)" font-size="11">+6.1%</text>
+          <text x="142" y="151" text-anchor="end" fill="var(--ink2)">上海</text><rect x="150" y="136" width="410" height="22" fill="var(--red)"/><text x="568" y="152" fill="var(--ink)">1420</text><text x="623" y="152" fill="var(--red2)" font-size="11">+4.5%</text>
+          <text x="142" y="185" text-anchor="end" fill="var(--ink2)">成都</text><rect x="150" y="170" width="370" height="22" fill="var(--red)"/><text x="528" y="186" fill="var(--ink)">1280</text><text x="583" y="186" fill="var(--red2)" font-size="11">+9.7%</text>
+          <text x="142" y="219" text-anchor="end" fill="var(--ink2)">广州</text><rect x="150" y="204" width="341" height="22" fill="var(--red)"/><text x="499" y="220" fill="var(--ink)">1180</text><text x="554" y="220" fill="var(--red2)" font-size="11">+5.0%</text>
+          <text x="142" y="253" text-anchor="end" fill="var(--ink2)">西安</text><rect x="150" y="238" width="303" height="22" fill="var(--red)"/><text x="461" y="254" fill="var(--ink)">1050</text><text x="516" y="254" fill="var(--red2)" font-size="11">+11.3%</text>
+          <text x="142" y="287" text-anchor="end" fill="var(--ink2)">杭州</text><rect x="150" y="272" width="283" height="22" fill="var(--red)"/><text x="441" y="288" fill="var(--ink)">980</text><text x="496" y="288" fill="var(--red2)" font-size="11">+3.8%</text>
+          <text x="142" y="321" text-anchor="end" fill="var(--ink2)">武汉</text><rect x="150" y="306" width="263" height="22" fill="var(--red)"/><text x="421" y="322" fill="var(--ink)">910</text><text x="476" y="322" fill="var(--green)" font-size="11">-1.2%</text>
+          <text x="142" y="355" text-anchor="end" fill="var(--ink2)">南京</text><rect x="150" y="340" width="248" height="22" fill="var(--red)"/><text x="406" y="356" fill="var(--ink)">860</text><text x="461" y="356" fill="var(--red2)" font-size="11">+2.4%</text>
+          <text x="142" y="389" text-anchor="end" fill="var(--ink2)">长沙</text><rect x="150" y="374" width="237" height="22" fill="var(--red)"/><text x="395" y="390" fill="var(--ink)">820</text><text x="450" y="390" fill="var(--red2)" font-size="11">+7.6%</text>
+        </g>
+        <text x="150" y="424" font-size="11" fill="var(--ink3)">数据来源：各市文旅局（A/B）· 2026 十一 · 7天口径 · 纳入 36 城 · 覆盖率 78.5%（其余为其他/未披露测算行）</text>
+      </svg>
+    </div>
+
+    <h4>2.4 区域分布（C2 区域条形图）</h4>
+    <div class="chart">
+      <div class="title">七大区域出游人次分布</div>
+      <div class="subtitle">2026 十一 · 7天口径 · 区域占比合计含未披露残差</div>
+      <svg viewBox="0 0 760 360" role="img" aria-label="七大区域出游人次分布">
+        <line x1="120" y1="50" x2="120" y2="318" stroke="var(--line)"/>
+        <g font-family="var(--ui-stack)" font-size="13">
+          <text x="112" y="73" text-anchor="end" fill="var(--ink2)">华北</text><rect x="120" y="58" width="120" height="22" fill="var(--gold)"/><text x="250" y="74" fill="var(--ink)">1850万</text><text x="330" y="74" fill="var(--ink3)" font-size="11">12.4%</text>
+          <text x="112" y="105" text-anchor="end" fill="var(--ink2)">华东</text><rect x="120" y="90" width="400" height="22" fill="var(--red)"/><text x="530" y="106" fill="var(--ink)">6200万</text><text x="610" y="106" fill="var(--ink3)" font-size="11">41.5%</text>
+          <text x="112" y="137" text-anchor="end" fill="var(--ink2)">华南</text><rect x="120" y="122" width="210" height="22" fill="var(--gold)"/><text x="340" y="138" fill="var(--ink)">3240万</text><text x="420" y="138" fill="var(--ink3)" font-size="11">21.7%</text>
+          <text x="112" y="169" text-anchor="end" fill="var(--ink2)">华中</text><rect x="120" y="154" width="150" height="22" fill="var(--gold)"/><text x="280" y="170" fill="var(--ink)">2320万</text><text x="360" y="170" fill="var(--ink3)" font-size="11">15.5%</text>
+          <text x="112" y="201" text-anchor="end" fill="var(--ink2)">西南</text><rect x="120" y="186" width="250" height="22" fill="var(--red2)"/><text x="380" y="202" fill="var(--ink)">3870万</text><text x="460" y="202" fill="var(--ink3)" font-size="11">25.9%</text>
+          <text x="112" y="233" text-anchor="end" fill="var(--ink2)">西北</text><rect x="120" y="218" width="95" height="22" fill="var(--gold)"/><text x="225" y="234" fill="var(--ink)">1470万</text><text x="305" y="234" fill="var(--ink3)" font-size="11">9.8%</text>
+          <text x="112" y="265" text-anchor="end" fill="var(--ink2)">东北</text><rect x="120" y="250" width="80" height="22" fill="var(--gold)"/><text x="210" y="266" fill="var(--ink)">1240万</text><text x="290" y="266" fill="var(--ink3)" font-size="11">8.3%</text>
+        </g>
+        <text x="120" y="320" font-size="11" fill="var(--ink3)">数据来源：区域汇总自各市文旅局（A/B）· 2026 十一 · 7天口径</text>
+      </svg>
+    </div>
+
+    <h4>2.5 城市 vs 全国强度对比（C3 发散条）</h4>
+    <div class="chart">
+      <div class="title">重点城市出游增速 vs 全国（中轴 +5.0%）</div>
+      <div class="subtitle">2026 十一 · 同比 · 中国惯例涨红跌绿 · 仅同口径城市可比</div>
+      <svg viewBox="0 0 760 330" role="img" aria-label="重点城市出游增速 vs 全国">
+        <line x1="380" y1="46" x2="380" y2="300" stroke="var(--ink2)" stroke-width="2"/>
+        <text x="380" y="36" text-anchor="middle" font-size="12" fill="var(--ink2)">全国 +5.0%</text>
+        <g font-family="var(--ui-stack)" font-size="13">
+          <text x="150" y="69" text-anchor="end" fill="var(--ink2)">西安</text><rect x="380" y="54" width="170" height="20" fill="var(--red)"/><text x="558" y="69" fill="var(--red)">+11.3%</text>
+          <text x="150" y="101" text-anchor="end" fill="var(--ink2)">成都</text><rect x="380" y="86" width="134" height="20" fill="var(--red)"/><text x="522" y="101" fill="var(--red)">+9.7%</text>
+          <text x="150" y="133" text-anchor="end" fill="var(--ink2)">北京</text><rect x="380" y="118" width="90" height="20" fill="var(--red)"/><text x="478" y="133" fill="var(--red)">+8.2%</text>
+          <text x="150" y="165" text-anchor="end" fill="var(--ink2)">长沙</text><rect x="380" y="150" width="73" height="20" fill="var(--red)"/><text x="461" y="165" fill="var(--red)">+7.6%</text>
+          <text x="150" y="197" text-anchor="end" fill="var(--ink2)">杭州</text><rect x="343" y="182" width="37" height="20" fill="var(--green)"/><text x="320" y="197" text-anchor="end" fill="var(--green)">+3.8%</text>
+          <text x="150" y="229" text-anchor="end" fill="var(--ink2)">南京</text><rect x="310" y="214" width="70" height="20" fill="var(--green)"/><text x="287" y="229" text-anchor="end" fill="var(--green)">+2.4%</text>
+          <text x="150" y="261" text-anchor="end" fill="var(--ink2)">武汉</text><rect x="243" y="246" width="137" height="20" fill="var(--green)"/><text x="220" y="261" text-anchor="end" fill="var(--green)">-1.2%</text>
+        </g>
+        <text x="150" y="312" font-size="11" fill="var(--ink3)">数据来源：各市文旅局（A/B）· 增速为同比 · 中轴=全国出游人次同比 +5.0%</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== 第三部分 · 分区域深度分析 ===== -->
+  <section>
+    <div class="section-head">
+      <h3>分区域深度分析</h3>
+      <span class="no">REGIONS</span>
+    </div>
+
+    <h4>3.1 区域总览</h4>
+    <div class="cols">
+      <p>华东以 41.5% 的披露占比领跑，西南（25.9%）、华南（21.7%）次之；区域分化提示消费向高能级城市群与避暑/滨海目的地集中。正文结合各区域结构与同比判读。</p>
+    </div>
+
+    <h4>3.2 重点城市画像（C4 占比环 + 城市卡）</h4>
+    <div class="city-grid">
+      <div class="city-card">
+        <div class="cc-region">西南 · 省会</div>
+        <div class="cc-name">成都</div>
+        <div class="cc-row"><span>出游人次</span><b>1280万</b></div>
+        <div class="cc-row"><span>总花费</span><b>XXX亿</b></div>
+        <div class="cc-row"><span>酒店 RevPAR</span><b>XXX元</b></div>
+        <div class="cc-row"><span>景区接待</span><b>XXX万</b></div>
+        <div class="cc-share">
+          <svg viewBox="0 0 200 120" role="img" aria-label="成都占全国出游 8.6%">
+            <circle cx="100" cy="60" r="50" fill="var(--paper3)" stroke="var(--line)"/>
+            <path d="M100,60 L100,10 A50,50 0 0 1 145,60 Z" fill="var(--red)"/>
+            <circle cx="100" cy="60" r="31" fill="var(--paper2)"/>
+            <text x="100" y="56" text-anchor="middle" font-size="15" font-weight="bold" fill="var(--red)">8.6%</text>
+            <text x="100" y="76" text-anchor="middle" font-size="10" fill="var(--ink2)">占全国</text>
+          </svg>
+        </div>
+      </div>
+      <div class="city-card">
+        <div class="cc-region">华北 · 直辖市</div>
+        <div class="cc-name">北京</div>
+        <div class="cc-row"><span>出游人次</span><b>1650万</b></div>
+        <div class="cc-row"><span>总花费</span><b>XXX亿</b></div>
+        <div class="cc-row"><span>酒店 RevPAR</span><b>XXX元</b></div>
+        <div class="cc-row"><span>景区接待</span><b>XXX万</b></div>
+        <div class="cc-share">
+          <svg viewBox="0 0 200 120" role="img" aria-label="北京占全国出游 11.0%">
+            <circle cx="100" cy="60" r="50" fill="var(--paper3)" stroke="var(--line)"/>
+            <path d="M100,60 L100,10 A50,50 0 0 1 160,35 Z" fill="var(--red)"/>
+            <circle cx="100" cy="60" r="31" fill="var(--paper2)"/>
+            <text x="100" y="56" text-anchor="middle" font-size="15" font-weight="bold" fill="var(--red)">11.0%</text>
+            <text x="100" y="76" text-anchor="middle" font-size="10" fill="var(--ink2)">占全国</text>
+          </svg>
+        </div>
+      </div>
+      <div class="city-card">
+        <div class="cc-region">西北 · 省会</div>
+        <div class="cc-name">西安</div>
+        <div class="cc-row"><span>出游人次</span><b>1050万</b></div>
+        <div class="cc-row"><span>总花费</span><b>XXX亿</b></div>
+        <div class="cc-row"><span>酒店 RevPAR</span><b>XXX元</b></div>
+        <div class="cc-row"><span>景区接待</span><b>XXX万</b></div>
+        <div class="cc-share">
+          <svg viewBox="0 0 200 120" role="img" aria-label="西安占全国出游 7.0%">
+            <circle cx="100" cy="60" r="50" fill="var(--paper3)" stroke="var(--line)"/>
+            <path d="M100,60 L100,10 A50,50 0 0 1 128,17 Z" fill="var(--red)"/>
+            <circle cx="100" cy="60" r="31" fill="var(--paper2)"/>
+            <text x="100" y="56" text-anchor="middle" font-size="15" font-weight="bold" fill="var(--red)">7.0%</text>
+            <text x="100" y="76" text-anchor="middle" font-size="10" fill="var(--ink2)">占全国</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p class="src">数据来源：各市文旅局/饭店协会（A/B/C）· 2026 十一 · 7天口径 · 占比环含其他/未披露残差扇区。</p>
+
+    <h4>3.3 城市结构悖论（callout）</h4>
+    <div class="callout">
+      <h4>结构悖论 · 旺丁不旺财</h4>
+      <p>某城市客流增速（+X%）显著高于二消/门票收入增速（+Y%），提示下沉化、分段式或"过路客"结构特征；须单列背离分析，避免以客流替代消费强度判断。</p>
+    </div>
+
+    <!-- 可选：城市 × 指标热力矩阵（C5） -->
+    <h4>3.4 城市 × 指标热力扫描（C5）</h4>
+    <div class="chart">
+      <div class="title">城市 × 指标 强度矩阵</div>
+      <div class="subtitle">色深=归一化强度(0–100) · 仅同口径城市可比 · 数值为示意</div>
+      <svg viewBox="0 0 760 320" role="img" aria-label="城市×指标热力矩阵">
+        <g font-family="var(--ui-stack)" font-size="12">
+          <text x="120" y="40" fill="var(--ink2)">城市</text>
+          <text x="220" y="40" text-anchor="middle" fill="var(--ink2)">出游强度</text>
+          <text x="340" y="40" text-anchor="middle" fill="var(--ink2)">收入强度</text>
+          <text x="460" y="40" text-anchor="middle" fill="var(--ink2)">RevPAR</text>
+          <text x="580" y="40" text-anchor="middle" fill="var(--ink2)">新消费</text>
+          <text x="115" y="74" text-anchor="end" fill="var(--ink)">北京</text>
+          <rect x="160" y="58" width="100" height="26" fill="var(--red)"/><text x="210" y="75" text-anchor="middle" fill="#fff" font-size="11">100</text>
+          <rect x="280" y="58" width="100" height="26" fill="var(--red)"/><text x="330" y="75" text-anchor="middle" fill="#fff" font-size="11">96</text>
+          <rect x="400" y="58" width="100" height="26" fill="#C96A6F"/><text x="450" y="75" text-anchor="middle" fill="#fff" font-size="11">72</text>
+          <rect x="520" y="58" width="100" height="26" fill="#E0A7AB"/><text x="570" y="75" text-anchor="middle" fill="var(--ink)" font-size="11">38</text>
+          <text x="115" y="110" text-anchor="end" fill="var(--ink)">成都</text>
+          <rect x="160" y="94" width="100" height="26" fill="#C96A6F"/><text x="210" y="111" text-anchor="middle" fill="#fff" font-size="11">78</text>
+          <rect x="280" y="94" width="100" height="26" fill="#D98C90"/><text x="330" y="111" text-anchor="middle" fill="#fff" font-size="11">60</text>
+          <rect x="400" y="94" width="100" height="26" fill="var(--red)"/><text x="450" y="111" text-anchor="middle" fill="#fff" font-size="11">88</text>
+          <rect x="520" y="94" width="100" height="26" fill="var(--red)"/><text x="570" y="111" text-anchor="middle" fill="#fff" font-size="11">92</text>
+          <text x="115" y="146" text-anchor="end" fill="var(--ink)">西安</text>
+          <rect x="160" y="130" width="100" height="26" fill="#B5575C"/><text x="210" y="147" text-anchor="middle" fill="#fff" font-size="11">64</text>
+          <rect x="280" y="130" width="100" height="26" fill="#C96A6F"/><text x="330" y="147" text-anchor="middle" fill="#fff" font-size="11">70</text>
+          <rect x="400" y="130" width="100" height="26" fill="#A8494E"/><text x="450" y="147" text-anchor="middle" fill="#fff" font-size="11">52</text>
+          <rect x="520" y="130" width="100" height="26" fill="#E0A7AB"/><text x="570" y="147" text-anchor="middle" fill="var(--ink)" font-size="11">40</text>
+          <text x="115" y="182" text-anchor="end" fill="var(--ink)">武汉</text>
+          <rect x="160" y="166" width="100" height="26" fill="#D98C90"/><text x="210" y="183" text-anchor="middle" fill="#fff" font-size="11">55</text>
+          <rect x="280" y="166" width="100" height="26" fill="#B5575C"/><text x="330" y="183" text-anchor="middle" fill="#fff" font-size="11">64</text>
+          <rect x="400" y="166" width="100" height="26" fill="#E0A7AB"/><text x="450" y="183" text-anchor="middle" fill="var(--ink)" font-size="11">42</text>
+          <rect x="520" y="166" width="100" height="26" fill="#F0CFD1"/><text x="570" y="183" text-anchor="middle" fill="var(--ink)" font-size="11">28</text>
+          <text x="115" y="218" text-anchor="end" fill="var(--ink)">三亚</text>
+          <rect x="160" y="202" width="100" height="26" fill="#E0A7AB"/><text x="210" y="219" text-anchor="middle" fill="var(--ink)" font-size="11">36</text>
+          <rect x="280" y="202" width="100" height="26" fill="#A8494E"/><text x="330" y="219" text-anchor="middle" fill="#fff" font-size="11">50</text>
+          <rect x="400" y="202" width="100" height="26" fill="var(--red)"/><text x="450" y="219" text-anchor="middle" fill="#fff" font-size="11">95</text>
+          <rect x="520" y="202" width="100" height="26" fill="#C96A6F"/><text x="570" y="219" text-anchor="middle" fill="#fff" font-size="11">66</text>
+        </g>
+        <text x="120" y="290" font-size="11" fill="var(--ink3)">数据来源：各市文旅局/饭店协会（A/B/C）· 2026 十一 · 7天口径 · 强度为归一化示意</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ===== 第四部分 · 县域与下沉市场 ===== -->
+  <section>
+    <div class="section-head">
+      <h3>县域与下沉市场</h3>
+      <span class="no">COUNTY</span>
+    </div>
+    <div class="cols">
+      <p>县域"奔县"热度上行（县域层级单独口径，与地级市及以上分列）。正文呈现县域样本出游/消费结构，标注县域口径，避免与核心城区直接相加。无公开县域数据时标"本期县域暂无公开数据"。</p>
+      <span class="src">数据来源：<b>县域文旅/统计</b> &middot; 报告/资料名 &middot; 年份</span>
+    </div>
+  </section>
+
+  <!-- ===== 第五部分 · 纵向延续与城市演化（有历史时） ===== -->
+  <!--
+  <section>
+    <div class="section-head">
+      <h3>纵向延续与城市演化</h3>
+      <span class="no">EVOLUTION</span>
+    </div>
+    <div class="cols">
+      <p>头部城市排名跨年漂移、区域结构演变、城市韧性判读（有历史时启用，首期标注"暂无上期城市可比"）。</p>
+    </div>
+    <div class="chart">
+      <div class="title">头部城市十一出游人次跨年演变（per-day 折算）</div>
+      <div class="subtitle">2023–2026 · 实线=实测 虚线=预计</div>
+      <svg viewBox="0 0 760 320" role="img" aria-label="头部城市跨年演变">
+        <line x1="80" y1="40" x2="80" y2="270" stroke="var(--line)"/>
+        <line x1="80" y1="270" x2="700" y2="270" stroke="var(--line)"/>
+        <g font-family="var(--ui-stack)" font-size="11" fill="var(--ink3)">
+          <text x="180" y="290" text-anchor="middle">2023</text><text x="320" y="290" text-anchor="middle">2024</text><text x="460" y="290" text-anchor="middle">2025</text><text x="600" y="290" text-anchor="middle">2026E</text>
+        </g>
+        <polyline points="180,210 320,180 460,150 600,130" fill="none" stroke="var(--red)" stroke-width="2.5"/>
+        <polyline points="460,150 600,130" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="5 4" opacity=".7"/>
+        <polyline points="180,240 320,210 460,170 600,140" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+        <polyline points="460,170 600,140" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="5 4" opacity=".7"/>
+        <g font-family="var(--ui-stack)" font-size="12">
+          <rect x="600" y="40" width="14" height="14" fill="var(--red)"/><text x="620" y="52" fill="var(--ink)">北京</text>
+          <rect x="600" y="62" width="14" height="14" fill="var(--gold)"/><text x="620" y="74" fill="var(--ink)">成都</text>
+        </g>
+        <text x="80" y="305" font-size="11" fill="var(--ink3)">数据来源：各市文旅局（A/B）· per-day 折算 · 2026E 为预测（置信度中，待回填）</text>
+      </svg>
+    </div>
+  </section>
+  -->
+
+  <!-- ===== 第六部分 · 口径与数据质量声明 ===== -->
+  <section>
+    <div class="section-head">
+      <h3>口径与数据质量声明</h3>
+      <span class="no">STATEMENT</span>
+    </div>
+    <div class="cols">
+      <p>本报告所有城市数字均取自《【年度】【节假日】城市消费数据集》（30 字段），逐条关联全国 SSOT 并可在《数据真实性说明》中溯源。城市加总在可比口径下与全国总量闭合（可加指标）或呈现倍数（流量指标）；覆盖率 XX%，未披露部分以"其他/未披露"测算行（D 级）兜底。</p>
+      <div class="note-banner"><b>勾稽提示：</b>可加指标（总花费/社零等）城市占比不可大于 100%；流量指标（出游人次/客流等）Σ城市≥全国为结构性常态、以"倍数"呈现（1.5–2.5× 正常）；平台城市榜为 C 级"平台自身口径，非全市场"；覆盖率 < 40% 的排名标"局部样本"。</div>
+    </div>
+  </section>
+
+  <!-- ===== 页脚导航 ===== -->
+  <nav class="footer-nav" aria-label="报告导航">
+    <div class="grid-3">
+      <div>
+        <h4>本报告</h4>
+        <a href="城市消费数据报告.html">城市消费数据报告（本页）</a>
+        <a href="#top">回到顶部 ↑</a>
+      </div>
+      <div>
+        <h4>配套交付</h4>
+        <a href="数据真实性说明.html">数据真实性说明</a>
+        <a href="【年度】【节假日】城市消费数据集.csv" download>下载城市数据集（CSV）</a>
+      </div>
+      <div>
+        <h4>门户</h4>
+        <a href="index.html">返回首页</a>
+        <a class="back-top" href="#top">回到顶部 ↑</a>
+      </div>
+    </div>
+  </nav>
+
+  <footer class="footer">
+    <p><b>数据来源：</b>各市文旅局/市监/商务局（A/B）&middot; 携程/同程/美团城市榜（C，平台自身口径）&middot; 全国 SSOT（父技能 consumption-data-report）</p>
+    <p><b>说明：</b>标注"测算"的指标为推算值；城市数据已与全国数据集勾稽闭合，详细溯源见《数据真实性说明》。</p>
+    <p>本报告城市数据来自互联网公开来源，每条数据均可在《数据真实性说明》中追溯至原始页面；占比含未披露残差。</p>
+    <p class="deploy-note">本报告由 AI 按 consumption-data-city-report 技能生成，单文件 HTML、全部资源内联、无外链，可部署至静态托管（如 EdgeOne）。</p>
+  </footer>
+
+</div>
+
+<a class="back-top-float" href="#top" aria-label="回到顶部">↑</a>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  try{var saved=localStorage.getItem('ds-theme');if(saved==='dark'||saved==='light'){root.setAttribute('data-theme',saved);}}catch(e){}
+  var btn=document.getElementById('themeBtn');
+  if(btn){btn.addEventListener('click',function(){var cur=root.getAttribute('data-theme');var next=(cur==='dark')?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('ds-theme',next);}catch(e){}});}
+  document.querySelectorAll('th.sortable').forEach(function(th){
+    th.addEventListener('click',function(){
+      var table=th.closest('table.data'); if(!table) return;
+      var colIdx=Array.prototype.indexOf.call(th.parentNode.children,th);
+      var tbody=table.tBodies[0]; if(!tbody) return;
+      var rows=Array.prototype.slice.call(tbody.rows);
+      var asc=!th.classList.contains('sort-asc');
+      rows.sort(function(a,b){var x=a.cells[colIdx].textContent.trim(),y=b.cells[colIdx].textContent.trim();var nx=parseFloat(x.replace(/[^\d.\-]/g,'')),ny=parseFloat(y.replace(/[^\d.\-]/g,''));if(!isNaN(nx)&&!isNaN(ny))return asc?nx-ny:ny-nx;return asc?x.localeCompare(y,'zh'):y.localeCompare(x,'zh');});
+      rows.forEach(function(r){tbody.appendChild(r);});
+      table.querySelectorAll('th.sortable').forEach(function(t){t.classList.remove('sort-asc','sort-desc');});
+      th.classList.add(asc?'sort-asc':'sort-desc');
+    });
+  });
+})();
+</script>
+</body>
+</html>
+<!--
+====================================================================
+使用说明（report-template.html · 城市版 v1.1）
+====================================================================
+1. 设计系统继承自 consumption-data-report（v4 令牌/组件/明暗双主题/响应式），仅增量城市章节与图表。
+2. 替换占位符：【目标年度】【节假日】【生成日期】→ 实际值；XX.X / XXXX → 城市数据集真实值。
+3. 取数铁律：每个城市数字须有《城市数据集》行（30 字段）并关联全国指标键；推算标"测算（D 级）"，预计进预测卡标置信度。
+4. 勾稽必含：§2.2 勾稽总表 + C1 排名图 + C2 区域图 + C3 对比图；占比图须含"其他/未披露"残差扇区。
+5. 图表 SVG 片段可直接从 assets/chart-kit.html 复制（C1–C6）；图表与数据表双轨（图表直观、表格可核验）。
+6. 平台城市榜标 C 级 + "平台自身口径，非全市场"；覆盖率 < 40% 排名标"局部样本"。
+7. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式、明暗双主题。
+====================================================================
+-->

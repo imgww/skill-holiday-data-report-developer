@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>【目标年度】【节假日】城市消费数据报告</title>
+<style>
+/* ============================================================
+   节促数据观察台 · 首页门户统一设计系统 (Design System)  v4 (升级版)
+   依据《UI评估与设计提案/设计实施规格.md》与线上数据系统门户样式同步升级：
+   - 单一设计令牌（含明暗双主题，自动 + 手动切换）
+   - 应用骨架（appbar / breadcrumb / footer-nav）
+   - 组件库（报头 / 连续性高亮条 / 三卡片入口 / CSV 预览 / 页脚导航）
+   - 核心体验零 JS 可用，交互层渐进增强（暗色自动生效，按钮仅切换偏好）
+   使用说明见文件末尾注释。
+   ============================================================ */
+
+/* ---------- 1. 设计令牌 ---------- */
+:root{
+  --paper:#F5EFE2;  --paper2:#EFE6D2;  --paper3:#EAE0C9;  --paper-glass:rgba(245,239,226,.92);
+  --ink:#211C14;    --ink2:#4B4436;    --ink3:#7A715F;
+  --red:#8C1F28;    --red2:#A83A45;    --red-soft:#F3D4D6;
+  --line:#C8BBA0;   --gold:#A3803F;    --gold-soft:#F0E4CD;
+  --green:#2E6B3E;  --blue:#1F4E5F;    --blue2:#2E7C92;   --night:#171511;
+  --shadow:0 6px 22px rgba(33,28,20,.16);
+  --max:1180px; --bar-h:50px;
+  --font-stack:Georgia,"Noto Serif SC","Songti SC","STSong","SimSun",serif;
+  --ui-stack:system-ui,-apple-system,"Microsoft YaHei","PingFang SC",sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Courier New",monospace;
+}
+/* 显式暗色（按钮切换） */
+[data-theme="dark"]{
+  --paper:#171511; --paper2:#211E18; --paper3:#2C2820; --paper-glass:rgba(23,21,17,.95);
+  --ink:#EAE3D4; --ink2:#C8BCA6; --ink3:#9E927E;
+  --red:#D6606B; --red2:#E07C86; --red-soft:#4A2426;
+  --line:#4D4639; --gold:#C9A65B; --gold-soft:#3A3324;
+  --green:#5CA872; --blue:#5DA9BF; --blue2:#7CC4D8; --night:#0E0C09;
+  --shadow:0 6px 28px rgba(0,0,0,.45);
+}
+/* 系统深色偏好：无 JS 亦自动启用全套深色令牌；
+   显式 [data-theme="light"]（按钮切换）可覆盖系统偏好 */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#171511; --paper2:#211E18; --paper3:#2C2820; --paper-glass:rgba(23,21,17,.95);
+    --ink:#EAE3D4; --ink2:#C8BCA6; --ink3:#9E927E;
+    --red:#D6606B; --red2:#E07C86; --red-soft:#4A2426;
+    --line:#4D4639; --gold:#C9A65B; --gold-soft:#3A3324;
+    --green:#5CA872; --blue:#5DA9BF; --blue2:#7CC4D8; --night:#0E0C09;
+    --shadow:0 6px 28px rgba(0,0,0,.45);
+  }
+}
+
+/* ---------- 2. 基础 ---------- */
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-stack);line-height:1.66;transition:background .25s,color .25s;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 22px;}
+/* 锚点定位避开吸顶顶栏 */
+section[id],h2[id],h3[id],div[id]{scroll-margin-top:calc(var(--bar-h) + 14px);}
+/* 防御：flex/grid 子项允许收缩，避免被内容最小宽度撑破视口（移动端横向溢出根因） */
+.card,.cell,.grid,.card-grid,.footer-nav,.hero-stats,.h-card,.fig-strip,.fig,.stat{min-width:0;}
+.table-wrap,.csv-preview-wrap,.chart{min-width:0;max-width:100%;}
+.appbar .inner{flex-wrap:wrap;}
+.appbar .global-nav{margin-left:auto;}
+.appbar .theme-btn,.appbar .logo{flex-shrink:0;}
+a{color:var(--red);}
+img,svg{max-width:100%;vertical-align:middle;}
+code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--line);padding:1px 5px;font-size:12.5px;}
+::selection{background:var(--red);color:var(--paper);}
+
+/* 可达性：skip-link + 焦点环 */
+.skip-link{position:absolute;left:-999px;top:0;z-index:200;background:var(--red);color:var(--paper);padding:10px 16px;font-weight:bold;font-size:13px;text-decoration:none;}
+.skip-link:focus{left:0;top:0;}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+/* ---------- 3. 应用骨架（门户导航；四件套同目录时指向各文件；可整段删除用于纯单页） ---------- */
+.appbar{position:sticky;top:0;z-index:100;background:var(--ink);color:var(--paper);box-shadow:var(--shadow);transition:background .25s;}
+.appbar .inner{max-width:var(--max);margin:0 auto;padding:0 22px;display:flex;align-items:center;gap:16px;height:var(--bar-h);}
+.logo{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:var(--paper);white-space:nowrap;}
+.logo .cn{font-size:17px;font-weight:900;letter-spacing:1px;}
+.logo .en{font-size:10px;color:var(--gold);letter-spacing:1px;font-family:var(--ui-stack);text-transform:uppercase;}
+.global-nav{display:flex;gap:2px;}
+.global-nav a{color:rgba(245,239,226,.82);text-decoration:none;font-size:13px;font-family:var(--ui-stack);padding:6px 11px;border-radius:2px;transition:background .15s;white-space:nowrap;}
+.global-nav a:hover,.global-nav a.active{background:rgba(255,255,255,.14);color:#fff;}
+.theme-btn{cursor:pointer;background:rgba(255,255,255,.12);border:1px solid var(--line);color:var(--paper);font-size:12px;padding:6px 12px;border-radius:2px;font-family:var(--ui-stack);transition:background .15s;margin-left:auto;}
+.theme-btn:hover{background:rgba(255,255,255,.2);}
+
+.breadcrumb{max-width:var(--max);margin:0 auto;padding:12px 22px 0;font-size:12.5px;color:var(--ink3);font-family:var(--ui-stack);letter-spacing:.5px;}
+.breadcrumb a{color:var(--ink2);text-decoration:none;}
+.breadcrumb a:hover{color:var(--red);text-decoration:underline;}
+.breadcrumb span{color:var(--red);}
+
+/* ---------- 4. 报头 / 排版 ---------- */
+.masthead-top{display:flex;justify-content:space-between;align-items:baseline;border-top:4px double var(--ink);border-bottom:1px solid var(--ink);padding:7px 2px;font-size:12px;letter-spacing:1px;color:var(--ink2);margin-top:20px;}
+.masthead-top .left{font-weight:bold;color:var(--red);}
+.masthead{text-align:center;padding:36px 10px 26px;border-bottom:4px double var(--ink);}
+.masthead .kicker{font-size:12px;letter-spacing:6px;color:var(--red);text-transform:uppercase;margin-bottom:14px;font-weight:bold;}
+.masthead h1{font-size:clamp(32px,5.4vw,58px);font-weight:900;letter-spacing:2px;line-height:1.14;}
+.masthead h1 .accent{color:var(--red);}
+.masthead .sub{margin-top:14px;font-size:14px;letter-spacing:3px;color:var(--ink2);}
+.masthead .rule{width:88px;height:3px;background:var(--red);margin:20px auto 0;}
+.intro-bar{text-align:center;padding:18px 10px;font-size:13.5px;color:var(--ink2);letter-spacing:1px;border-bottom:1px solid var(--line);}
+.intro-bar b{color:var(--red);}
+
+/* ---------- 5. 连续性高亮条（可选，存在跨年纵向报告时显示） ---------- */
+.continuity-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:22px 0 4px;padding:14px 18px;border-top:3px double var(--ink);border-bottom:3px double var(--ink);background:var(--paper3);}
+.continuity-bar .cb-label{font-size:12px;letter-spacing:3px;color:var(--red);font-weight:bold;text-transform:uppercase;white-space:nowrap;font-family:var(--ui-stack);}
+.continuity-bar .cb-text{font-size:14px;color:var(--ink2);flex:1;min-width:200px;line-height:1.5;}
+.continuity-bar .cb-cta{font-size:13px;font-weight:bold;color:var(--paper);background:var(--red);border:1px solid var(--red);padding:6px 14px;text-decoration:none;letter-spacing:1px;border-radius:2px;white-space:nowrap;font-family:var(--ui-stack);transition:background .15s;}
+.continuity-bar .cb-cta:hover{background:var(--red2);border-color:var(--red2);}
+
+/* ---------- 6. 卡片网格（三入口） ---------- */
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:32px 0 20px;}
+.card{background:var(--paper2);border-top:3px double var(--ink);border-bottom:3px double var(--ink);padding:28px 24px 24px;display:flex;flex-direction:column;position:relative;}
+.card::before{content:"";position:absolute;top:-3px;left:0;width:60px;height:3px;background:var(--red);}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.card-head .icon{width:28px;height:28px;border:2px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--red);font-weight:900;border-radius:50%;flex-shrink:0;}
+.card-head h3{font-size:18px;font-weight:900;letter-spacing:1px;}
+.card-head .tag{margin-left:auto;font-size:11px;color:var(--ink3);letter-spacing:2px;border:1px solid var(--line);padding:2px 8px;font-family:var(--ui-stack);}
+.card-body{font-size:14.5px;color:var(--ink2);line-height:1.68;flex:1;margin-bottom:20px;}
+.card-body p{margin-bottom:10px;text-align:justify;}
+.card-body .lead-title{font-size:17px;font-weight:900;color:var(--ink);line-height:1.32;margin-bottom:8px;}
+.card-body .lead-title .red{color:var(--red);}
+.card-body .standfirst{font-size:14px;color:var(--ink2);border-left:3px solid var(--red);padding-left:12px;margin-bottom:10px;}
+.card-body .src-note{font-size:11.5px;color:var(--ink3);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
+.card-body .src-note b{color:var(--red);font-style:normal;}
+.card-cta{display:inline-block;background:var(--red);color:var(--paper);padding:11px 22px;font-size:14px;font-weight:bold;text-decoration:none;letter-spacing:1px;border-radius:2px;transition:background .2s;font-family:var(--ui-stack);text-align:center;}
+.card-cta:hover{background:var(--red2);color:#fff;}
+.card-cta-wrap{margin-top:auto;padding-top:8px;}
+
+/* CSV 预览表 */
+.csv-preview-wrap{overflow-x:auto;margin-bottom:12px;}
+table.csv-preview{width:100%;border-collapse:collapse;font-size:11.5px;min-width:480px;}
+table.csv-preview th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:6px 7px;text-align:left;font-size:10.5px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;background:var(--paper3);}
+table.csv-preview td{border-bottom:1px solid var(--line);padding:5px 7px;font-variant-numeric:tabular-nums;vertical-align:top;}
+table.csv-preview tr:last-child td{border-bottom:2px solid var(--ink);}
+table.csv-preview .badge{display:inline-block;padding:1px 6px;border-radius:2px;font-size:10px;font-weight:bold;color:var(--paper);}
+table.csv-preview .badge.a{background:var(--green);}
+table.csv-preview .badge.b{background:var(--blue2);}
+table.csv-preview .badge.c{background:var(--gold);}
+table.csv-preview .badge.d{background:var(--ink3);}
+
+/* ---------- 7. 页脚导航 + 页脚 ---------- */
+.footer-nav{border-top:4px double var(--ink);margin-top:48px;padding:20px 0 8px;}
+.footer-nav .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+.footer-nav h4{font-size:12px;letter-spacing:2px;color:var(--ink3);text-transform:uppercase;font-family:var(--ui-stack);margin-bottom:10px;font-weight:900;}
+.footer-nav a{display:block;font-size:13px;color:var(--ink2);text-decoration:none;padding:3px 0;font-family:var(--ui-stack);}
+.footer-nav a:hover{color:var(--red);}
+.footer-nav .back-top{display:inline-block;margin-top:14px;font-size:13px;font-weight:bold;color:var(--red);text-decoration:none;border:1px solid var(--red);padding:6px 14px;font-family:var(--ui-stack);}
+.footer-nav .back-top:hover{background:var(--red);color:var(--paper);}
+.footer{border-top:4px double var(--ink);margin-top:30px;padding:20px 0 50px;font-size:12px;color:var(--ink3);line-height:1.8;}
+.footer b{color:var(--ink2);}
+.footer .deploy-note{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3);}
+
+/* ---------- 8. 增强降级与浮动回顶 ---------- */
+.noscript-note{background:var(--gold-soft);border:1px solid var(--gold);border-left:5px solid var(--gold);padding:10px 16px;margin:10px 0;font-size:13px;color:var(--ink2);font-family:var(--ui-stack);}
+.noscript-note b{color:var(--red);}
+.back-top-float{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:150;width:44px;height:44px;border-radius:50%;background:var(--red);color:var(--paper);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:19px;line-height:1;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.28);font-family:var(--ui-stack);}
+.back-top-float:hover{background:var(--red2);color:#fff;}
+.back-top-float:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+/* ---------- 9. 打印 ---------- */
+@media print{
+  .appbar,.breadcrumb,.footer-nav,.theme-btn,.skip-link,.back-top-float,.noscript-note{display:none !important;}
+  body{background:#fff;color:#000;}
+  .wrap{max-width:100%;padding:0;}
+  .card{box-shadow:none;break-inside:avoid;}
+  a{color:#000;}
+}
+
+/* ---------- 10. 响应式 · 移动优先 ---------- */
+@media (max-width:1080px){
+  .card-grid{gap:18px;}
+}
+@media (max-width:980px){
+  .logo .en{display:none;}
+}
+@media (max-width:900px){
+  .card-grid{grid-template-columns:1fr;}
+  .footer-nav .grid-3{grid-template-columns:1fr;gap:18px;}
+}
+@media (max-width:720px){
+  :root{--bar-h:50px;}
+  .wrap{padding:0 16px;}
+  .breadcrumb{padding:10px 16px 0;font-size:11.5px;}
+  .appbar .inner{flex-wrap:wrap;height:auto;padding:6px 12px;gap:8px;align-items:center;}
+  .logo .cn{font-size:15px;}
+  .global-nav{order:3;width:100%;margin:2px -6px 0;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .global-nav::-webkit-scrollbar{display:none;}
+  .global-nav a{white-space:nowrap;padding:8px 12px;font-size:13px;}
+  .theme-btn{margin-left:auto;padding:6px 10px;}
+  .masthead-top{flex-wrap:wrap;gap:4px;}
+  .masthead{padding:26px 6px 20px;}
+  .continuity-bar .cb-cta{width:100%;text-align:center;}
+}
+@media (max-width:620px){
+  .appbar .search{width:112px;}
+  .logo .en{display:none;}
+  .theme-btn{padding:6px 9px;font-size:11px;}
+  .card{padding:22px 18px 18px;}
+}
+@media (max-width:520px){
+  .wrap{padding:0 12px;}
+  .card-body p{text-align:left;}
+  .appbar .search{width:100px;}
+}
+@media (max-width:420px){
+  .masthead-top{font-size:10.5px;}
+  .footer{font-size:11.5px;}
+}
+/* 触控设备：加大点按目标（≥ 40px 有效高度） */
+@media (hover:none) and (pointer:coarse){
+  .global-nav a{padding:10px 12px;}
+  .theme-btn{padding:9px 14px;}
+  .card-cta{padding:13px 24px;}
+  .back-top-float{width:48px;height:48px;}
+}
+/* 刘海屏安全区（桌面端 env()=0，无影响） */
+@supports (padding-top:env(safe-area-inset-top)){
+  .appbar{padding-top:env(safe-area-inset-top);}
+  .footer{padding-bottom:max(50px,env(safe-area-inset-bottom));}
+}
+/* 弱动效偏好 */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *{transition:none !important;animation:none !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- DATASYS-NOSCRIPT -->
+<noscript><div class="noscript-note"><b>JavaScript 未启用：</b>明暗主题手动切换不可用；门户全部报告、图表与数据仍可正常浏览和下载。</div></noscript>
+<!-- /DATASYS-NOSCRIPT -->
+
+<!-- DATASYS-SKIP -->
+<a class="skip-link" href="#main">跳到主内容</a>
+<!-- /DATASYS-SKIP -->
+
+<!-- DATASYS-BREADCRUMB (四件套同目录时；纯单页可整段删除) -->
+<nav class="breadcrumb" aria-label="面包屑">
+  <a href="【总门户URL】">总门户</a> <span class="sep" aria-hidden="true">/</span>
+  <a href="【总门户URL】#【目标年度】">【目标年度】年</a> <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">【节假日】消费数据报告</span>
+</nav>
+<!-- /DATASYS-BREADCRUMB -->
+
+<!-- DATASYS-APPBAR (四件套同目录时；纯单页可整段删除) -->
+<header class="appbar">
+  <div class="inner">
+    <a class="logo" href="index.html"><span class="cn">节促数据观察台</span><span class="en">Holiday Consumption Data Observatory</span></a>
+    <nav class="global-nav" aria-label="全局导航">
+      <a href="城市消费数据报告.html" class="">报告</a>
+      <a href="数据真实性说明.html" class="">真实性说明</a>
+      <a href="【年度】【节假日】城市消费数据集.csv" class="">数据集</a>
+      <a href="【总门户URL】" class="active">总门户</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" title="切换明暗主题" aria-label="切换明暗主题">明暗</button>
+  </div>
+</header>
+<!-- /DATASYS-APPBAR -->
+
+<span id="top" aria-hidden="true"></span>
+<div class="wrap" id="main">
+
+  <!-- ===== 报头 ===== -->
+  <div class="masthead-top">
+    <span class="left">CONSUMPTION DATA REPORT</span>
+    <span>【目标年度】&middot; 【节假日】</span>
+  </div>
+  <header class="masthead">
+    <div class="kicker">DATA PORTAL</div>
+    <h1>【目标年度】<span class="accent">【节假日】</span>消费数据报告</h1>
+    <div class="sub">数据集 &middot; 数据报告 &middot; 数据真实性说明</div>
+    <div class="rule"></div>
+  </header>
+
+  <!-- ===== 简介条 ===== -->
+  <div class="intro-bar">
+    本门户收录 <b>【目标年度】【节假日】</b> 城市消费数据五件套，点击各卡片入口查看完整内容或下载数据集。
+  </div>
+
+  <!-- ===== 连续性高亮条（可选，存在跨年纵向报告时显示；否则整段删除） ===== -->
+  <div class="continuity-bar">
+    <span class="cb-label">CONTINUITY</span>
+    <span class="cb-text">已发布跨年纵向趋势专题《从 2023 到 2026 看未来》——点击查看近年全景、历史复盘与中长期拐点预判。</span>
+    <a class="cb-cta" href="节假日报告_从2023到2026看未来.html">纵向趋势 &rarr;</a>
+  </div>
+
+  <!-- ===== 三卡片入口 ===== -->
+  <div class="card-grid">
+
+    <!-- ===== 卡片一：报告头条 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div class="icon">I</div>
+        <h3>报告头条</h3>
+        <span class="tag">REPORT</span>
+      </div>
+      <div class="card-body">
+        <!-- 摘录消费数据报告的头条部分：大标题 + standfirst + 首段正文约150-200字 -->
+        <div class="lead-title">标题：<span class="red">主判断</span>，数字从数据集取数</div>
+        <div class="standfirst">导语段：点明【目标年度】【节假日】消费总量与结构变化，结论先行。</div>
+        <p>首段正文摘录……每条关键数字后附来源注记。本段约 150-200 字，摘自报告头条部分。</p>
+        <div class="src-note">摘自《<b>【目标年度】【节假日】消费数据报告</b>》头条部分</div>
+      </div>
+      <div class="card-cta-wrap">
+        <a class="card-cta" href="城市消费数据报告.html">阅读完整报告 &rarr;</a>
+      </div>
+    </div>
+
+    <!-- ===== 卡片二：真实性说明引言 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div class="icon">II</div>
+        <h3>数据真实性说明</h3>
+        <span class="tag">PROVENANCE</span>
+      </div>
+      <div class="card-body">
+        <!-- 摘录数据真实性说明的引言部分：方法说明 + 数据局限，约150-200字 -->
+        <div class="lead-title">采集与核实方法</div>
+        <p>本报告所有数据均通过联网检索获取，逐条标注来源机构、报告/资料名、发布时间与可信度等级。数据来源优先级：A 级（政府公告/官方统计/权威通讯社通稿）> B 级（权威媒体转引）> C 级（企业自披露/研报）> D 级（弱溯源）。</p>
+        <p><b>数据局限声明</b>：（1）时点口径差异——同一指标存在多个时间点统计口径时并列注明；（2）转述性概括——部分表述为媒体转述而非原机构原文；（3）推算标注——推算值单独标记"测算"，与实测数据分栏。</p>
+        <div class="src-note">摘自《<b>【目标年度】【节假日】数据真实性说明</b>》引言部分</div>
+      </div>
+      <div class="card-cta-wrap">
+        <a class="card-cta" href="数据真实性说明.html">查看完整说明 &rarr;</a>
+      </div>
+    </div>
+
+    <!-- ===== 卡片三：数据集预览 ===== -->
+    <div class="card">
+      <div class="card-head">
+        <div class="icon">III</div>
+        <h3>数据集预览</h3>
+        <span class="tag">DATASET</span>
+      </div>
+      <div class="card-body">
+        <div class="csv-preview-wrap">
+          <!-- CSV 前5行预览（含表头），按实际数据集内容填充 -->
+          <table class="csv-preview">
+            <thead>
+              <tr>
+                <th>主题</th><th>数据点</th><th>数值</th><th>单位</th>
+                <th>来源机构</th><th>报告/资料名</th><th>发布时间</th>
+                <th>等级</th><th>URL</th><th>备注</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>总体</td><td>[节假日]出游人次</td><td>XX.X</td><td>亿人次</td>
+                <td>文旅部</td><td>假期数据</td><td>[年度]</td>
+                <td><span class="badge a">A</span></td><td>https://...</td><td>同比+XX%</td>
+              </tr>
+              <tr>
+                <td>总体</td><td>[节假日]旅游收入</td><td>XXXX</td><td>亿元</td>
+                <td>文旅部</td><td>假期数据</td><td>[年度]</td>
+                <td><span class="badge a">A</span></td><td>https://...</td><td>官方口径</td>
+              </tr>
+              <tr>
+                <td>酒店</td><td>全国酒店入住率</td><td>XX.X</td><td>%</td>
+                <td>STR</td><td>假期周报</td><td>[年度]</td>
+                <td><span class="badge b">B</span></td><td>https://...</td><td>第X周</td>
+              </tr>
+              <tr>
+                <td>交通</td><td>铁路客运量</td><td>XX.X</td><td>亿人次</td>
+                <td>国铁集团</td><td>假期运输</td><td>[年度]</td>
+                <td><span class="badge a">A</span></td><td>https://...</td><td>同比+XX%</td>
+              </tr>
+              <tr>
+                <td>交通</td><td>民航客运量</td><td>XX.X</td><td>万人次</td>
+                <td>航班管家</td><td>假期报告</td><td>[年度]</td>
+                <td><span class="badge b">B</span></td><td>https://...</td><td>预测值</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="src-note">摘自《<b>【目标年度】【节假日】城市消费数据集</b>》前 5 行（共 N 条记录）</div>
+      </div>
+      <div class="card-cta-wrap">
+        <!-- download 属性触发文件下载；文件名按实际数据集名替换 -->
+        <a class="card-cta" href="【年度】【节假日】城市消费数据集.csv" download>下载完整数据集 &darr;</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== 页脚导航 ===== -->
+  <div class="footer-nav">
+    <div class="wrap">
+      <div class="grid-3">
+        <div>
+          <h4>返回</h4>
+          <a href="【总门户URL】">返回总门户</a>
+        </div>
+        <div>
+          <h4>本门户文件</h4>
+          <a href="城市消费数据报告.html">消费数据报告</a>
+          <a href="数据真实性说明.html">数据真实性说明</a>
+          <a href="【年度】【节假日】城市消费数据集.csv">消费数据集（下载）</a>
+        </div>
+        <div>
+          <h4>跨年专题</h4>
+          <a href="【总门户URL】#topics">旅游 / 新消费 / 景区 / 交通 / 酒店报告</a>
+          <a href="【总门户URL】">十一消费预判</a>
+        </div>
+      </div>
+      <a class="back-top" href="#top">回到顶部 &uarr;</a>
+    </div>
+  </div>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <p><b>数据来源：</b>文化和旅游部、商务部、国家铁路集团、民航局、航班管家、STR、携程/同程/飞猪/途牛等（详见各文件来源清单）。</p>
+    <p><b>说明：</b>标注"测算"的指标为推算值；各数据详细溯源见《数据真实性说明》。本门户首页为 EdgeOne 部署入口，部署后读者可通过首页访问四件套全部资源。</p>
+    <div class="deploy-note">本页面由 AI 生成于【生成日期】 | 部署到 EdgeOne 后，本文件（index.html）自动作为默认入口页</div>
+  </footer>
+
+</div>
+
+<!-- 浮动回顶 -->
+<a class="back-top-float" href="#top" aria-label="回到顶部">↑</a>
+
+<!-- 渐进增强：明暗主题切换（无 JS 时自动跟随系统偏好） -->
+<script>
+(function(){
+  var root=document.documentElement;
+  try{
+    var saved=localStorage.getItem('ds-theme');
+    if(saved==='dark'||saved==='light'){root.setAttribute('data-theme',saved);}
+  }catch(e){}
+  var btn=document.getElementById('themeBtn');
+  if(btn){
+    btn.addEventListener('click',function(){
+      var cur=root.getAttribute('data-theme');
+      var next=(cur==='dark')?'light':'dark';
+      root.setAttribute('data-theme',next);
+      try{localStorage.setItem('ds-theme',next);}catch(e){}
+    });
+  }
+})();
+</script>
+</body>
+</html>
+<!--
+====================================================================
+使用说明（landing-page-template.html · v4 升级版）
+====================================================================
+1. 本模板已对齐线上数据系统「节促数据观察台」最新门户样式（统一设计系统）：
+   - 明暗双主题：无 JS 自动跟随系统偏好；点击右上「明暗」按钮手动切换并记忆。
+   - 可达性：skip-link、焦点环、语义化标签、min-width 防御移动端溢出。
+   - 组件库：报头 / 连续性高亮条 / 三卡片入口 / CSV 预览 / 页脚导航 / 浮动回顶。
+2. 替换占位符：
+   - 【目标年度】【节假日】【生成日期】→ 实际值；
+   - XX.X / XXXX / [年度] / N → 数据集真实值；
+   - 【年度】【节假日】城市消费数据集.csv→ 实际 CSV 名（如 2026春节消费数据集.csv）；
+   - 【总门户URL】→ 总门户地址（部署后多为 ../index.html 或域名根；纯单页时可整段删除 appbar/breadcrumb 注释块）。
+3. 取数铁律：每个数字须有《数据集》对应条目；推算标"测算"，禁止编造。
+4. 连续性高亮条（CONTINUITY）为可选块：存在跨年纵向报告时显示，否则整段删除。
+5. 应用骨架（appbar/breadcrumb/footer-nav）：四件套同目录时指向各文件；若仅生成单页门户，可整段删除 DATASYS-APPBAR / DATASYS-BREADCRUMB / footer-nav 注释块。
+6. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式。
+====================================================================
+-->
