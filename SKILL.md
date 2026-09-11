@@ -1,6 +1,6 @@
 ---
 name: holiday-data-report
-description: "Generates holiday consumption data report packages for any year and any Chinese holiday (Spring Festival, Dragon Boat, May Day, Summer Vacation, Mid-Autumn, National Day), at either the NATIONAL (全国) or CITY (城市) dimension. National mode produces the four-deliverable set (dataset CSV + Economist/FT-style HTML report + data provenance + landing page) using a five-stage pipeline with a 22-field caliber dictionary and a continuity/forecast framework. City mode adds a 30-field city layer that reconciles (勾稽) to the national SSOT dataset, with inline-SVG visualizations. Before any collection, the skill resolves three parameters — [年份] (defaults to current year), [节日] (defaults to the festival of the current date), [地域] (defaults to 全国; a named city triggers city mode) — and proactively prompts the user when any cannot be derived. Collection is delegated to the holiday-data-fetch skill (called in stage one, gated by the three contracts); this skill owns parameter resolution, analysis, and delivery. Use when the user requests a Chinese-holiday consumption/spending data report, nationally or for a specific city."
+description: "Generates holiday consumption data report packages for any year and any Chinese holiday (Spring Festival, Dragon Boat, May Day, Summer Vacation, Mid-Autumn, National Day), at either the NATIONAL (全国) or CITY (城市) dimension. National mode produces the four-deliverable set (dataset CSV + Economist/FT-style HTML report + data provenance + landing page) using a five-stage pipeline with a 22-field caliber dictionary and a continuity/forecast framework. City mode adds a 30-field city layer that reconciles (勾稽) to the national SSOT dataset, with inline-SVG visualizations. Before any collection, the skill resolves three parameters — [年份] (defaults to current year), [节日] (defaults to the festival of the current date), [地域] (defaults to 全国; a named city triggers city mode) — and proactively prompts the user when any cannot be derived. Collection is delegated to the holiday-data-fetch skill, which is **bundled inside this package** at `bundled/holiday-data-fetch/` so a standalone report install still runs. Stage one first probes **AtomGit**: on a hit, fetch's collection stages are **skipped** and the baseline is consumed directly (only `holiday-data-fetch.json` + `采集日志.csv` are fetched, never `snapshots/`); on a miss, fetch runs in full (F0-F5). Gated by the three contracts; this skill owns parameter resolution, analysis, and delivery. Use when the user requests a Chinese-holiday consumption/spending data report, nationally or for a specific city."
 version: 4.1.0
 author: workbuddy
 agent_created: true
@@ -21,7 +21,7 @@ Core principle: **data first, report last** (先建数据集后出报告).
 
 ### v4.1 变更（减法重构 · 架构分拆）
 
-1. **分层分拆**：采集细则（检索矩阵/同源双录/基线拉取/来源分级）**完全移交 `holiday-data-fetch`**；本技能阶段一收缩为「调用 fetch + 门禁验收」（只验契约、不验过程）；资产沉淀（atomgit 回推）归位 fetch F5。
+1. **分层分拆 + 随包整合**：采集细则（检索矩阵/同源双录/基线拉取/来源分级）**完全移交 `holiday-data-fetch`**；v1.5.0 起 fetch **已随包整合于 `bundled/holiday-data-fetch/`**，单点安装 report 即可运行。本技能阶段一收缩为「**命中判定 + 按需调用 + 门禁验收**」（只验契约、不验过程）；**AtomGit 命中时不触发 fetch 的采集能力**，未命中才走完整 F0→F5；资产沉淀（atomgit 回推）归位 fetch F5。
 2. **契约显式化**：新增 `references/contracts.md` 三契约（L1 CSV / L2 素材库 / 纵向台账），验收从「查过程」改为「契约测试」。
 3. **参数化配置**：`holiday-config.md` 升级为三张结构化配置（属性卡 / 口径地图 / 锚点日历），十一/中秋 `merge_mode` 显式化。
 4. **分析内核重建**：新增 `references/analysis-methodology.md`（六节骨架），口径裁决 / 叙事批判 / 节日属性语义三合一沉淀。
@@ -121,18 +121,35 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 
 ## Five-Stage Workflow
 
-### 阶段一：数据采集（调用 fetch · 只验契约）
+### 阶段一：数据采集（AtomGit 命中优先 · 未命中才调 fetch · 只验契约）
 
-> v4.1 起采集细则**完全移交 `holiday-data-fetch`**，本阶段收缩为「调用 + 门禁验收」。
+> **v4.1** 起采集细则完全移交 `holiday-data-fetch`；**v1.5.0** 起 fetch 已**随包整合**于 `bundled/holiday-data-fetch/`（单点安装 report 即可运行），并新增**命中判定分支**：
+> **AtomGit 已命中 → 不调用 fetch 的采集能力；未命中 → 调用 fetch。**
 
-1. 解析 [年份][节日][地域] → 传 fetch F0。
-2. 调 fetch（F0→F1→F2→F3→F4→F5），产出契约产物：`holiday-data-fetch.json`（L1/L2 统一）+ `snapshots/` + `采集日志.csv`。
+1. 解析 [年份][节日][地域] → 构造**十字交叉命中集**（纵向 `{y}_{节日}`，y ∈ [Y−4, Y]；横向 `{Y}_{f}`，f ∈ 六节日）。
+
+2. **命中判定**（R0 探针，见共识 1）：
+   - **命中 → A 线（基线消费）**
+     - 只拉 `holiday-data-fetch.json` + `采集日志.csv`，**禁拉 `snapshots/`**（共识 1）
+     - **拉取后强制校验**：逐命中目录断言「两文件存在 且 L1 行数 > 0」；任一不满足即判未命中，转 B 线（退出码 0 **不得**当作成功）
+     - 基线入库复用 `bundled/holiday-data-fetch/scripts/import_history.py`（17→22 适配 + canon + 枚举归一）
+     - **不执行**：F1 检索矩阵 / F2 并行采集 / F4 快照采集
+     - 采集日志标 `source=atomgit`；**该基线等价于历史数据导入**，故无需再向用户询问历史数据（fetch F0 硬性检查点在此分支由 AtomGit 命中代为满足，须在报告中显式声明）
+   - **未命中 / 命中但厚度不足（L1 < R10 门禁）→ B 线（完整采集）**
+     - 读 `bundled/holiday-data-fetch/SKILL.md`，执行完整 **F0→F1→F2→F3→F4→F5**
+     - F0 历史数据询问**必须执行**（此分支无 AtomGit 基线兜底）
+
+   > 两线共用同一套契约产物：`holiday-data-fetch.json`（L1/L2 统一）+ `snapshots/` + `采集日志.csv`。
+   > A 线不新采快照；报告定稿后按需单点补拉（每条 L1/L2 均带 `snapshot` 相对路径字段）。
+
 3. **门禁验收**（report 只验契约，见 `references/contracts.md`）：
    - [ ] 契约一：L1 22 字段齐全，口径可在 `caliber-dictionary.md` 追溯
    - [ ] 契约二：L2 素材条条含 URL（唯一删除条件：无 URL 纯臆测）
    - [ ] 契约三：预测台账（若有）预测 ID 唯一、数据点已 canon 规范化
    - [ ] 覆盖矩阵已查（基线优先/联网补缺路由已执行，见 fetch `coverage-matrix.md`）
-4. 通过 → 阶段二；不通过 → 退回 fetch 补采（F2/F3 增量）。
+   - [ ] **本轮数据源已声明**：A 线标 `source=atomgit`（含命中目录清单与 commit），B 线标 `source=web`
+
+4. 通过 → 阶段二；不通过 → **A 线转 B 线补齐**；B 线退回 fetch 补采（F2/F3 增量）。
 
 可选交叉验证：`holiday-data-mcp`（`compare_across_years`/`query_data_points`）作为核验通道，不替代 fetch。
 
@@ -231,7 +248,7 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 ## Usage Notes
 
 - **参数确认优先**：运行前先按「Parameter Resolution」解析 [年份][节日][地域]；任一无法默认（尤其节日）则主动提示用户，绝不臆造。
-- **采集走 fetch**：阶段一调用 `holiday-data-fetch`（本技能声明依赖 fetch，公开市场仍单点安装 report）；report 只验三契约，不重复采集细则。
+- **按需调用 fetch**（共识 2）：阶段一先做 **AtomGit 命中判定**——**命中则不调用 fetch 的采集能力**（走 A 线基线消费），**未命中才调用** `bundled/holiday-data-fetch` 完整 F0→F5（B 线）。fetch 已随包整合，公开市场单点安装 report 即可运行；report 只验三契约，不重复采集细则。
 - **年度可变 / 节假日可变**：将【目标年度】【节假日】替换即可复用；查阅 `holiday-config.md` 获取该节假日的属性卡/口径地图/锚点日历。
 - **城市模式须先有全国 SSOT**：域名为城市时，确保本次已生成或用户已提供对应全国数据集。
 - **按需裁剪**：用户只要四件套中的某几件时可裁剪，但报告取数仍须来自数据集。
