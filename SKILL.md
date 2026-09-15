@@ -296,17 +296,17 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 - `bundled/holiday-data-fetch/` -- **随包整合的采集技能**（12 文件）：D2 未安装时的安装来源（atomgit `g_ww/holiday-data-fetch`），D3 降级时的内置兜底
 
 ### 三契约与分析内核
-- `references/contracts.md` -- **三契约 v1.0**：L1 CSV / L2 素材库 / 纵向台账 schema + 验收标准 + 分工红线；report 只验契约不验过程
-- `references/analysis-methodology.md` -- **分析内核 v1.0**：口径地图 / 叙事批判 / 报告层三变量 / 节日属性语义 / 三层操作 / 分析输出模板 六节骨架
-- `references/faq.md` -- **FAQ v1.0**：12 条常见问答（单一弱来源 / 假期跨年 / 口径冲突 / 探索性主题 / 预测复盘 / 历史基线 / 双轨架构等）
-- `references/anti-patterns.md` -- **反模式 v1.0**：14 条不可逾越反模式
+- `references/contracts.md` -- **三契约 v1.1.0**：L1 CSV / L2 素材库 / 纵向台账 schema + 验收标准 + 分工红线；report 只验契约不验过程
+- `references/analysis-methodology.md` -- **分析内核 v1.1.0**：口径地图 / 叙事批判 / 报告层三变量 / 节日属性语义 / 三层操作 / 分析输出模板 六节骨架
+- `references/faq.md` -- **FAQ v1.1.0**：12 条常见问答（单一弱来源 / 假期跨年 / 口径冲突 / 探索性主题 / 预测复盘 / 历史基线 / 双轨架构等）
+- `references/anti-patterns.md` -- **反模式 v1.1.0**：14 条不可逾越反模式
 
 ### 配置 / 口径 / 数据架构
-- `references/caliber-dictionary.md` -- **口径字典 v2.2（强制）**：22 字段 schema 权威（契约一）、统一主题字典(9类)、指标口径字典、口径类型取值表、预测台账与缺口标记
-- `references/holiday-config.md` -- **节假日配置 v2.0**：属性卡 / 口径地图 / 锚点日历三张结构化配置 + 全源 A-J 矩阵 + R10 门禁 + merge_mode 结构字段
-- `references/historical-data-source.md` -- 历史纵向基线 v1.2：atomgit 仓库唯一权威源、17→22 适配器、canon 规范化、R13–R15 质量规则
-- `references/data-architecture.md` -- 数据架构 v2.0：L1/L2 双轨统一 JSON 模型、分年分节持久化、现象→指标升级通道
-- `references/mcp-retrieval-layer.md` -- MCP 实时检索层 v1.0：6 工具与阶段映射、调用纪律、离线降级
+- `references/caliber-dictionary.md` -- **口径字典 v1.2.2（强制）**：22 字段 schema 权威（契约一）、统一主题字典(9类)、指标口径字典、口径类型取值表、预测台账与缺口标记
+- `references/holiday-config.md` -- **节假日配置 v1.2.0**：属性卡 / 口径地图 / 锚点日历三张结构化配置 + 全源 A-J 矩阵 + R10 门禁 + merge_mode 结构字段
+- `references/historical-data-source.md` -- 历史纵向基线 v1.1.2：atomgit 仓库唯一权威源、17→22 适配器、canon 规范化、R13–R15 质量规则
+- `references/data-architecture.md` -- 数据架构 v1.2.0：L1/L2 双轨统一 JSON 模型、分年分节持久化、现象→指标升级通道
+- `references/mcp-retrieval-layer.md` -- MCP 实时检索层 v1.1.0：6 工具与阶段映射、调用纪律、离线降级
 
 ### 模板与排版
 - `references/templates.md` -- 采集日志、数据集 22 字段 schema、真实性说明、首页结构、预测台账模板、纵向六子节模板、跨年专题模板

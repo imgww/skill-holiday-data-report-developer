@@ -1,7 +1,7 @@
-# 三契约（Contracts）v1.0
+# 三契约（Contracts）v1.1.0
 
-> v4.1 新增（L 议题 · P0-0）。本文件把 `holiday-data-report`（report）与 `holiday-data-fetch`（fetch）之间、以及数据集三份产物之间的**契约**显式声明为正式规范。
-> 三份契约**均已存在且经 716 行历史基线实证**（第 19 轮），v4.1 只做「声明 + 验收」，不做「发明」。
+> v1.4.1 新增（L 议题 · P0-0）。本文件把 `holiday-data-report`（report）与 `holiday-data-fetch`（fetch）之间、以及数据集三份产物之间的**契约**显式声明为正式规范。
+> 三份契约**均已存在且经 716 行历史基线实证**（第 19 轮），v1.4.1 只做「声明 + 验收」，不做「发明」。
 > 定位：**验收标准从「检查怎么采」变为「契约达标」**。report 只验契约产物是否达标，不验 fetch 内部检索了几轮、用了哪个源。
 
 ---
@@ -14,7 +14,7 @@
 | 契约二 | L2 现象素材库（`items[layer=L2]` + 派生 `.json/.md`） | `data-architecture.md` | fetch F2 同源双录 | report 阶段四（丰度栏目） |
 | 契约三 | 纵向预测台账（预测 ID + 四元键） | `templates.md` + `caliber-dictionary.md` | report 阶段二第 10 步 / fetch 观测序列 | report 阶段四 2.4/2.5 |
 
-> 三者同源于**单一 `holiday-data-fetch.json`**（`schema/meta/items`，每条带 `layer` 字段，见 `data-architecture.md` v2.0）。CSV / 现象素材库 JSON/MD 仅为按 `layer` 派生的可读视图，SSOT 仍是 JSON。
+> 三者同源于**单一 `holiday-data-fetch.json`**（`schema/meta/items`，每条带 `layer` 字段，见 `data-architecture.md` v1.2.0）。CSV / 现象素材库 JSON/MD 仅为按 `layer` 派生的可读视图，SSOT 仍是 JSON。
 
 ---
 
@@ -23,7 +23,7 @@
 ### Schema（顺序固定、列名不得删改）
 `主题 | 数据点 | 数值 | 单位 | 单位粒度 | 统计起止日 | 统计窗口 | 口径版本 | 指标口径类型 | 口径类型 | 数据性质 | 基期 | 假期天数 | 数值类型 | 采集日期 | 缺口标记 | 来源机构 | 报告/资料名 | 发布时间 | 可信度等级 | URL | 备注`
 
-- **权威**：`caliber-dictionary.md`（schema 唯一权威，v2.2 起正式声明）。
+- **权威**：`caliber-dictionary.md`（schema 唯一权威，v1.2.2 起正式声明）。
 - **强制 D 规则**：`数据性质=推算` 或 `口径类型∈{测算,弱溯源}` 或 `数值类型≠水平值` 三者任一满足 → 可信度强制 D 级、禁入 B 级。
 
 ### 验收标准（report 门禁验收，只验产物）
@@ -86,4 +86,4 @@
 
 ---
 
-*契约版本：v1.0 | 更新日期：2026-09-04 | 来源：02_目标架构.md §五（三契约定义）与 06_实施路线图 阶段一。三契约与 716 行历史基线实证产物兼容；口径字典 schema 权威声明见 `caliber-dictionary.md` v2.2。*
+*契约版本：v1.1.0 | 更新日期：2026-09-04 | 来源：02_目标架构.md §五（三契约定义）与 06_实施路线图 阶段一。三契约与 716 行历史基线实证产物兼容；口径字典 schema 权威声明见 `caliber-dictionary.md` v1.2.2。*

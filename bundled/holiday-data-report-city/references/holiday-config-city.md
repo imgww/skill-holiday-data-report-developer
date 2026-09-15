@@ -1,6 +1,6 @@
 # 节假日配置 · 城市级数据源矩阵（Holiday Config · City Extension）v1.2.0
 
-> 本文件为 `holiday-data-report-city` 技能的**城市级数据源矩阵**，与父技能 `holiday-data-report` 的《节假日配置 v2.0》（全国 A–J 全源矩阵）**配套使用**。
+> 本文件为 `holiday-data-report-city` 技能的**城市级数据源矩阵**，与父技能 `holiday-data-report` 的《节假日配置 v1.2.0》（全国 A–J 全源矩阵）**配套使用**。
 > 全国来源（文旅部/交通运输部/国铁/商务部/STR…）继承自父技能，此处仅定义**城市级增量来源**、**纳入城市集合**、**区域分组**与**城市披露覆盖率预期**。
 
 ---
@@ -89,4 +89,4 @@
 
 ---
 
-*城市级配置版本：v1.2.0 | 更新日期：2026-09-15 | 本次修订（v1.2.0）：① 检索矩阵明确为 fetch F1 的输入，采集由 fetch 执行；② 门禁增「fetch 已备妥」；③ 父技能版本引用更正为 holiday-config.md v2.0。配套：caliber-dictionary-city.md（城市口径 + 勾稽）、templates-city.md（城市行 30 字段）、style-guide-viz.md（城市可视化）。全国 A–J 全源矩阵继承自 holiday-data-report 的 holiday-config.md v2.0。*
+*城市级配置版本：v1.2.0 | 更新日期：2026-09-15 | 本次修订（v1.2.0）：① 检索矩阵明确为 fetch F1 的输入，采集由 fetch 执行；② 门禁增「fetch 已备妥」；③ 父技能版本引用更正为 holiday-config.md v1.2.0。配套：caliber-dictionary-city.md（城市口径 + 勾稽）、templates-city.md（城市行 30 字段）、style-guide-viz.md（城市可视化）。全国 A–J 全源矩阵继承自 holiday-data-report 的 holiday-config.md v1.2.0。*

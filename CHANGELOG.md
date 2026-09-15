@@ -11,7 +11,7 @@
 |---|---|---|
 | `SKILL.md` | **现行规则**：参数解析、D1–D4 采集流水线、五阶段工作流、门禁、资源索引 | ❌ 不含 |
 | `CHANGELOG.md`（本文件） | **版本沿革**：各版本变更、已知缺口 | ✅ |
-| `references/development-prompt.md` | v3.6.0 五阶段操作细则存档（采集细则已由 fetch 承接） | 历史存档 |
+| `references/development-prompt.md` | v1.3.6 五阶段操作细则存档（采集细则已由 fetch 承接） | 历史存档 |
 
 **铁律**：新增能力时只改 `SKILL.md` 的规则正文，不在其中写"本次新增了 X"；变更说明一律写进本文件。
 理由：历史叙事会随版本堆积，最终让规则正文无法辨认哪条是现行要求（1.4.1 之前的 SKILL.md 已出现此问题）。
@@ -20,7 +20,7 @@
 
 ## 二、版本号规则
 
-统一使用**三位** `x.y.z`（如 `1.5.0`），不使用两位（`v3.6`、`4.1`）写法。
+统一使用**三位** `x.y.z`（如 `1.5.0`）；历史遗留的两位版本号 `X.Y` 一律转换为 `1.X.Y`（如 `3.6` → `1.3.6`）。
 版本号只此一套，`SKILL.md` frontmatter 即权威值。
 
 ---
@@ -75,8 +75,8 @@
 
 **④ 引用与版本号更正**
 
-- 父技能版本引用：`holiday-config.md` v1.2 → **v2.0**、`development-prompt.md` v3.3 → **v3.6**、
-  口径字典 v2.0 → **v2.2**（均按父技能文件实际版本核对）。
+- 父技能版本引用：`holiday-config.md` v1.1.2 → **v1.2.0**、`development-prompt.md` v1.3.3 → **v1.3.6**、
+  口径字典 v1.2.0 → **v1.2.2**（均按父技能文件实际版本核对）。
 - city assets 指向：可视化规范与模板由 `report-template.html` → **`report-template-city.html`**；
   城市数示例 36 → **40**（与 `holiday-config-city.md` 一致）。
 - 文档版本三位化并升级：caliber-dictionary-city / holiday-config-city / templates-city → **v1.2.0**，
@@ -117,10 +117,10 @@ city 引用全部收敛在 city 包内，父技能无空指针引用。
 
 #### `43e54db` · 2026-09-15 · 版本号体系：废弃双轨，统一三位
 
-- `SKILL.md` frontmatter `version` **4.1.0 → 1.5.0**：内部 4.x / 5.x 体系作废，全仓只保留包版本一套。
+- `SKILL.md` frontmatter `version` **1.4.1 → 1.5.0**：旧 4.x / 5.x 体系作废，全仓只保留包版本一套。
 - CHANGELOG：删「二、版本号双轨映射」（含双轨对应表、历史错位警示、发版四处核对），
   改为「二、版本号规则」三行；变更详情各节标题去掉「（内部 x.y.z ·）」；
-  `v3.6` → `v3.6.0`；维护约定第 2 条简化为「更新 frontmatter 版本号后打 tag」。
+  `v3.6` → `v1.3.6`；维护约定第 2 条简化为「更新 frontmatter 版本号后打 tag」。
 - **未动**：references 与 bundled 内的文档版本号（本次范围限定 `SKILL.md` + CHANGELOG）。
 
 #### `a66d2ab` · 2026-09-15 · SKILL.md 精简：去解释性叙事 + CSV→SSOT 一致性修正
@@ -198,7 +198,7 @@ holiday-data-reports/
   与 `data_set/{年份}_{节假日}/` 同为 `|--` 缩进（平级）；实际采用**归属于
   `data_set/{年份}_{节假日}/`** 的解读——否则全仓只有一份快照与一个 JSON，无法分年分节，
   且与 AtomGit 上游每目录三件套的结构不符。**如与预期不符请指出。**
-- `development-prompt.md` 为 v3.6.0 历史存档，正文未改写；其 v1.5.0 说明块已同步新路径与交付形态。
+- `development-prompt.md` 为 v1.3.6 历史存档，正文未改写；其 v1.5.0 说明块已同步新路径与交付形态。
 
 **实测**：D1 按新结构端到端 PASS（7 格命中 / 14 文件 / 0 快照混入 / 3.7 MB）；
 5 个 HTML 模板标签平衡校验全 OK；术语自检 report + bundled 均 PASS。

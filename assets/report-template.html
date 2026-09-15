@@ -6,9 +6,9 @@
 <title>【目标年度】【节假日】消费数据报告</title>
 <style>
 /* ============================================================
-   节假日消费数据报告 · 统一设计系统 (Design System)  v4.0
+   节假日消费数据报告 · 统一设计系统 (Design System)  v1.4.0
    - 单一设计令牌（含明暗双主题，自动 + 手动切换）
-   - 无吸顶导航（v4.0 移除 appbar）：正文自报头开篇，便于整体嵌入任意主页框架
+   - 无吸顶导航（v1.4.0 移除 appbar）：正文自报头开篇，便于整体嵌入任意主页框架
    - 组件库（报头 / 数字带 / Hero 卡 / 徽章 / callout / 预测块 / 图表 / 表格 / 纵向模块）
    - 核心体验零 JS 可用，交互层渐进增强（暗色自动生效，按钮仅切换偏好）
    使用说明见文件末尾注释。
@@ -55,7 +55,7 @@
 html{scroll-behavior:smooth;}
 body{background:var(--paper);color:var(--ink);font-family:var(--font-stack);line-height:1.66;transition:background .25s,color .25s;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 22px;}
-/* 锚点定位留白（v4.0 无吸顶导航） */
+/* 锚点定位留白（v1.4.0 无吸顶导航） */
 section[id],h2[id],h3[id],div[id]{scroll-margin-top:14px;}
 /* 防御：flex/grid 子项允许收缩，避免被内容最小宽度撑破视口（移动端横向溢出根因） */
 .card,.cell,.grid,.card-grid,.report-layout,.toc,.main-content,.hero-stats,.h-card,.fig-strip,.fig,.stat{min-width:0;}
@@ -70,12 +70,12 @@ code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--lin
 .skip-link:focus{left:0;top:0;}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
 
-/* ---------- 3. 页面骨架（v4.0：无吸顶导航；面包屑为可选块，整体嵌入主页时可删除） ---------- */
+/* ---------- 3. 页面骨架（v1.4.0：无吸顶导航；面包屑为可选块，整体嵌入主页时可删除） ---------- */
 .breadcrumb{max-width:var(--max);margin:0 auto;padding:14px 22px 0;font-size:12.5px;color:var(--ink3);font-family:var(--ui-stack);letter-spacing:.5px;}
 .breadcrumb a{color:var(--ink2);text-decoration:none;}
 .breadcrumb a:hover{color:var(--red);text-decoration:underline;}
 .breadcrumb span{color:var(--red);}
-/* 明暗主题切换按钮：置于报头右端（v4.0 由原吸顶 appbar 迁移至此） */
+/* 明暗主题切换按钮：置于报头右端（v1.4.0 由原吸顶 appbar 迁移至此） */
 .theme-btn{cursor:pointer;background:transparent;border:1px solid var(--line);color:var(--ink2);font-size:11.5px;padding:2px 10px;border-radius:2px;font-family:var(--ui-stack);letter-spacing:1px;transition:background .15s,color .15s,border-color .15s;}
 .theme-btn:hover{background:var(--paper3);color:var(--red);border-color:var(--red);}
 .masthead-top .masthead-meta{display:inline-flex;align-items:center;gap:12px;}
@@ -567,9 +567,9 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 </html>
 <!--
 ====================================================================
-使用说明（report-template.html · v4.0）
+使用说明（report-template.html · v1.4.0）
 ====================================================================
-1. v4.0 设计要点：
+1. v1.4.0 设计要点：
    - 无吸顶导航（已移除 header.appbar）：正文自报头开篇，可整体嵌入任意主页框架；
      明暗切换按钮位于报头右端（`.masthead-top .masthead-meta` 内）。
    - 明暗双主题：无 JS 自动跟随系统偏好；点击报头右端「明暗」按钮手动切换并记忆。
@@ -581,7 +581,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
    预计进预测卡标置信度，禁止混栏。
 4. 纵向延续与前瞻（第二部分）为 SKILL 框架强制：2.1–2.6 六子节齐备；
    首期无历史时优雅降级标注，不编造。
-5. 内容整洁原则（v4.0 硬性）：正文与页脚只出现与本节假日消费数据相关的内容，
+5. 内容整洁原则（v1.4.0 硬性）：正文与页脚只出现与本节假日消费数据相关的内容，
    禁止保留站点门户品牌、外部数据系统、部署平台名、技能内部代号等无关字眼。
 6. 面包屑（BREADCRUMB 注释块）为可选：同目录存在首页时指向 index.html；
    纯单页或需整体嵌入主页时整段删除。
