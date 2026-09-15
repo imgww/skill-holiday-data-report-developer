@@ -90,7 +90,7 @@
 |---|---|---|---|
 | 基线落点 | `dataset\holiday-data-reports\` | `data_set\holiday_data\` | 48 |
 | AtomGit 数据仓 | `atomgit.com/g_ww/holiday_data_reports` | `atomgit.com/g_ww/holiday_data` | 11 |
-| 旧基线路径 | `.baseline-cache/`（散落 7 文件） | 统一并入 `data_set/holiday_data/` | 20 |
+| 旧基线路径 | `.baseline-cache/`（散落 7 文件） | 统一并入 `holiday-data-reports/data_set/` | 20 |
 
 - ⚠️ **旧仓 `holiday_data_reports` 已被删除**（`git ls-remote` 返回 403）。此项为**必须项**，非优化。
 - fetch 安装源 `g_ww/holiday-data-fetch` 不受影响，仍可达。

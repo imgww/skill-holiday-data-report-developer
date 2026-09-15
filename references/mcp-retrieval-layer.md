@@ -4,7 +4,7 @@
 
 `holiday-data-mcp` 是节假日消费数据领域的**结构化实时检索入口**（MCP 协议, 已配置于 `~/.workbuddy/mcp.json`, 地址 `https://ai-x-ai.online/mcp`, Bearer 鉴权）。它查询的数据后端即本技能历史基线**同源数据**（`D:\AISpace\01-projects\260824_holiday_data_mcp\data\data_set`, 上游 atomgit 仓库 `g_ww/holiday_data` 的衍生索引）。
 
-> **不是替代**: atomgit `git clone/pull`（阶段一 4c, `data_set/holiday_data/`）继续作为**原始 CSV 落盘与跨期沉淀（回写上游）**的唯一源;MCP 是其上的**结构化检索互补层**——无需 clone 即可即时按条件取数,且 `compare_across_years` 自带口径/单位不一致告警。三者（MCP + atomgit 基线 + 联网检索）**互为交叉验证**。
+> **不是替代**: atomgit `git clone/pull`（阶段一 4c, `holiday-data-reports/data_set/`）继续作为**原始 CSV 落盘与跨期沉淀（回写上游）**的唯一源;MCP 是其上的**结构化检索互补层**——无需 clone 即可即时按条件取数,且 `compare_across_years` 自带口径/单位不一致告警。三者（MCP + atomgit 基线 + 联网检索）**互为交叉验证**。
 
 ## 2. 6 个工具与技能阶段映射
 
@@ -27,14 +27,14 @@
 
 ## 4. 工作流接入点
 
-- **阶段一第 4d 步（取数交叉验证）**: 在 4c 拉取 `data_set/holiday_data/` 后,调用 `list_holidays` 确认本年/本期数据集可用性; `query_data_points` / `query_phenomena` 取 L1/L2 初稿,与 4c 基线及联网检索结果**交叉比对**,差异点须复核口径后再入库。MCP 返回数据映射进 22 字段口径治理时,逐条核对 `可信度等级`/`数据性质`/`口径类型`。
-- **阶段二第 9 步（纵向归集）**: 调用 `compare_across_years` 取去年同期/本年上期代表值,**优先采用其自动 per-day 折算与口径/单位不一致告警**;结果与 `data_set/holiday_data/` 取数交叉验证,共同喂给四元键可比判定。
+- **阶段一第 4d 步（取数交叉验证）**: 在 4c 拉取 `holiday-data-reports/data_set/` 后,调用 `list_holidays` 确认本年/本期数据集可用性; `query_data_points` / `query_phenomena` 取 L1/L2 初稿,与 4c 基线及联网检索结果**交叉比对**,差异点须复核口径后再入库。MCP 返回数据映射进 22 字段口径治理时,逐条核对 `可信度等级`/`数据性质`/`口径类型`。
+- **阶段二第 9 步（纵向归集）**: 调用 `compare_across_years` 取去年同期/本年上期代表值,**优先采用其自动 per-day 折算与口径/单位不一致告警**;结果与 `holiday-data-reports/data_set/` 取数交叉验证,共同喂给四元键可比判定。
 - **阶段三（溯源）**: `get_data_point_detail` 按 `query_data_points` 返回的 `id` 补回完整 22 字段,写入真实性说明「逐条溯源表」,确保每条数据可精确回溯口径版本与发布时间。
 
 ## 5. 离线降级
 
-- MCP 不可达（网络/鉴权失败）时,**跳过 MCP 检索**,回退到 `data_set/holiday_data/` 与联网检索,不中断流程、不编造数据。
-- 报告页脚/交付说明标注 `MCP 未获取（离线/不可达）`;纵向模块以 `data_set/holiday_data/` + 网页检索为准。
+- MCP 不可达（网络/鉴权失败）时,**跳过 MCP 检索**,回退到 `holiday-data-reports/data_set/` 与联网检索,不中断流程、不编造数据。
+- 报告页脚/交付说明标注 `MCP 未获取（离线/不可达）`;纵向模块以 `holiday-data-reports/data_set/` + 网页检索为准。
 - 鉴权信息（Bearer Token）来自 `~/.workbuddy/mcp.json`,**不得写入技能交付物或公开产物**。
 
 ## 6. 与历史基线（atomgit）的关系小结

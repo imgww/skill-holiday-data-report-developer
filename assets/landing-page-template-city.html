@@ -326,7 +326,7 @@ table.csv-preview .badge.d{background:var(--ink3);}
       </div>
       <div class="card-cta-wrap">
         <!-- download 属性触发文件下载；文件名按实际数据集名替换 -->
-        <a class="card-cta" href="【年度】【节假日】城市消费数据集.csv" download>下载完整数据集 &darr;</a>
+        <a class="card-cta" href="../../data_set/【年度】_【节假日】/holiday-data-fetch.json">查看原始数据集 &darr;</a>
       </div>
     </div>
 
@@ -340,7 +340,7 @@ table.csv-preview .badge.d{background:var(--ink3);}
           <h4>本页文件</h4>
           <a href="城市消费数据报告.html">消费数据报告</a>
           <a href="数据真实性说明.html">数据真实性说明</a>
-          <a href="【年度】【节假日】城市消费数据集.csv">消费数据集（下载）</a>
+          <a href="../../data_set/【年度】_【节假日】/holiday-data-fetch.json">原始数据集（JSON）</a>
         </div>
         <div>
           <h4>跨年专题</h4>
@@ -401,7 +401,7 @@ table.csv-preview .badge.d{background:var(--ink3);}
 2. 替换占位符：
    - 【目标年度】【节假日】【生成日期】→ 实际值；
    - XX.X / XXXX / [年度] / N → 数据集真实值；
-   - 【年度】【节假日】城市消费数据集.csv → 实际 CSV 名（如 2026春节城市消费数据集.csv）。
+    - 【年度】_【节假日】 → 实际目录名（如 2026_暑期），用于跨子树指向 data_set/ 下的 SSOT。
 3. 取数铁律：每个数字须有《数据集》对应条目；推算标"测算"，禁止编造。
 4. 连续性高亮条（CONTINUITY）为可选块：存在跨年纵向报告时显示，否则整段删除。
 5. 内容整洁原则（v4.0 硬性）：正文与页脚只出现与本节假日消费数据相关的内容，

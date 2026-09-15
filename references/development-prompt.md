@@ -60,7 +60,7 @@
 3. **上一周期预测复盘（忠实诚恳）**：读取上期预测台账,逐条「预测值→实测值→偏差%→归因→判语」;偏差 > ±10% 标**失准**并分三类归因（口径效应/外生变量/方法偏差）,不美化、不选择性引用;首期标注"暂无上期预测可比"。
 4. **下一节假日前瞻 + 中长期趋势**：基于可比序列与已确认放假安排/免签/促消费政策,给下一节假日预测（中心值+区间+置信度+口径效应提示,不得当实测）;并给未来 3-12 月及更久结构性判断,附**拐点判据**与置信度分级（已验证/待核验/存疑）。
 
-**纵向数据来源**：去年同期/本年上期从 SSOT 数据集目录读取往年 CSV（经 `audit_caliber.py` 校验、per-day 折算）;SSOT 历史不全时,读取阶段一第 4c 步实时拉取的 `data_set/holiday_data/`（2023–2026 × 5 节假日 = 20 CSV/716 行,上游 `https://atomgit.com/g_ww/holiday_data`;**v3.7 起技能包不内置快照**）,按 `references/historical-data-source.md` 做 **17→22 字段适配 + 数据点 canon 规范化 + 枚举归一**;跨年可比四元键 `(节假日, canon, 口径类型, 地域scope)` 一致且 ≥2 年才可比,否则标「单年/不可比」。上一周期预测读取 `缺口标记=预判待回填` 行;首期无历史（含离线拉取失败）优雅降级。
+**纵向数据来源**：去年同期/本年上期从 SSOT 数据集目录读取往年 CSV（经 `audit_caliber.py` 校验、per-day 折算）;SSOT 历史不全时,读取阶段一第 4c 步实时拉取的 `holiday-data-reports/data_set/`（2023–2026 × 5 节假日 = 20 CSV/716 行,上游 `https://atomgit.com/g_ww/holiday_data`;**v3.7 起技能包不内置快照**）,按 `references/historical-data-source.md` 做 **17→22 字段适配 + 数据点 canon 规范化 + 枚举归一**;跨年可比四元键 `(节假日, canon, 口径类型, 地域scope)` 一致且 ≥2 年才可比,否则标「单年/不可比」。上一周期预测读取 `缺口标记=预判待回填` 行;首期无历史（含离线拉取失败）优雅降级。
 
 ## 四、五阶段工作流程
 
@@ -71,12 +71,17 @@
 - 对探索性主题（热门新消费）采用**开放式检索**：检索词为"【目标年度】【节假日】新消费热点 / 【目标年度】【节假日】消费新业态 / 【目标年度】【节假日】新兴消费"等宽泛表述,禁止预置具体业态关键词——具体业态必须在检索结果中涌现,而非在检索词中预设
 - 每轮检索记录《采集日志》,字段如下：
   `检索关键词 | 检索时间 | 标题 | 来源机构 | 报告/资料名 | 发布时间 | URL | 内容摘要`
-- **基线实时拉取（v3.6 新增,v3.7 纯实时）**：纵向分析前在输出目录 `data_set/holiday_data/` 执行 `git clone --depth 1 https://atomgit.com/g_ww/holiday_data data_set/holiday_data/`（首次）或 `git -C data_set/holiday_data pull --depth 1`（增量,实测约 9 秒）;技能包不内置快照,离线/拉取失败时纵向模块降级为首期基线标注;报告页脚标注 `历史基线版本: live@<commit>（刷新时间）` 或 `未获取（离线/仓库不可达）`（详见 `references/historical-data-source.md` 1.1 节）
+- **基线实时拉取（v3.6 新增,v3.7 纯实时）**：纵向分析前在输出目录 `holiday-data-reports/data_set/` 执行 `git clone --depth 1 https://atomgit.com/g_ww/holiday_data holiday-data-reports/data_set/`（首次）或 `git -C holiday-data-reports/data_set pull --depth 1`（增量,实测约 9 秒）;技能包不内置快照,离线/拉取失败时纵向模块降级为首期基线标注;报告页脚标注 `历史基线版本: live@<commit>（刷新时间）` 或 `未获取（离线/仓库不可达）`（详见 `references/historical-data-source.md` 1.1 节）
 > **v1.5.0 更新（覆盖上方 v3.6/v3.7 写法）**：上方为**全量 clone**，已废弃。
 > v1.5.0 起改为**稀疏定向检出**（阶段一 D1）：`--filter=blob:none --sparse` + `sparse-checkout set --no-cone`
 > 只取半命中格的 `holiday-data-fetch.json` + `采集日志.csv`，**禁拉 `snapshots/`**（实测省 99%）。
-> 落点为**用户本地工作空间** `data_set/holiday_data/`。详见 `SKILL.md` 阶段一 D1。
-> 存量 `data_set/holiday_data/` 已是全量克隆时，可就地 `git sparse-checkout init --no-cone` 后 `set` 重列收敛。
+> 落点为**用户本地工作空间** `holiday-data-reports/data_set/{年份}_{节假日}/`。详见 `SKILL.md` 阶段一 D1。
+> 存量 `holiday-data-reports/data_set/` 已是全量克隆时，可就地 `git sparse-checkout init --no-cone` 后 `set` 重列收敛。
+>
+> **交付形态同步变更（v1.5.0）**：本文件正文中的「四件套」表述已废止；`消费数据集.csv` 与
+> `现象素材库.json/.md` **不再单独交付**，需要时从 `holiday-data-fetch.json`（SSOT）现算。
+> 现行交付结构为 `holiday-data-reports/` 下 `data_set/{年份}_{节假日}/`（数据侧）与
+> `data_report/{年份}_{节假日}/`（报告侧）两棵子树。本文件其余内容为 v3.6 历史存档，未改写。
 - 来源优先级：**A 级**（政府公告/官方统计/权威通讯社通稿）> **B 级**（权威媒体转引机构数据）> **C 级**（企业自我披露/券商研报）> **D 级**（弱溯源）
 - **旧闻剔除**：核对发布时间,凡非【目标年度】【节假日】口径的数据一律不入库
 - **口径冲突暂存**：同一指标出现多个口径时全部记录,不急于取舍
@@ -89,7 +94,7 @@
 - [ ] **采集深度达标**：数据集条目数 ≥ 门禁下限（春节/十一 ≥35、五一/端午 ≥25、暑期 ≥30;低于下限须复核检索轮次与源覆盖,不得靠凑数达标）
 - [ ] 采集日志字段齐全（含 URL、来源机构、发布时间）
 - [ ] 旧闻已剔除,口径冲突已暂存
-- [ ] **基线实时拉取已执行（v3.6/v3.7）**：`data_set/holiday_data/` 已 clone/pull（或离线降级为首期基线标注）,页脚标注基线来源与刷新时间
+- [ ] **基线实时拉取已执行（v3.6/v3.7）**：`holiday-data-reports/data_set/` 已 clone/pull（或离线降级为首期基线标注）,页脚标注基线来源与刷新时间
 
 ### 阶段二：数据整理与质量评估（Data Cleaning & QA）
 
@@ -295,10 +300,10 @@
 | **预测台账闭环（v3.3）** | 数据集 `数据性质=预计`+`缺口标记=预判待回填`+`预测ID` → 下期回填核验 → 偏差归因（口径字典第六节、templates 第 5/6 节） |
 | **全源采集 A-J（v3.3）** | `references/holiday-config.md` v1.2 全源矩阵 + 阶段一全源门禁 + 采集深度行数门禁（R10） |
 | **跨年纵向专题报告（v3.3 可选）** | `templates.md` 第 7 节框架（从 SSOT 多年份 CSV 聚合,不重复采集） |
-| **历史纵向基线库（v3.4 新增）** | `references/historical-data-source.md` + 调用时实时拉取 `data_set/holiday_data/`（2023–2026 × 5 节假日,20 CSV/716 行,上游 atomgit `g_ww/holiday_data`）;17→22 字段适配 + 数据点 canon 规范化 + 枚举归一;跨年可比四元键 `(节假日, canon, 口径类型, 地域scope)` |
-| **基线实时拉取（v3.5/v3.6 新增,v3.7 纯实时）** | 阶段一 4c：输出目录 `data_set/holiday_data/` `git clone --depth 1`/`pull --depth 1`（实测约 9 秒）;v3.7 起不内置快照,离线降级为首期基线标注;页脚标注 live@commit / 未获取 |
+| **历史纵向基线库（v3.4 新增）** | `references/historical-data-source.md` + 调用时实时拉取 `holiday-data-reports/data_set/`（2023–2026 × 5 节假日,20 CSV/716 行,上游 atomgit `g_ww/holiday_data`）;17→22 字段适配 + 数据点 canon 规范化 + 枚举归一;跨年可比四元键 `(节假日, canon, 口径类型, 地域scope)` |
+| **基线实时拉取（v3.5/v3.6 新增,v3.7 纯实时）** | 阶段一 4c：输出目录 `holiday-data-reports/data_set/` `git clone --depth 1`/`pull --depth 1`（实测约 9 秒）;v3.7 起不内置快照,离线降级为首期基线标注;页脚标注 live@commit / 未获取 |
 | **人均 / 跨年折算 / 虚假交叉印证** | 反模式第 7、8 条 + 阶段二第 5/6/7 步 + 阶段四门禁 |
 
 ---
 
-*提示词版本：v3.6 | 修订日期：2026-08-20 | 适用范围：任意年度任意节假日消费数据报告 | 本次修订：移除内置快照（v3.7 起纯实时拉取,离线降级为首期基线标注）;v3.5/v3.6 新增基线实时拉取机制（阶段一 4c,`data_set/holiday_data/` clone/pull 实时拉取,页脚标注基线来源）;v3.4 接入历史纵向基线库（atomgit `g_ww/holiday_data`,17→22 字段适配、数据点 canon 规范化、枚举归一,新增反模式 R13–R15）;v3.3 新增纵向延续性方法论(去年同期/本年上期回顾、预测复盘、下一节假日前瞻、中长期趋势);预测台账闭环(数据性质=预计+缺口标记=预判待回填+预测ID);报告框架重排为 v2 四部分(纵向模块前移);22 字段统一 schema;全源采集 A-J 矩阵与采集深度门禁;跨年纵向专题报告(可选第6交付物)。*
+*提示词版本：v3.6 | 修订日期：2026-08-20 | 适用范围：任意年度任意节假日消费数据报告 | 本次修订：移除内置快照（v3.7 起纯实时拉取,离线降级为首期基线标注）;v3.5/v3.6 新增基线实时拉取机制（阶段一 4c,`holiday-data-reports/data_set/` clone/pull 实时拉取,页脚标注基线来源）;v3.4 接入历史纵向基线库（atomgit `g_ww/holiday_data`,17→22 字段适配、数据点 canon 规范化、枚举归一,新增反模式 R13–R15）;v3.3 新增纵向延续性方法论(去年同期/本年上期回顾、预测复盘、下一节假日前瞻、中长期趋势);预测台账闭环(数据性质=预计+缺口标记=预判待回填+预测ID);报告框架重排为 v2 四部分(纵向模块前移);22 字段统一 schema;全源采集 A-J 矩阵与采集深度门禁;跨年纵向专题报告(可选第6交付物)。*

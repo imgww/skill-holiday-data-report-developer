@@ -78,7 +78,7 @@
 | --- | --- |
 | 检索矩阵 / 同源双录 / 快照 / 来源分级 | fetch（F1–F2） |
 | 增量归集 / 分层同一性判定 / 门禁自检 | fetch（F3–F4） |
-| 基线拉取（data_set/holiday_data/ 稀疏检出） + 数据源覆盖矩阵 | fetch（F1，`coverage-matrix.md`） |
+| 基线拉取（holiday-data-reports/data_set/ 稀疏检出） + 数据源覆盖矩阵 | fetch（F1，`coverage-matrix.md`） |
 | atomgit 上游回推（资产沉淀） | fetch（F5） |
 | 口径裁决 / 叙事批判 / 节日属性语义 | report（`analysis-methodology.md`） |
 | 22 字段口径治理 / 纵向归集 / 预测入账 | report（阶段二） |
