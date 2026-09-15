@@ -47,6 +47,46 @@
 
 未发版。以下为已提交至主干的变更，按时间倒序。
 
+#### `e8ad0ab` · 2026-09-15 · city references 对齐新架构（SSOT 化）
+
+5 份 city references 由 2026-08-19 的**旧 CSV 世界观**对齐到 report 现行 SSOT 体系（承接 `94e0c19` 待办项）。
+
+**① 城市行并入 SSOT（核心结构决策）**
+
+- 城市数据**不再另建文件**：直接写入父技能 SSOT `holiday-data-fetch.json` 的 `items[]`，
+  判据 `layer=L1` 且 `地域粒度` ≠ `全国`；全国行 `地域粒度=全国` 即为勾稽基准，同文件内闭合。
+- **字段 23「城市」改为复用 SSOT 现有字段「`地域粒度`」**（全国行填 `全国`，城市行填城市/县域全称），
+  不新增同义字段；城市增量仍为 8 字段，总数仍 22+8=30。
+- 决策依据：`地域粒度` 本就是 SSOT L1 的既有治理字段；且历史基线上游只沉淀 `holiday-data-fetch.json`
+  这一个文件——独立城市文件无法随 F5 沉淀，city 的「城市排名跨年漂移」纵向模块也就无从复用历史。
+- 城市层 L2 素材（榜单/定性句/平台城市榜热点）同样入 SSOT（`layer=L2`），入正文标"现象级/定性素材"。
+
+**② 采集交 fetch，city 不再自行检索**
+
+- `development-prompt-city` 阶段一重写：城市组合词并入 fetch 的 **F1 检索矩阵**，由 fetch 执行；
+  城市层无上游基线可复用 → **联网 5 轮**；产出为 SSOT `items[]` 新记录 + `采集日志.csv` 留痕。
+- `holiday-config-city` 第四节标题改为「喂给 fetch」，门禁增「fetch 已备妥且矩阵已并入 F1」。
+
+**③ 模板与示例 JSON 化**
+
+- `templates-city` §1 CSV 示例 → **SSOT JSON 示例**（城市行 / 残差行 / L2 素材三段）；
+  §6 预测台账 CSV → 并入 SSOT 的 `数据性质=预计` 行（`预测ID` 等元数据记 `备注`）。
+- 勾稽校验提示由「扫描 CSV」改为「扫描 SSOT `layer=L1` 且 `地域粒度`≠`全国` 的记录」。
+
+**④ 引用与版本号更正**
+
+- 父技能版本引用：`holiday-config.md` v1.2 → **v2.0**、`development-prompt.md` v3.3 → **v3.6**、
+  口径字典 v2.0 → **v2.2**（均按父技能文件实际版本核对）。
+- city assets 指向：可视化规范与模板由 `report-template.html` → **`report-template-city.html`**；
+  城市数示例 36 → **40**（与 `holiday-config-city.md` 一致）。
+- 文档版本三位化并升级：caliber-dictionary-city / holiday-config-city / templates-city → **v1.2.0**，
+  style-guide-viz / development-prompt-city → **v1.1.0**。
+- 同步 city 与 report 的 `SKILL.md`：「城市层台账」→「SSOT 城市行」；
+  三方勾稽统一为「SSOT 城市行 ↔ SSOT 全国行 ↔ 真实性说明」。
+
+**⑤ 实测**：术语自检 report + city **双 PASS**；city 代码块围栏平衡（SKILL 2 / templates 6）；
+「城市数据集」残留 6 处均为否定句（"不另建城市数据集 CSV/文件"）或版本沿革说明，属预期。
+
 #### `94e0c19` · 2026-09-15 · 城市维度分拆为随包技能 `holiday-data-report-city`
 
 **① 分拆方式**（参考 fetch bundled 模式；用户裁决：只建 bundled 副本 · 通用层引用不复制 · version 1.5.0）
@@ -72,10 +112,8 @@
 **③ 实测**：术语自检 report 与 city 目录**双 PASS**；report `SKILL.md` 330 行；
 city 引用全部收敛在 city 包内，父技能无空指针引用。
 
-**④ 待办（本次未处理）**：city 的 5 份 references 仍是 2026-08-19 旧内容——
-**CSV 世界观**（城市数据集 CSV、30 字段 CSV 交付）、父技能版本引用 v1.2 / v3.3，
-与 report 现行 SSOT 体系（`holiday-data-fetch.json`、派生视图不单独交付）尚未对齐。
-city `SKILL.md` 已按现行架构撰写，references 后续需统一。
+**④ 上述待办已由 `e8ad0ab` 完成**：city references 已对齐 SSOT 体系（城市行并入 `holiday-data-fetch.json`、
+采集交 fetch、模板 JSON 化、父技能版本引用更正），本条保留仅为记录分拆当时的状态。
 
 #### `43e54db` · 2026-09-15 · 版本号体系：废弃双轨，统一三位
 
