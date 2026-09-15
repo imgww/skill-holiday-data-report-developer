@@ -1,6 +1,6 @@
 # 节假日配置 · 城市级数据源矩阵（Holiday Config · City Extension）v1.1
 
-> 本文件为 `consumption-data-city-report` 技能的**城市级数据源矩阵**，与父技能 `consumption-data-report` 的《节假日配置 v1.2》（全国 A–J 全源矩阵）**配套使用**。
+> 本文件为 `holiday-data-report-city` 技能的**城市级数据源矩阵**，与父技能 `holiday-data-report` 的《节假日配置 v1.2》（全国 A–J 全源矩阵）**配套使用**。
 > 全国来源（文旅部/交通运输部/国铁/商务部/STR…）继承自父技能，此处仅定义**城市级增量来源**、**纳入城市集合**、**区域分组**与**城市披露覆盖率预期**。
 
 ---
@@ -88,4 +88,4 @@
 
 ---
 
-*城市级配置版本：v1.1 | 更新日期：2026-08-19 | 配套：caliber-dictionary-city.md（城市口径+勾稽 v1.1）、style-guide-viz.md（城市可视化）、templates.md（城市 30 字段）。全国 A–J 全源矩阵继承自 consumption-data-report 的 holiday-config.md v1.2。*
+*城市级配置版本：v1.1 | 更新日期：2026-08-19 | 配套：caliber-dictionary-city.md（城市口径+勾稽 v1.1）、style-guide-viz.md（城市可视化）、templates.md（城市 30 字段）。全国 A–J 全源矩阵继承自 holiday-data-report 的 holiday-config.md v1.2。*

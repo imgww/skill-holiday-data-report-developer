@@ -1,6 +1,6 @@
 # 城市数据可视化规范（Style Guide · Visualization）v1.0
 
-> 本文件为 `consumption-data-city-report` 技能的**城市数据可视化专项规范**，与父技能《经济学人/FT 排版规范 v?》共用同一设计令牌（米白暖底、暗红点缀、衬线字体、明暗双主题）。此处仅增量定义**图表类型选择、配色、口径标注与 SVG 组件约定**，确保城市报告"图文并茂、数据清晰可读"。
+> 本文件为 `holiday-data-report-city` 技能的**城市数据可视化专项规范**，与父技能《经济学人/FT 排版规范 v?》共用同一设计令牌（米白暖底、暗红点缀、衬线字体、明暗双主题）。此处仅增量定义**图表类型选择、配色、口径标注与 SVG 组件约定**，确保城市报告"图文并茂、数据清晰可读"。
 > 设计令牌（`:root` CSS 变量）与组件库（报头/数字带/徽章/预测卡/表格）直接套用 `assets/report-template.html`，**勿手动改写颜色**。
 
 ---
@@ -70,4 +70,4 @@
 
 ---
 
-*城市可视化规范版本：v1.0 | 更新日期：2026-08-19 | 配套：report-template.html（设计系统+图表容器）、chart-kit.html（可直接复制的 SVG 片段 C1–C6）、templates.md（组件清单）。排版基础继承自 consumption-data-report 的 style-guide.md。*
+*城市可视化规范版本：v1.0 | 更新日期：2026-08-19 | 配套：report-template.html（设计系统+图表容器）、chart-kit.html（可直接复制的 SVG 片段 C1–C6）、templates.md（组件清单）。排版基础继承自 holiday-data-report 的 style-guide.md。*

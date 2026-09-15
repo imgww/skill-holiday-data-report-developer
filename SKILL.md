@@ -1,6 +1,6 @@
 ---
 name: holiday-data-report
-description: "Generates holiday consumption data report packages for any year and any Chinese holiday (Spring Festival, Dragon Boat, May Day, Summer Vacation, Mid-Autumn, National Day), at either the NATIONAL (全国) or CITY (城市) dimension. National mode writes into a fixed `holiday-data-reports/` tree: the data side holds `data_set/{year}_{holiday}/` with `holiday-data-fetch.json` as SSOT plus `采集日志.csv` and on-demand `snapshots/`; the report side holds `data_report/{year}_{holiday}/` with `消费数据报告.html`, `数据真实性说明.html` and `index.html`. Derived CSV and material-library views are not delivered separately — they are computed from the SSOT on demand. It uses a five-stage pipeline with a 22-field caliber dictionary and a continuity/forecast framework. City mode adds a 30-field city layer that reconciles (勾稽) to the national SSOT dataset, with inline-SVG visualizations. Before any collection, the skill resolves three parameters — [年份] (defaults to current year), [节日] (defaults to the festival of the current date), [地域] (defaults to 全国; a named city triggers city mode) — and proactively prompts the user when any cannot be derived. Collection is delegated to the holiday-data-fetch skill, which is **bundled inside this package** at `bundled/holiday-data-fetch/` so a standalone report install still runs. Stage one is a four-step D1-D4 pipeline: D1 probes **AtomGit** for half-match directories (year series + holiday series) and sparse-checks out only `holiday-data-fetch.json` + `采集日志.csv` (never `snapshots/`); D2 ensures fetch is installed (running a terminology self-check after any fresh install); D3 falls back to the bundled copy; D4 dispatches rounds — a full match means 3 incremental rounds with the baseline as history input, no full match means 5 web-search rounds. A hit never skips fetch, it only reduces rounds. Gated by the three contracts; this skill owns parameter resolution, analysis, and delivery. Use when the user requests a Chinese-holiday consumption/spending data report, nationally or for a specific city."
+description: "Generates holiday consumption data report packages for any year and any Chinese holiday (Spring Festival, Dragon Boat, May Day, Summer Vacation, Mid-Autumn, National Day), at the NATIONAL (全国) dimension; city requests are handed off to the bundled `holiday-data-report-city` skill. National mode writes into a fixed `holiday-data-reports/` tree: the data side holds `data_set/{year}_{holiday}/` with `holiday-data-fetch.json` as SSOT plus `采集日志.csv` and on-demand `snapshots/`; the report side holds `data_report/{year}_{holiday}/` with `消费数据报告.html`, `数据真实性说明.html` and `index.html`. Derived CSV and material-library views are not delivered separately — they are computed from the SSOT on demand. It uses a five-stage pipeline with a 22-field caliber dictionary and a continuity/forecast framework. When [地域] resolves to a concrete city, the bundled `holiday-data-report-city` skill adds the 30-field city layer that reconciles (勾稽) every row to the national SSOT. Before any collection, the skill resolves three parameters — [年份] (defaults to current year), [节日] (defaults to the festival of the current date), [地域] (defaults to 全国; a named city triggers city mode) — and proactively prompts the user when any cannot be derived. Collection is delegated to the holiday-data-fetch skill, which is **bundled inside this package** at `bundled/holiday-data-fetch/` so a standalone report install still runs. Stage one is a four-step D1-D4 pipeline: D1 probes **AtomGit** for half-match directories (year series + holiday series) and sparse-checks out only `holiday-data-fetch.json` + `采集日志.csv` (never `snapshots/`); D2 ensures fetch is installed (running a terminology self-check after any fresh install); D3 falls back to the bundled copy; D4 dispatches rounds — a full match means 3 incremental rounds with the baseline as history input, no full match means 5 web-search rounds. A hit never skips fetch, it only reduces rounds. Gated by the three contracts; this skill owns parameter resolution, analysis, and delivery. Use when the user requests a Chinese-holiday consumption/spending data report, nationally or for a specific city."
 version: 1.5.0
 author: workbuddy
 agent_created: true
@@ -42,7 +42,7 @@ Core principle: **data first, report last** (先建数据集后出报告).
 
 ### 地域路由
 - `全国` → 全国五阶段 → `data_report/{年份}_{节假日}/` 三份 HTML。
-- 具体城市 → 先确保全国 SSOT 存在，再叠加 30 字段城市层 → 城市模式交付（引用全国数据集，不重造）。详见「城市维度扩展」与 `references/*-city.md`。
+- 具体城市 → 先确保全国 SSOT 存在，再交接 `bundled/holiday-data-report-city` 叠加 30 字段城市层（引用全国 SSOT，不重造）。详见「城市模式路由」。
 - 全国 + 城市 → 先全国后城市，共用同一 SSOT。
 
 ## When to Use
@@ -83,10 +83,10 @@ holiday-data-reports/
 
 > **可选交付物 · 跨年纵向专题报告**：从 SSOT 聚合产出（框架见 `templates.md` 第 7 节），历史年份数据从 `data_set/{年份}_{节假日}/` 按 `historical-data-source.md` 适配。
 
-### 城市模式
+### 城市模式（交接 bundled/holiday-data-report-city）
 
-在全国模式交付基础上，叠加 30 字段城市层：城市数据集（30 字段，落在 `data_set/`）、城市消费数据报告（含勾稽总表与可视化）、数据真实性说明（含勾稽校验与覆盖率声明）、首页 `index.html`。
-**（勾稽基准）全国数据集**来自全国模式，城市层**引用不重造**。
+地域=城市时，城市层由随包技能交付：城市层台账（30 字段，落在 `data_set/`）、城市消费数据报告（含勾稽总表与可视化）、数据真实性说明（含勾稽校验与覆盖率声明）、首页 `index.html`。
+**（勾稽基准）全国 SSOT** 来自全国模式，城市层**引用不重造**。
 
 ## Analysis Framework
 
@@ -127,13 +127,15 @@ holiday-data-reports/
 
 ---
 
-## City Dimension Extension (地域=城市时启用)
+## 城市模式路由（地域=城市时启用）
 
-> 当参数确认解析出**具体城市**时，在全国 SSOT 之上叠加城市层。城市数据是全国数据集的**空间剖面**，每条必须勾稽到某全国指标键。细则在 `references/*-city.md` 与 `assets/*-city.html` / `assets/chart-kit.html`。
+地域解析为**具体城市**时，城市层由随包技能 **`bundled/holiday-data-report-city/`** 承接；本技能只负责产出全国 SSOT 作为勾稽基准。
 
-**核心定位三句话**：① 继承不重造（全国总量、口径字典、五阶段方法论继承；城市只增量定义字段、数据源、勾稽规则）；② 勾稽不脱钩（每条 `关联全国指标` 指向全国 SSOT 某行；可加指标用闭合勾稽（占比 ≤100% + 未披露残差），流量指标用上限勾稽（倍数 1.5–2.5× 正常，> 3× 触发阻断））；③ 图文要可读（大量内联 SVG 可视化，图表与数据表双轨）。
+- **C1 · 启动**：读 `bundled/holiday-data-report-city/SKILL.md`，按其规则执行城市层（30 字段台账、勾稽 R-CITY-1~4、可视化组件）。
+- **C2 · 前置校验**：`holiday-data-reports/data_set/{年份}_{节假日}/holiday-data-fetch.json` 必须已存在；缺失则先跑本技能全国流程（D1–D4 + 五阶段）。
+- **C3 · 交接与回归**：把 [年份][节日][城市] 与全国 SSOT 路径交给 city；城市层回归后复核**三方勾稽**（城市层 ↔ 全国 SSOT ↔ 真实性说明）。
 
-**五阶段增量**（【城市】标记步骤）：阶段一 读全国+城市矩阵；阶段二 强制 30 字段 + `关联全国指标` + 勾稽 R-CITY-1~4；阶段三 真实性说明加「勾稽校验与覆盖率声明」；阶段四 套用 `report-template-city.html`，必含勾稽总表 + 排名图 + 区域图 + 对比图；阶段五 城市交付物齐备 + **三方勾稽校验**（城市 ↔ 全国 SSOT ↔ 真实性说明）。**勾稽五铁律**详见 `references/caliber-dictionary-city.md`。
+> 城市技能**随包内置**，无需另行安装；其通用层（22 字段口径字典、holiday-config、style-guide、templates）**引用本技能，不复制**。
 
 ---
 
@@ -313,9 +315,8 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 - `assets/report-template.html` / `assets/landing-page-template.html` / `assets/verification-template.html` -- 报告/首页/真实性说明 HTML 骨架
 - `assets/icon.jpg` / `assets/icon.svg` -- 技能图标
 
-### 城市维度增量（地域=城市时引用）
-- `references/caliber-dictionary-city.md` / `references/templates-city.md` / `references/holiday-config-city.md` / `references/style-guide-viz.md` / `references/development-prompt-city.md`
-- `assets/report-template-city.html` / `assets/landing-page-template-city.html` / `assets/chart-kit.html`
+### 随包技能（地域=城市时启动）
+- `bundled/holiday-data-report-city/` -- **城市维度技能**：`SKILL.md` + 5 份 city references（口径字典/数据源矩阵/模板/可视化规范/开发提示词）+ 3 份 city 模板（报告/首页/图表片段）。地域=城市时启动，通用层引用本技能、不复制；勾稽基准为本技能产出的全国 SSOT
 
 ## Usage Notes
 
@@ -323,7 +324,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 - **D1–D4 采集流水线**（阶段一）：**D1** 半命中下载至用户本地工作空间 `holiday-data-reports/data_set/`（只取 `holiday-data-fetch.json` + `采集日志.csv`，禁拉 `snapshots/`）→ **D2** 备妥 fetch（本地已装则启动；否则从 atomgit 安装，**装完必跑术语自检 `--fix`**）→ **D3** 安装失败则降级内置 `bundled/holiday-data-fetch/` → **D4** 全命中判定：**有全命中 → 增量 3 轮（以该目录为历史版本输入）；无全命中 → 联网 5 轮**。
   > **命中也调 fetch，只降轮数、不跳采集**。
 - **年度可变 / 节假日可变**：将【目标年度】【节假日】替换即可复用；查阅 `holiday-config.md` 获取该节假日的属性卡/口径地图/锚点日历。
-- **城市模式须先有全国 SSOT**：地域为城市时，确保本次已生成或用户已提供对应全国数据集。
+- **城市模式交接**：地域=城市时，先确认全国 SSOT 已存在（本次已生成或用户已提供），再启动 `bundled/holiday-data-report-city/`；勾稽基准不得重造。
 - **按需裁剪**：用户只要交付物中的某几件时可裁剪（如只要报告 HTML），但报告取数仍须来自 `holiday-data-fetch.json`。
 - **预览**：交付后用 `present_files` 打开 HTML 文件（首页、报告与真实性说明）供读者预览；数据集与说明文档以卡片列出。
 - **静态托管**：若需发布到静态托管平台，将整个报告目录作为静态站点部署，首页 `index.html` 自动作为默认入口。

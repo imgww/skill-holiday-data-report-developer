@@ -1,6 +1,6 @@
 # 开发提示词 · 城市版（Development Prompt · City Extension）v1.0
 
-> 本文件是 `consumption-data-city-report` 的**城市版五阶段操作细则**，与父技能 `consumption-data-report` 的《开发提示词 v3.3》配套。父技能已定义的角色定位、全国采集门禁、口径强制 D 规则、纵向延续性等此处不重述，**只增量展开城市维度操作**，避免重复与漂移。
+> 本文件是 `holiday-data-report-city` 的**城市版五阶段操作细则**，与父技能 `holiday-data-report` 的《开发提示词 v3.3》配套。父技能已定义的角色定位、全国采集门禁、口径强制 D 规则、纵向延续性等此处不重述，**只增量展开城市维度操作**，避免重复与漂移。
 > 执行时按年度/节假日替换【目标年度】【节假日】即可作为独立提示词提交。
 
 ---
@@ -95,4 +95,4 @@
 
 ---
 
-*城市版开发提示词版本：v1.0 | 更新日期：2026-08-19 | 配套：caliber-dictionary-city.md / templates.md / holiday-config-city.md / style-guide-viz.md / assets/chart-kit.html。全国五阶段细则继承自 consumption-data-report 的 development-prompt.md v3.3。*
+*城市版开发提示词版本：v1.0 | 更新日期：2026-08-19 | 配套：caliber-dictionary-city.md / templates.md / holiday-config-city.md / style-guide-viz.md / assets/chart-kit.html。全国五阶段细则继承自 holiday-data-report 的 development-prompt.md v3.3。*
