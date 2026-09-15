@@ -149,6 +149,17 @@ holiday-data-reports/
 
 #### D1 · 半命中下载（不依赖 fetch，先于一切执行）
 
+0. **git 可用性前置（不可跳过）**：D1 依赖 git。按下述三级退避定位可执行文件，**三级全失败**才允许判"无全命中"：
+
+   1. `git --version`；
+   2. 绝对路径直连：Windows `%USERPROFILE%\.workbuddy\binaries\PortableGit\versions\*\cmd\git.exe`（或 `where git`）；macOS/Linux `which git`；
+   3. 用 Python `subprocess` 调用第 2 步找到的**绝对路径**执行 git 命令（绕开 shell）。
+
+   > 沙箱的 shell PATH 可能损坏（`dirname` / `cd` / `head` 报 `command not found`），
+   > 此时 `git` 命令看似不可用，**但 git 可执行文件本身完好**——必须走②③复核后再下结论。
+   > 误判代价：D4 由 **3 轮增量**退回 **5 轮联网**，凭空多出两轮全量检索。
+   > 确为 git 不可用时，须在采集日志与「数据真实性说明」写明 `D1 未执行：git 不可用（已尝试三级退避）`。
+
 1. 解析 [年份] Y、[节日] F、[地域]。
 
 2. 构造**两个半命中系列**并取并集（交叉格只计一次）：
@@ -280,7 +291,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 
 ## Anti-Patterns · 反模式索引
 
-完整 14 条反模式（含后果与修正步骤）见 `references/anti-patterns.md`。**最关键 5 条**：① 编造数据 → D 级弱溯源或剔除；② 推算当实测 → 测算标记并分栏；③ 口径冲突擅自二选一 → 官方优先/无法判定并列说明；④ 跳过全量对照校验 → 强制三向对照；⑤ 预测无台账 → 凡预测必入账，偏差 > ±10% 标"失准"并三类归因。
+完整 15 条反模式（含后果与修正步骤）见 `references/anti-patterns.md`。**最关键 6 条**：① 编造数据 → D 级弱溯源或剔除；② 推算当实测 → 测算标记并分栏；③ 口径冲突擅自二选一 → 官方优先/无法判定并列说明；④ 跳过全量对照校验 → 强制三向对照；⑤ 预测无台账 → 凡预测必入账，偏差 > ±10% 标"失准"并三类归因；⑥ shell 报 `command not found` 就放弃 D1 → 必须走 git 三级退避复核（见 D1 第 0 步）。
 
 ## FAQ · 常见问题索引
 
@@ -299,7 +310,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 - `references/contracts.md` -- **三契约 v1.1.0**：L1 结构化数据 / L2 现象素材 / 纵向台账 schema + 验收标准 + 分工红线；report 只验契约不验过程
 - `references/analysis-methodology.md` -- **分析内核 v1.1.0**：口径地图 / 叙事批判 / 报告层三变量 / 节日属性语义 / 三层操作 / 分析输出模板 六节骨架
 - `references/faq.md` -- **FAQ v1.1.0**：12 条常见问答（单一弱来源 / 假期跨年 / 口径冲突 / 探索性主题 / 预测复盘 / 历史基线 / 双轨架构等）
-- `references/anti-patterns.md` -- **反模式 v1.1.0**：14 条不可逾越反模式
+- `references/anti-patterns.md` -- **反模式 v1.2.0**：15 条不可逾越反模式
 
 ### 配置 / 口径 / 数据架构
 - `references/caliber-dictionary.md` -- **口径字典 v1.2.2（强制）**：22 字段 schema 权威（契约一）、统一主题字典(9类)、指标口径字典、口径类型取值表、预测台账与缺口标记
