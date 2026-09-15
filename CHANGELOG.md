@@ -47,6 +47,19 @@
 
 未发版。以下为已提交至主干的变更，按时间倒序。
 
+#### `9a976f5` · 2026-09-15 · 数据源描述统一为 `holiday-data-fetch.json`
+
+变更 4 的收尾清理：全仓不再出现 `消费数据集.csv` / `现象素材库.json` 等派生视图描述，
+数据源一律表述为 SSOT `holiday-data-fetch.json`。
+
+- `SKILL.md` description 删除派生视图说明句；
+- `references/templates.md` 第 2 节示例由 CSV 改为 `items[layer=L1]` JSON；
+  第 5 节预测台账由「可单列 `预测台账.csv`」改为 SSOT 内 `数据性质=预计` + `缺口标记=预判待回填` 行表达；
+- `data-architecture.md` / `contracts.md` / `development-prompt.md` 等同步去 CSV 世界观残留。
+- 保留：`采集日志.csv`（fetch 真实产物文件名）、`csv-preview` 等 CSS 类名、
+  `bundled/holiday-data-fetch/` 内历史导入器相关表述（上游副本，同步即覆盖）。
+- 校验：术语自检 report + city 双 PASS；禁词（消费数据集 / 现象素材库）清零。
+
 #### `fe77439` · 2026-09-15 · 版本号体系：原 `X.Y` 一律转为 `1.X.Y`
 
 规则：历史遗留的两位版本号 `X.Y` 统一转换为 `1.X.Y`（如 `v3.6` → `v1.3.6`、`v4.1` → `v1.4.1`）。
