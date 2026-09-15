@@ -47,6 +47,36 @@
 
 未发版。以下为已提交至主干的变更，按时间倒序。
 
+#### `94e0c19` · 2026-09-15 · 城市维度分拆为随包技能 `holiday-data-report-city`
+
+**① 分拆方式**（参考 fetch bundled 模式；用户裁决：只建 bundled 副本 · 通用层引用不复制 · version 1.5.0）
+
+- **新建** `bundled/holiday-data-report-city/`：`SKILL.md`（116 行）+ 5 份 city references + 3 份 city 模板，共 9 文件。
+- **搬迁**（`git mv`，保留重命名历史）：`references/*-city.md` 5 份 → city `references/`；
+  `assets/chart-kit.html` / `report-template-city.html` / `landing-page-template-city.html` → city `assets/`。
+  report 根下城市残留 **0**。
+- **city 通用层引用 report、不复制**：22 字段口径字典 / holiday-config / style-guide / templates 一律指向父技能；
+  city `SKILL.md` 显式声明依赖与降级路径（未安装父技能时按 `caliber-dictionary-city.md` 摘要作业，
+  但**勾稽基准仍需全国 SSOT**）。
+- **命名统一**：city references 内旧名 `consumption-data-city-report` → `holiday-data-report-city`、
+  `consumption-data-report` → `holiday-data-report`（5 文件 10 处，残留 0）。
+
+**② report `SKILL.md` 由「城市正文」改为「城市路由」**
+
+- 删「City Dimension Extension」整节（核心定位三句话 + 五阶段增量 + 勾稽细则），替换为**「城市模式路由」C1–C3**：
+  **C1** 启动 bundled city → **C2** 前置校验全国 SSOT 存在 → **C3** 交接并回归三方勾稽。
+- `frontmatter description`、地域路由、Deliverables 城市模式小节、
+  Resources（原「城市维度增量」→「随包技能」）、Usage Notes 全部改为交接描述。
+- **report 保留的责任**：产出全国 SSOT 作为勾稽基准 + 城市层回归后复核三方勾稽。
+
+**③ 实测**：术语自检 report 与 city 目录**双 PASS**；report `SKILL.md` 330 行；
+city 引用全部收敛在 city 包内，父技能无空指针引用。
+
+**④ 待办（本次未处理）**：city 的 5 份 references 仍是 2026-08-19 旧内容——
+**CSV 世界观**（城市数据集 CSV、30 字段 CSV 交付）、父技能版本引用 v1.2 / v3.3，
+与 report 现行 SSOT 体系（`holiday-data-fetch.json`、派生视图不单独交付）尚未对齐。
+city `SKILL.md` 已按现行架构撰写，references 后续需统一。
+
 #### `43e54db` · 2026-09-15 · 版本号体系：废弃双轨，统一三位
 
 - `SKILL.md` frontmatter `version` **4.1.0 → 1.5.0**：内部 4.x / 5.x 体系作废，全仓只保留包版本一套。
