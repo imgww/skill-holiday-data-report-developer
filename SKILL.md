@@ -1,6 +1,6 @@
 ---
 name: holiday-data-report
-description: "Generates holiday consumption data report packages for any year and any Chinese holiday (Spring Festival, Dragon Boat, May Day, Summer Vacation, Mid-Autumn, National Day), at either the NATIONAL (全国) or CITY (城市) dimension. National mode produces the four-deliverable set (dataset CSV + Economist/FT-style HTML report + data provenance + landing page) using a five-stage pipeline with a 22-field caliber dictionary and a continuity/forecast framework. City mode adds a 30-field city layer that reconciles (勾稽) to the national SSOT dataset, with inline-SVG visualizations. Before any collection, the skill resolves three parameters — [年份] (defaults to current year), [节日] (defaults to the festival of the current date), [地域] (defaults to 全国; a named city triggers city mode) — and proactively prompts the user when any cannot be derived. Collection is delegated to the holiday-data-fetch skill, which is **bundled inside this package** at `bundled/holiday-data-fetch/` so a standalone report install still runs. Stage one first probes **AtomGit**: on a hit, fetch's collection stages are **skipped** and the baseline is consumed directly (only `holiday-data-fetch.json` + `采集日志.csv` are fetched, never `snapshots/`); on a miss, fetch runs in full (F0-F5). Gated by the three contracts; this skill owns parameter resolution, analysis, and delivery. Use when the user requests a Chinese-holiday consumption/spending data report, nationally or for a specific city."
+description: "Generates holiday consumption data report packages for any year and any Chinese holiday (Spring Festival, Dragon Boat, May Day, Summer Vacation, Mid-Autumn, National Day), at either the NATIONAL (全国) or CITY (城市) dimension. National mode produces the four-deliverable set (dataset CSV + Economist/FT-style HTML report + data provenance + landing page) using a five-stage pipeline with a 22-field caliber dictionary and a continuity/forecast framework. City mode adds a 30-field city layer that reconciles (勾稽) to the national SSOT dataset, with inline-SVG visualizations. Before any collection, the skill resolves three parameters — [年份] (defaults to current year), [节日] (defaults to the festival of the current date), [地域] (defaults to 全国; a named city triggers city mode) — and proactively prompts the user when any cannot be derived. Collection is delegated to the holiday-data-fetch skill, which is **bundled inside this package** at `bundled/holiday-data-fetch/` so a standalone report install still runs. Stage one is a four-step D1-D4 pipeline: D1 probes **AtomGit** for half-match directories (year series + holiday series) and sparse-checks out only `holiday-data-fetch.json` + `采集日志.csv` (never `snapshots/`); D2 ensures fetch is installed (running a terminology self-check after any fresh install); D3 falls back to the bundled copy; D4 dispatches rounds — a full match means 3 incremental rounds with the baseline as history input, no full match means 5 web-search rounds. A hit never skips fetch, it only reduces rounds. Gated by the three contracts; this skill owns parameter resolution, analysis, and delivery. Use when the user requests a Chinese-holiday consumption/spending data report, nationally or for a specific city."
 version: 4.1.0
 author: workbuddy
 agent_created: true
@@ -19,13 +19,7 @@ Produces a **four-deliverable package** (四件套) for Chinese holiday consumpt
 
 Core principle: **data first, report last** (先建数据集后出报告).
 
-### v4.1 变更（减法重构 · 架构分拆）
-
-1. **分层分拆 + 随包整合**：采集细则（检索矩阵/同源双录/基线拉取/来源分级）**完全移交 `holiday-data-fetch`**；v1.5.0 起 fetch **已随包整合于 `bundled/holiday-data-fetch/`**，单点安装 report 即可运行。本技能阶段一为 **D1–D4 四步流水线**（半命中下载 → 备妥 fetch → 降级兜底 → 全命中判定分派轮数）；**命中也调用 fetch，仅把联网轮数从 5 轮降为 3 轮增量**（D4 覆盖旧版共识 2 的「命中即跳过采集」）；资产沉淀（atomgit 回推）归位 fetch F5。
-2. **契约显式化**：新增 `references/contracts.md` 三契约（L1 CSV / L2 素材库 / 纵向台账），验收从「查过程」改为「契约测试」。
-3. **参数化配置**：`holiday-config.md` 升级为三张结构化配置（属性卡 / 口径地图 / 锚点日历），十一/中秋 `merge_mode` 显式化。
-4. **分析内核重建**：新增 `references/analysis-methodology.md`（六节骨架），口径裁决 / 叙事批判 / 节日属性语义三合一沉淀。
-5. 版本号 4.0.0 → **4.1.0**；交付物形态不变，属组织重构，非 breaking change。
+> 版本沿革与变更说明见 `CHANGELOG.md`；本文件只载现行规则，不含历史叙事。
 
 ## Parameter Resolution (参数确认 · 必先于一切采集)
 
@@ -123,10 +117,10 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 
 ### 阶段一：数据采集（D1 下载 → D2/D3 备妥 fetch → D4 分派轮数）
 
-> **v1.5.0 起**，采集改为 **D1–D4 四步流水线**。
-> **重大变化（D4 覆盖旧版共识 2）**：**命中 AtomGit 也调用 fetch**，只是把联网轮数从 **5 轮降为 3 轮增量**——不再有"命中即跳过采集"的分支。
+> 采集为 **D1–D4 四步流水线**。
+> **命中 AtomGit 也调用 fetch**，只是把联网轮数从 **5 轮降为 3 轮增量**——不存在"命中即跳过采集"的分支。
 > 依据：半命中集厚度普遍不足（2024 暑期仅 100 条 L1、2023 暑期 121 条，均低于门禁），纯消费基线撑不起一份报告。
-> fetch 已**随包整合**于 `bundled/holiday-data-fetch/`（单点安装 report 即可运行）。
+> fetch **随包整合**于 `bundled/holiday-data-fetch/`（单点安装 report 即可运行）。
 
 #### D1 · 半命中下载（不依赖 fetch，先于一切执行）
 
@@ -207,7 +201,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `data
 - [ ] 契约一：L1 22 字段齐全，口径可在 `caliber-dictionary.md` 追溯
 - [ ] 契约二：L2 素材条条含 URL（唯一删除条件：无 URL 纯臆测）
 - [ ] 契约三：预测台账（若有）预测 ID 唯一、数据点已 canon 规范化
-- [ ] 覆盖矩阵已查（见 fetch `coverage-matrix.md`，该文件 v1.5.0 前缺失导致门禁空转）
+- [ ] 覆盖矩阵已查（见 fetch `coverage-matrix.md`；该文件若不存在则本项无法勾选，须先建）
 - [ ] **本轮数据源已声明**：命中目录清单 + commit + `source=atomgit` / `source=web`
 - [ ] **fetch 术语自检已通过**（D2 第 3 步，退出码 0）
 
@@ -238,7 +232,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `data
    - 第四部分 · 口径与数据质量声明（摘要，详细见真实性说明）
 3. 排版与风格：严格按 `references/style-guide.md`；可直接套用 `assets/report-template.html`。
 4. 技术约束：CSS/JS 内联、无外链、无 emoji、简体中文、响应式。
-5. **页面形态（v4.0 硬性）**：无吸顶 `header.appbar`；明暗切换按钮置于报头右端；只保留本节假日消费数据相关内容。
+5. **页面形态（硬性）**：无吸顶 `header.appbar`；明暗切换按钮置于报头右端；只保留本节假日消费数据相关内容。
 6. 测算/预计标注：`数据性质=推算` 标"测算（D 级）"；`数据性质=预计` 用预测卡标置信度，不得混入实测栏。
 7. 产出：`消费数据报告.html`。
 
@@ -284,19 +278,22 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `data
 
 ## Resources
 
-### 脚本与随包依赖（v1.5.0 新增）
+### 本包说明
+- `CHANGELOG.md` -- **版本沿革与变更说明**：版本号双轨映射、各版本变更、已知缺口。规则正文不含历史叙事，查阅"何时改的/为何改"看这里
+
+### 脚本与随包依赖
 - `scripts/verify_holiday_terms.py` -- **术语自检 + 自动补丁**：D2 从 AtomGit 安装 fetch 后**必跑**。L1 文本术语 + L2 枚举构造两层检查，防「半改名」导致构造 `2026_暑假` 而命中 0 且不报错。用法 `python scripts/verify_holiday_terms.py <fetch 目录> --fix`（`--json` 可机器读）；退出码 0=通过 / 1=有问题 / 2=路径非法。保护词「暑运」不替换 <!-- term-allow -->
 - `bundled/holiday-data-fetch/` -- **随包整合的采集技能**（12 文件）：D2 未安装时的安装来源（atomgit `g_ww/holiday-data-fetch`），D3 降级时的内置兜底
 
-### 三契约与分析内核（v4.1 新增）
+### 三契约与分析内核
 - `references/contracts.md` -- **三契约 v1.0**：L1 CSV / L2 素材库 / 纵向台账 schema + 验收标准 + 分工红线；report 只验契约不验过程
 - `references/analysis-methodology.md` -- **分析内核 v1.0**：口径地图 / 叙事批判 / 报告层三变量 / 节日属性语义 / 三层操作 / 分析输出模板 六节骨架
-- `references/faq.md` -- **FAQ v1.0**：12 条常见问答（v4.1 从 SKILL.md 抽出）
-- `references/anti-patterns.md` -- **反模式 v1.0**：14 条不可逾越反模式（v4.1 从 SKILL.md 抽出）
+- `references/faq.md` -- **FAQ v1.0**：12 条常见问答（单一弱来源 / 假期跨年 / 口径冲突 / 探索性主题 / 预测复盘 / 历史基线 / 双轨架构等）
+- `references/anti-patterns.md` -- **反模式 v1.0**：14 条不可逾越反模式
 
 ### 配置 / 口径 / 数据架构
 - `references/caliber-dictionary.md` -- **口径字典 v2.2（强制）**：22 字段 schema 权威（契约一）、统一主题字典(9类)、指标口径字典、口径类型取值表、预测台账与缺口标记
-- `references/holiday-config.md` -- **节假日配置 v2.0（v4.1 参数化）**：属性卡 / 口径地图 / 锚点日历三张结构化配置 + 全源 A-J 矩阵 + R10 门禁 + merge_mode 结构字段
+- `references/holiday-config.md` -- **节假日配置 v2.0**：属性卡 / 口径地图 / 锚点日历三张结构化配置 + 全源 A-J 矩阵 + R10 门禁 + merge_mode 结构字段
 - `references/historical-data-source.md` -- 历史纵向基线 v1.2：atomgit 仓库唯一权威源、17→22 适配器、canon 规范化、R13–R15 质量规则
 - `references/data-architecture.md` -- 数据架构 v2.0：L1/L2 双轨统一 JSON 模型、分年分节持久化、现象→指标升级通道
 - `references/mcp-retrieval-layer.md` -- MCP 实时检索层 v1.0：6 工具与阶段映射、调用纪律、离线降级
@@ -304,7 +301,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `data
 ### 模板与排版
 - `references/templates.md` -- 采集日志、数据集 22 字段 schema、真实性说明、首页结构、预测台账模板、纵向六子节模板、跨年专题模板
 - `references/style-guide.md` -- 经济学人/FT 排版规范（CSS 变量、字体、组件清单）
-- `references/development-prompt.md` -- 完整开发提示词（v3.6）：五阶段操作细则，可按年度/节假日替换参数后独立提交（采集细则已由 fetch 承接）
+- `references/development-prompt.md` -- 完整开发提示词存档：五阶段操作细则，可按年度/节假日替换参数后独立提交（采集细则已由 fetch 承接）
 - `assets/report-template.html` / `assets/landing-page-template.html` / `assets/verification-template.html` -- 报告/首页/真实性说明 HTML 骨架
 - `assets/icon.jpg` / `assets/icon.svg` -- 技能图标
 
@@ -315,8 +312,8 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `data
 ## Usage Notes
 
 - **参数确认优先**：运行前先按「Parameter Resolution」解析 [年份][节日][地域]；任一无法默认（尤其节日）则主动提示用户，绝不臆造。
-- **D1–D4 采集流水线**（阶段一，v1.5.0）：**D1** 半命中下载至用户本地工作空间 `data_set/holiday_data/`（只取 `holiday-data-fetch.json` + `采集日志.csv`，禁拉 `snapshots/`）→ **D2** 备妥 fetch（本地已装则启动；否则从 atomgit 安装，**装完必跑术语自检 `--fix`**）→ **D3** 安装失败则降级内置 `bundled/holiday-data-fetch/` → **D4** 全命中判定：**有全命中 → 增量 3 轮（以该目录为历史版本输入）；无全命中 → 联网 5 轮**。
-  > **命中也调 fetch**（D4 覆盖旧版共识 2 的「命中即跳过采集」）：只降轮数，不跳采集——半命中集厚度普遍低于门禁（如 2024 暑期仅 100 条 L1），纯消费基线撑不起一份报告。
+- **D1–D4 采集流水线**（阶段一）：**D1** 半命中下载至用户本地工作空间 `data_set/holiday_data/`（只取 `holiday-data-fetch.json` + `采集日志.csv`，禁拉 `snapshots/`）→ **D2** 备妥 fetch（本地已装则启动；否则从 atomgit 安装，**装完必跑术语自检 `--fix`**）→ **D3** 安装失败则降级内置 `bundled/holiday-data-fetch/` → **D4** 全命中判定：**有全命中 → 增量 3 轮（以该目录为历史版本输入）；无全命中 → 联网 5 轮**。
+  > **命中也调 fetch，只降轮数、不跳采集**——半命中集厚度普遍低于门禁（如 2024 暑期仅 100 条 L1），纯消费基线撑不起一份报告。
 - **年度可变 / 节假日可变**：将【目标年度】【节假日】替换即可复用；查阅 `holiday-config.md` 获取该节假日的属性卡/口径地图/锚点日历。
 - **城市模式须先有全国 SSOT**：域名为城市时，确保本次已生成或用户已提供对应全国数据集。
 - **按需裁剪**：用户只要四件套中的某几件时可裁剪，但报告取数仍须来自数据集。

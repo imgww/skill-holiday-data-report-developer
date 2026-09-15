@@ -78,6 +78,10 @@ SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv", "venv"}
 # 跳过自身：本文件的 docstring / 规则表内含「暑假」反例，属规则定义而非违规用法
 SKIP_FILES = {"verify_holiday_terms.py"}
 
+# 历史记述文档：CHANGELOG 记录版本沿革，必然引用旧称（如「v1.5.0 将暑假更名为暑期」），
+# 逐行加豁免标记既啰嗦又损害可读性，故按文件豁免——但输出中显式列出豁免内容，不静默放过。
+HISTORY_DOCS = {"CHANGELOG.md", "README.md"}
+
 # 行级豁免标记：有意保留的旧称（反例说明、用词规范中的旧称条目）须显式标注，
 # 禁止静默放过——写 `<!-- term-allow -->` 表示"此处为已登记豁免"。
 ALLOW_MARK = "term-allow"
@@ -108,19 +112,27 @@ def count_term(text, term):
 # ---------------------------------------------------------------- L1 文本扫描
 
 def scan_text(root):
-    """返回 (findings, fixable_files)
+    """返回 (findings, fixable_files, waived)
     findings: [{file, line, old, new, text}]
     fixable_files: {path: (orig_text, n_fixes)}
+    waived: [{file, count}]  历史记述文档中被引用的旧称（显式列出，不静默放过）
     """
     findings = []
     fixable = {}
+    waived = []
     for path in iter_files(root):
-        if os.path.basename(path) in SKIP_FILES:
+        base = os.path.basename(path)
+        if base in SKIP_FILES:
             continue
         text = read_text(path)
         if text is None:
             continue
         rel = os.path.relpath(path, root)
+        if base in HISTORY_DOCS:
+            n = sum(text.count(old) for old, _new, _why in AUTO_FIX_RULES)
+            if n:
+                waived.append({"file": rel, "count": n})
+            continue
         hits = 0
         for old, new, _why in AUTO_FIX_RULES:
             if old not in text:
@@ -137,7 +149,7 @@ def scan_text(root):
                 hits += line.count(old)
         if hits:
             fixable[path] = (text, hits)
-    return findings, fixable
+    return findings, fixable, waived
 
 
 def apply_text_fixes(fixable):
@@ -253,7 +265,7 @@ def main():
         sys.stderr.write("[ERROR] 不是合法 SKILL 包（缺少 SKILL.md）: %s\n" % root)
         return 2
 
-    findings, fixable = scan_text(root)
+    findings, fixable, waived = scan_text(root)
     enum_issues, enums = scan_enums(root)
     alias_warns = scan_alias(root)
 
@@ -261,7 +273,7 @@ def main():
     if args.fix and fixable:
         patched, failures = apply_text_fixes(fixable)
         # 修复后重扫，确认归零
-        findings2, _ = scan_text(root)
+        findings2, _, waived = scan_text(root)
         enum_issues, enums = scan_enums(root)
     else:
         findings2 = findings
@@ -276,6 +288,7 @@ def main():
             "patched_files": [os.path.relpath(p, root) for p in patched],
             "failures": [{"file": f, "reason": r} for f, r in failures],
             "alias_warnings": alias_warns,
+            "waived_history_docs": waived,
             "enums": enums,
             "ok": ok,
         }, ensure_ascii=False, indent=2))
@@ -306,6 +319,12 @@ def main():
                 print("      … 另 %d 处" % (len(byf[fn]) - 6))
     else:
         print("\n[L1] 文本旧称：无")
+
+    if waived:
+        print("\n[L1-豁免] 历史记述文档 %d 个（记录版本沿革必然引用旧称，显式登记不静默放过）："
+              % len(waived))
+        for w in waived:
+            print("  %s  (%d 处)" % (w["file"], w["count"]))
 
     if enum_issues:
         print("\n[L2] 枚举构造（致命层 · 直接决定 AtomGit 目录名）：")
