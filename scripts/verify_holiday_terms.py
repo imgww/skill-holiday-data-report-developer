@@ -78,7 +78,7 @@ SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv", "venv"}
 # 跳过自身：本文件的 docstring / 规则表内含「暑假」反例，属规则定义而非违规用法
 SKIP_FILES = {"verify_holiday_terms.py"}
 
-# 历史记述文档：CHANGELOG 记录版本沿革，必然引用旧称（如「v1.5.0 将暑假更名为暑期」），
+# 历史记述文档：logs/CHANGELOG.md 记录版本沿革，必然引用旧称（如「v1.5.0 将暑假更名为暑期」），
 # 逐行加豁免标记既啰嗦又损害可读性，故按文件豁免——但输出中显式列出豁免内容，不静默放过。
 HISTORY_DOCS = {"CHANGELOG.md", "README.md"}
 

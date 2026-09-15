@@ -26,7 +26,7 @@ Produces a **holiday consumption data report package** for Chinese holiday consu
 
 Core principle: **data first, report last** (先建数据集后出报告).
 
-> 版本沿革与变更说明见 `CHANGELOG.md`；本文件只载现行规则，不含历史叙事。
+> 版本沿革与变更说明见 `logs/CHANGELOG.md`；本文件只载现行规则，不含历史叙事。
 
 ## Parameter Resolution (参数确认 · 必先于一切采集)
 
@@ -289,7 +289,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 ## Resources
 
 ### 本包说明
-- `CHANGELOG.md` -- **版本沿革与变更说明**：各版本变更、已知缺口。规则正文不含历史叙事，查阅"何时改的/为何改"看这里
+- `logs/CHANGELOG.md` -- **版本沿革与变更说明**：各版本变更、已知缺口。规则正文不含历史叙事，查阅"何时改的/为何改"看这里
 
 ### 脚本与随包依赖
 - `scripts/verify_holiday_terms.py` -- **术语自检 + 自动补丁**：D2 安装 fetch 后**必跑**。用法 `python scripts/verify_holiday_terms.py <fetch 目录> --fix`（`--json` 机器可读）；退出码 0=通过 / 1=有问题 / 2=路径非法。保护词「暑运」不替换
