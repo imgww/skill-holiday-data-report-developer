@@ -62,6 +62,57 @@
 
 未发版。以下为已提交至主干的变更，按时间倒序。
 
+#### `4452c83` · 2026-09-15 · 交付形态重构（用户变更 3/4/5）
+
+**① 变更 3 · 废止「四件套」表述**
+
+`SKILL.md` 不再出现「四件套 / 城市五件套」。交付物改按**数据侧 3 项 + 报告侧 3 项**描述。
+
+- 删除位置：Overview、Deliverables（改为双子树结构表）、地域路由、Usage Notes 按需裁剪、
+  `frontmatter description`（原文 `four-deliverable set`，已重写）。
+- references 同步：`faq.md` Q5、`style-guide.md` 简介条、`templates.md` 首页结构、
+  `templates-city.md`、`development-prompt-city.md`（五件套 → 城市交付物）。
+- bundled 与安装版 fetch `SKILL.md` 2 处同步（"完整报告四件套" → "完整报告交付物"）。
+- **保留**：`RevPAR/ADR/OCC 三件套`、间夜三件套等**指标组合**表述——与交付物无关，不改。
+
+**② 变更 4 · `消费数据集.csv` / `现象素材库.json` 不再单独交付**
+
+> 原则：二者均为 `holiday-data-fetch.json`（SSOT）的**派生视图**，需要时现算，**不落盘为独立交付物**。
+
+- `SKILL.md`：Overview 增加显式「不再单独交付」声明；阶段五交付物清单删除二者；
+  `Format & Delivery Rules` 改为"CSV / 素材库等派生视图不单独交付"。
+- `data-architecture.md`：目录结构删掉 CSV 与素材库两行；派生视图规则加"也不单独交付"。
+- **assets 4 个 HTML 模板**：CSV 下载链接改为跨子树指向 SSOT
+  （`../../data_set/{年份}_{节假日}/holiday-data-fetch.json`），并去掉 `download` 属性。
+  首页卡片三由「CSV 前 5 行预览」改为「数据预览」，来源标注改 SSOT。
+- fetch 的 `validate_fetch.py --export-csv` **能力保留**（可选导出），但在 fetch `SKILL.md`
+  加注"不作为独立交付物，仅供人工核查或临时分析"。
+
+**③ 变更 5 · 目录结构改为 `holiday-data-reports/` 双子树**
+
+```
+holiday-data-reports/
+├── data_set/{年份}_{节假日}/
+│   ├── holiday-data-fetch.json     # SSOT
+│   ├── 采集日志.csv
+│   └── snapshots/                  # 按需单点补拉
+└── data_report/{年份}_{节假日}/
+    ├── index.html
+    ├── 消费数据报告.html
+    └── 数据真实性说明.html
+```
+
+- **取代**旧落点 `data_set/holiday_data/`（即 2026-09-15 变更 1）与旧 `data/{年份}/{节假日}/` 单树。
+- 路径迁移 **45 处**（`SKILL.md` 6 + references 39），`data_set/holiday_data` 残留 **0**。
+- **解读说明**：用户给出的树中 `snapshots/` / `holiday-data-fetch.json` / `采集日志.csv`
+  与 `data_set/{年份}_{节假日}/` 同为 `|--` 缩进（平级）；实际采用**归属于
+  `data_set/{年份}_{节假日}/`** 的解读——否则全仓只有一份快照与一个 JSON，无法分年分节，
+  且与 AtomGit 上游每目录三件套的结构不符。**如与预期不符请指出。**
+- `development-prompt.md` 为 v3.6 历史存档，正文未改写；其 v1.5.0 说明块已同步新路径与交付形态。
+
+**实测**：D1 按新结构端到端 PASS（7 格命中 / 14 文件 / 0 快照混入 / 3.7 MB）；
+5 个 HTML 模板标签平衡校验全 OK；术语自检 report + bundled 均 PASS。
+
 #### `626e3c4` · 2026-09-15 · 阶段一重构：D1–D4 采集流水线 + 术语自检脚本 + 路径/仓库变更
 
 **① 阶段一重写为 D1–D4 四步流水线**（取代上一版的 A/B 双线分支）
@@ -91,6 +142,9 @@
 | 基线落点 | `dataset\holiday-data-reports\` | `data_set\holiday_data\` | 48 |
 | AtomGit 数据仓 | `atomgit.com/g_ww/holiday_data_reports` | `atomgit.com/g_ww/holiday_data` | 11 |
 | 旧基线路径 | `.baseline-cache/`（散落 7 文件） | 统一并入 `holiday-data-reports/data_set/` | 20 |
+
+> **后续已被 `4452c83` 取代**：基线落点现统一为 `holiday-data-reports/data_set/{年份}_{节假日}/`
+> （见上方变更 5）。表中保留当时的目标值以记录演进过程。
 
 - ⚠️ **旧仓 `holiday_data_reports` 已被删除**（`git ls-remote` 返回 403）。此项为**必须项**，非优化。
 - fetch 安装源 `g_ww/holiday-data-fetch` 不受影响，仍可达。
