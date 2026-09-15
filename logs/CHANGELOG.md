@@ -47,6 +47,31 @@
 
 未发版。以下为已提交至主干的变更，按时间倒序。
 
+#### `ffcad18` · 2026-09-15 · fix(D1)：git 可用性三级退避
+
+**来源于一次真实调用故障**（`@skill:holiday-data-report` 生成 2026 年暑期数据报告）。
+
+- **现象**：执行环境 shell 的 PATH 整体损坏（`dirname` / `cd` / `head` / `ls` 均 `command not found`），
+  agent 据此判定「atomgit 稀疏克隆不可执行 → 无全命中」，D4 退回 **5 轮联网**；
+  用户中途取消，交付树只留下两个空目录。
+- **真因**：`git` 命令找不到 ≠ git 不可用。实测 `PortableGit 2.55.0` 完好、
+  `ls-remote https://atomgit.com/g_ww/holiday_data` rc=0（HEAD `3fe1d52`）；
+  用 Python `subprocess` 直连 `git.exe` 绝对路径执行 D1，**7 格全部命中且校验通过**：
+  `2026_暑期` L1=287 / `2025_暑期` 123 / `2024_暑期` 100 / `2023_暑期` 121 /
+  `2026_春节` 241 / `2026_端午` 137 / `2026_五一` 155；未命中 `2022_暑期`、`2026_中秋`、`2026_十一`。
+- **误判代价**：丢掉 287 行当期基线 + 1164 行纵向历史，且多跑 2 轮全量联网检索。
+
+**改动**
+- `SKILL.md` D1 新增**第 0 步「git 可用性前置（不可跳过）」**：① `git --version`
+  ② 绝对路径直连（`%USERPROFILE%\.workbuddy\binaries\PortableGit\versions\*\cmd\git.exe` / `where git` / `which git`）
+  ③ Python `subprocess` 调绝对路径绕开 shell；**三级全失败**才允许判无全命中，
+  且须在采集日志与「数据真实性说明」写明 `D1 未执行：git 不可用（已尝试三级退避）`。
+- `references/anti-patterns.md` 新增**第 15 条**「shell 报 `command not found` 就判 D1 不可执行」（v1.1.0 → **v1.2.0**）。
+- `SKILL.md` 反模式索引同步：14 → **15 条**，最关键 5 → **6 条**（新增⑥ git 误判）。
+
+**顺带实测**：按三级退避把 2026 暑期半命中集落盘至 `D:\AISpace\01-projects\holiday-data-reports\data_set\`
+（7 目录 × 2 文件，0 快照混入，L1 均 > 0）。**下次重跑该任务即可走 D4 全命中分支（3 轮增量）**。
+
 #### `66326e5` · 2026-09-15 · `CHANGELOG.md` 迁入 `logs/`
 
 包根目录只留现行规则与可执行资产，历史沿革类文档统一归入 `logs/`。
