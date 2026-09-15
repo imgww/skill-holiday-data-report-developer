@@ -47,6 +47,18 @@
 
 未发版。以下为已提交至主干的变更，按时间倒序。
 
+#### `66326e5` · 2026-09-15 · `CHANGELOG.md` 迁入 `logs/`
+
+包根目录只留现行规则与可执行资产，历史沿革类文档统一归入 `logs/`。
+
+- `git mv CHANGELOG.md → logs/CHANGELOG.md`（git 记为 rename，相似度 99%，历史不丢）；
+- `SKILL.md` 两处引用同步为 `logs/CHANGELOG.md`（L29 顶部提示、L292 Resources 索引）；
+- `logs/CHANGELOG.md` 文档定位表自引用同步；
+- `scripts/verify_holiday_terms.py` 注释补路径（`HISTORY_DOCS` 按 **basename** 匹配，
+  故搬迁后豁免仍生效，实测输出 `logs\CHANGELOG.md (11 处)`，逻辑无需改动）；
+- CHANGELOG 内历史条目（L81/96/170/173）保留原写法——记录的是当时改了哪些文件，不改写历史。
+- 校验：术语自检 report + city 双 PASS；工作区干净。
+
 #### `9a976f5` · 2026-09-15 · 数据源描述统一为 `holiday-data-fetch.json`
 
 变更 4 的收尾清理：全仓不再出现 `消费数据集.csv` / `现象素材库.json` 等派生视图描述，
