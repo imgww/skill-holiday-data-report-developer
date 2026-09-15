@@ -21,7 +21,7 @@ Core principle: **data first, report last** (先建数据集后出报告).
 
 ### v4.1 变更（减法重构 · 架构分拆）
 
-1. **分层分拆 + 随包整合**：采集细则（检索矩阵/同源双录/基线拉取/来源分级）**完全移交 `holiday-data-fetch`**；v1.5.0 起 fetch **已随包整合于 `bundled/holiday-data-fetch/`**，单点安装 report 即可运行。本技能阶段一收缩为「**命中判定 + 按需调用 + 门禁验收**」（只验契约、不验过程）；**AtomGit 命中时不触发 fetch 的采集能力**，未命中才走完整 F0→F5；资产沉淀（atomgit 回推）归位 fetch F5。
+1. **分层分拆 + 随包整合**：采集细则（检索矩阵/同源双录/基线拉取/来源分级）**完全移交 `holiday-data-fetch`**；v1.5.0 起 fetch **已随包整合于 `bundled/holiday-data-fetch/`**，单点安装 report 即可运行。本技能阶段一为 **D1–D4 四步流水线**（半命中下载 → 备妥 fetch → 降级兜底 → 全命中判定分派轮数）；**命中也调用 fetch，仅把联网轮数从 5 轮降为 3 轮增量**（D4 覆盖旧版共识 2 的「命中即跳过采集」）；资产沉淀（atomgit 回推）归位 fetch F5。
 2. **契约显式化**：新增 `references/contracts.md` 三契约（L1 CSV / L2 素材库 / 纵向台账），验收从「查过程」改为「契约测试」。
 3. **参数化配置**：`holiday-config.md` 升级为三张结构化配置（属性卡 / 口径地图 / 锚点日历），十一/中秋 `merge_mode` 显式化。
 4. **分析内核重建**：新增 `references/analysis-methodology.md`（六节骨架），口径裁决 / 叙事批判 / 节日属性语义三合一沉淀。
@@ -63,7 +63,7 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 
 > **双轨原则**：L1 保延续性（22 字段口径治理），L2 保时点丰度（榜单/区间/定性/政策全保留）；分栏呈现、不混同；L2 入正文须标"现象级/定性素材"。详见 `references/data-architecture.md`。
 
-> **可选第 6 交付物 · 跨年纵向专题报告**：从 SSOT 聚合产出（框架见 `templates.md` 第 7 节），历史年份数据从 `.baseline-cache/`（fetch 拉取）按 `historical-data-source.md` 适配。
+> **可选第 6 交付物 · 跨年纵向专题报告**：从 SSOT 聚合产出（框架见 `templates.md` 第 7 节），历史年份数据从 `data_set/holiday_data/`（fetch 拉取）按 `historical-data-source.md` 适配。
 
 ### 城市模式 → 五件套
 1. 城市数据集（30 字段，CSV） · 2. 城市消费数据报告（HTML，含勾稽总表与可视化） · 3. 数据真实性说明（HTML，含勾稽校验与覆盖率声明） · 4. 首页 `index.html` · 5. **（勾稽基准）全国数据集**（22 字段，来自全国模式，城市层**引用不重造**）。
@@ -103,7 +103,7 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 ### 纵向数据来源
 
 - **去年同期 / 本年上期**：SSOT 数据集目录读往年 CSV，经 `audit_caliber.py` 校验后取可比行（须 per-day 折算）。
-- **历史纵向基线**：fetch F1 实时拉取 `.baseline-cache/`（上游 `https://atomgit.com/g_ww/holiday_data_reports`，2023–2026 × 5 节假日）；report 阶段二按 `references/historical-data-source.md` 做 **17→22 适配 + canon 规范化 + 枚举归一**。离线/拉取失败时纵向模块降级为首期基线标注。
+- **历史纵向基线**：D1 稀疏检出至 `data_set/holiday_data/`（上游 `https://atomgit.com/g_ww/holiday_data`，2023–2026 × 5 节假日；只取 `holiday-data-fetch.json` + `采集日志.csv`，禁拉 `snapshots/`）；report 阶段二按 `references/historical-data-source.md` 做 **17→22 适配 + canon 规范化 + 枚举归一**。离线/拉取失败时纵向模块降级为首期基线标注。
 - **MCP 交叉验证**：`holiday-data-mcp`（`compare_across_years`/`get_data_point_detail`）作为取数交叉验证通道，不替代 fetch/基线（详见 `references/mcp-retrieval-layer.md`）。
 - **跨年可比元组铁律**：`(节假日, canon(数据点), 口径类型, 地域scope)` 四元一致且覆盖 ≥2 年才可比；否则标「单年/不可比」。首期无历史时优雅降级，不编造。
 
@@ -121,41 +121,104 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 
 ## Five-Stage Workflow
 
-### 阶段一：数据采集（AtomGit 命中优先 · 未命中才调 fetch · 只验契约）
+### 阶段一：数据采集（D1 下载 → D2/D3 备妥 fetch → D4 分派轮数）
 
-> **v4.1** 起采集细则完全移交 `holiday-data-fetch`；**v1.5.0** 起 fetch 已**随包整合**于 `bundled/holiday-data-fetch/`（单点安装 report 即可运行），并新增**命中判定分支**：
-> **AtomGit 已命中 → 不调用 fetch 的采集能力；未命中 → 调用 fetch。**
+> **v1.5.0 起**，采集改为 **D1–D4 四步流水线**。
+> **重大变化（D4 覆盖旧版共识 2）**：**命中 AtomGit 也调用 fetch**，只是把联网轮数从 **5 轮降为 3 轮增量**——不再有"命中即跳过采集"的分支。
+> 依据：半命中集厚度普遍不足（2024 暑期仅 100 条 L1、2023 暑期 121 条，均低于门禁），纯消费基线撑不起一份报告。
+> fetch 已**随包整合**于 `bundled/holiday-data-fetch/`（单点安装 report 即可运行）。
 
-1. 解析 [年份][节日][地域] → 构造**十字交叉命中集**（纵向 `{y}_{节日}`，y ∈ [Y−4, Y]；横向 `{Y}_{f}`，f ∈ 六节日）。
+#### D1 · 半命中下载（不依赖 fetch，先于一切执行）
 
-2. **命中判定**（R0 探针，见共识 1）：
-   - **命中 → A 线（基线消费）**
-     - 只拉 `holiday-data-fetch.json` + `采集日志.csv`，**禁拉 `snapshots/`**（共识 1）
-     - **拉取后强制校验**：逐命中目录断言「两文件存在 且 L1 行数 > 0」；任一不满足即判未命中，转 B 线（退出码 0 **不得**当作成功）
-     - 基线入库复用 `bundled/holiday-data-fetch/scripts/import_history.py`（17→22 适配 + canon + 枚举归一）
-     - **不执行**：F1 检索矩阵 / F2 并行采集 / F4 快照采集
-     - 采集日志标 `source=atomgit`；**该基线等价于历史数据导入**，故无需再向用户询问历史数据（fetch F0 硬性检查点在此分支由 AtomGit 命中代为满足，须在报告中显式声明）
-   - **未命中 / 命中但厚度不足（L1 < R10 门禁）→ B 线（完整采集）**
-     - 读 `bundled/holiday-data-fetch/SKILL.md`，执行完整 **F0→F1→F2→F3→F4→F5**
-     - F0 历史数据询问**必须执行**（此分支无 AtomGit 基线兜底）
+1. 解析 [年份] Y、[节日] F、[地域]。
 
-   > 两线共用同一套契约产物：`holiday-data-fetch.json`（L1/L2 统一）+ `snapshots/` + `采集日志.csv`。
-   > A 线不新采快照；报告定稿后按需单点补拉（每条 L1/L2 均带 `snapshot` 相对路径字段）。
+2. 构造**两个半命中系列**并取并集（交叉格只计一次）：
+   - **纵向系列** `{y}_{F}`，y ∈ [Y−4, Y]（回溯**不超过 5 年**；上游最早 2023，故实际多为 4 年）
+   - **横向系列** `{Y}_{f}`，f ∈ 六节日
+   - `{Y}_{F}` 同时属于两系列 → 去重后只下载一次
 
-3. **门禁验收**（report 只验契约，见 `references/contracts.md`）：
-   - [ ] 契约一：L1 22 字段齐全，口径可在 `caliber-dictionary.md` 追溯
-   - [ ] 契约二：L2 素材条条含 URL（唯一删除条件：无 URL 纯臆测）
-   - [ ] 契约三：预测台账（若有）预测 ID 唯一、数据点已 canon 规范化
-   - [ ] 覆盖矩阵已查（基线优先/联网补缺路由已执行，见 fetch `coverage-matrix.md`）
-   - [ ] **本轮数据源已声明**：A 线标 `source=atomgit`（含命中目录清单与 commit），B 线标 `source=web`
+3. **存在性探针**（逐目录，不下载 blob）：
+   `git ls-tree --name-only "HEAD:{目录}"` 返回含 `holiday-data-fetch.json` = 该格存在。
 
-4. 通过 → 阶段二；不通过 → **A 线转 B 线补齐**；B 线退回 fetch 补采（F2/F3 增量）。
+4. **稀疏检出**至用户本地工作空间 `data_set/holiday_data/`，
+   **只拉两个文件**：`holiday-data-fetch.json` + `采集日志.csv`；**禁拉 `snapshots/`**（快照占全仓体积 98%，且每条记录自带 `snapshot` 相对路径，可按需单点补拉）。
 
-可选交叉验证：`holiday-data-mcp`（`compare_across_years`/`query_data_points`）作为核验通道，不替代 fetch。
+```bash
+git clone --depth 1 --filter=blob:none --sparse \
+  https://atomgit.com/g_ww/holiday_data data_set/holiday_data
+cd data_set/holiday_data
+
+# 逐格判定存在性（不下载 blob）
+git ls-tree --name-only "HEAD:{Y}_{F}"
+
+# 只拉两个文件（路径必须带前导斜杠）
+git sparse-checkout init --no-cone
+git sparse-checkout set --no-cone \
+  "/{Y}_{F}/holiday-data-fetch.json"   "/{Y}_{F}/采集日志.csv" \
+  "/{Y-1}_{F}/holiday-data-fetch.json" "/{Y-1}_{F}/采集日志.csv" \
+  "/{Y}_{f1}/holiday-data-fetch.json"  "/{Y}_{f1}/采集日志.csv"
+```
+
+   > 坑 1：`--sparse` **必须在 clone 时声明**，事后补加会报 `unable to read sha1 file`。
+   > 坑 2：必须 `init --no-cone` 且路径带**前导斜杠**，否则 cone 模式把 `snapshots/` 一起拉下。
+   > 坑 3：**只用 `set` 全量重列，禁用 `add`**——实测 `add` 在此 Git 版本下静默失效；且 `set` 是覆盖式，重列时漏项会把上次已拉文件移走。
+
+5. **拉取后强制校验（不可省）**：逐目录断言「两文件均存在 且 L1 行数 > 0」，不满足即判该格未命中。
+   > **退出码 0 不得当作成功**：目录名写错（如 `2026_暑期` 写成 `2026_暑假`）时 `sparse-checkout` 返回 0 且工作区为空、零警告。这是本流程最危险的静默失败点。 <!-- term-allow -->
+
+**产出**：半命中数据集（可为空）+ 命中/未命中清单（须写入采集日志）。
+
+#### D2 · 备妥 SKILL holiday-data-fetch
+
+1. 检测本地是否已安装：存在 `~/.workbuddy/skills/holiday-data-fetch/SKILL.md` → 直接启动，跳到第 3 步。
+2. 未安装 → 从 AtomGit 安装：
+   `git clone --depth 1 https://atomgit.com/g_ww/holiday-data-fetch.git <skills 目录>/holiday-data-fetch`
+3. **装完必跑术语自检 + 自动补丁（不可省）**：
+
+```bash
+python scripts/verify_holiday_terms.py <fetch 目录> --fix
+```
+
+   > 原因：上游包曾出现**半改名**——`SKILL.md` 已改「暑期」而 `references/` 与 `scripts/` 仍是「暑假」。 <!-- term-allow -->
+   > 后果：`HOLIDAYS` 含「暑假」→ 构造 `2026_暑假` → 上游只有 `2026_暑期` → **命中 0 且不报错**。 <!-- term-allow -->
+   > 自检分两层：L1 文本术语、L2 枚举构造（致命层，直接决定目录名）。退出码 0=通过 / 1=有问题 / 2=路径非法。
+
+#### D3 · 降级到内置 fetch
+
+D2 安装失败（网络 / 权限 / 仓库不可达）→ 启动内置 `bundled/holiday-data-fetch/`。
+内置副本与安装版同源，出厂已通过术语自检；仍建议跑一次 `--fix` 确认。
+
+#### D4 · 全命中判定与轮数分派
+
+**全命中** = `data_set/holiday_data/{Y}_{F}/` 存在 **且** D1 第 5 步校验通过。
+
+| 判定 | 喂给 fetch 的输入 | 采集动作 |
+|---|---|---|
+| **有全命中** | `data_set/holiday_data/` 作为**历史版本** | 启动 **增量 3 轮**（F1→F2 循环 3 次）：在历史版本基础上补采本期缺口，不重采已有条目 |
+| **无全命中** | 半命中集（若有）仅作参考上下文 | **联网搜索 5 轮**（F1→F2 循环 5 次） |
+
+> **轮数定义**：轮数 = **F1（检索矩阵）→ F2（并行采集）的循环次数**，不是新增阶段编号，不与 F0–F5 混淆。
+
+无论哪条路径，fetch 均执行完整 **F0→F1→F2→F3→F4→F5**；差异只在 F1→F2 的循环次数与是否以历史版本为输入。
+F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `data_set/holiday_data/` 直接作为答案，须在报告中显式声明）。
+
+#### 门禁验收（report 只验契约，见 `references/contracts.md`）
+
+- [ ] 契约一：L1 22 字段齐全，口径可在 `caliber-dictionary.md` 追溯
+- [ ] 契约二：L2 素材条条含 URL（唯一删除条件：无 URL 纯臆测）
+- [ ] 契约三：预测台账（若有）预测 ID 唯一、数据点已 canon 规范化
+- [ ] 覆盖矩阵已查（见 fetch `coverage-matrix.md`，该文件 v1.5.0 前缺失导致门禁空转）
+- [ ] **本轮数据源已声明**：命中目录清单 + commit + `source=atomgit` / `source=web`
+- [ ] **fetch 术语自检已通过**（D2 第 3 步，退出码 0）
+
+通过 → 阶段二；不通过 → 退回 fetch 补采（F2/F3 增量）。
+
+可选交叉验证：`holiday-data-mcp`（`compare_across_years` / `query_data_points`）作为核验通道，不替代 fetch。
+
 
 ### 阶段二：数据整理与质量评估
 
-要点：① 去重/缺失/类型/单位四类快检；② **逐条分级 A/B/C/D + 强制填 22 字段口径元数据**（不可在 caliber-dictionary 追溯则退回）；③ 口径冲突：官方优先，无法判定主次并列说明；④ 弱溯源降 D；⑤ **推算/派生值强制规则**：`数据性质=推算` 或 `口径类型∈{测算,弱溯源}` 或 `数值类型≠水平值` → 强制 D 级、禁入 B 级，与实测分栏；⑥ **人均口径**：per-trip vs per-day 不得混称"人均"；⑦ **跨年/调休天数折算**：必附 per-day 等效值；⑧ 探索性主题基于已分级数据集在 CSV **显式圈定**入选行；⑨ **纵向数据归集**：读去年同期/本年上期/上期预测台账，per-day 折算，历史补齐读 `.baseline-cache/` 做 17→22 适配 + canon 规范化；⑩ **预测入账**：`数据性质=预计`+`缺口标记=预判待回填`+`预测ID` 单独成行。
+要点：① 去重/缺失/类型/单位四类快检；② **逐条分级 A/B/C/D + 强制填 22 字段口径元数据**（不可在 caliber-dictionary 追溯则退回）；③ 口径冲突：官方优先，无法判定主次并列说明；④ 弱溯源降 D；⑤ **推算/派生值强制规则**：`数据性质=推算` 或 `口径类型∈{测算,弱溯源}` 或 `数值类型≠水平值` → 强制 D 级、禁入 B 级，与实测分栏；⑥ **人均口径**：per-trip vs per-day 不得混称"人均"；⑦ **跨年/调休天数折算**：必附 per-day 等效值；⑧ 探索性主题基于已分级数据集在 CSV **显式圈定**入选行；⑨ **纵向数据归集**：读去年同期/本年上期/上期预测台账，per-day 折算，历史补齐读 `data_set/holiday_data/` 做 17→22 适配 + canon 规范化；⑩ **预测入账**：`数据性质=预计`+`缺口标记=预判待回填`+`预测ID` 单独成行。
 
 **阶段门禁 Checklist**：① 每个数据点 A/B/C/D 已标，推算/测算/弱溯源/非水平值者**全部 D 级**（无推算值混入 B）；② 22 字段口径元数据可在 caliber-dictionary 追溯；③ 口径冲突已处理（官方优先/并列说明）；弱溯源已降 D；④ 人均口径合规；跨年天数变动已附 per-day 等效值；⑤ 探索性主题入选项目已在 CSV 显式圈定（≥2 独立机构 URL 互链）；⑥ 纵向数据已归集；⑦ 本期预测已入账；⑧ L2 现象素材已产出（含 URL），拟升 L1 现象已在备注标记。
 
@@ -221,6 +284,10 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 
 ## Resources
 
+### 脚本与随包依赖（v1.5.0 新增）
+- `scripts/verify_holiday_terms.py` -- **术语自检 + 自动补丁**：D2 从 AtomGit 安装 fetch 后**必跑**。L1 文本术语 + L2 枚举构造两层检查，防「半改名」导致构造 `2026_暑假` 而命中 0 且不报错。用法 `python scripts/verify_holiday_terms.py <fetch 目录> --fix`（`--json` 可机器读）；退出码 0=通过 / 1=有问题 / 2=路径非法。保护词「暑运」不替换 <!-- term-allow -->
+- `bundled/holiday-data-fetch/` -- **随包整合的采集技能**（12 文件）：D2 未安装时的安装来源（atomgit `g_ww/holiday-data-fetch`），D3 降级时的内置兜底
+
 ### 三契约与分析内核（v4.1 新增）
 - `references/contracts.md` -- **三契约 v1.0**：L1 CSV / L2 素材库 / 纵向台账 schema + 验收标准 + 分工红线；report 只验契约不验过程
 - `references/analysis-methodology.md` -- **分析内核 v1.0**：口径地图 / 叙事批判 / 报告层三变量 / 节日属性语义 / 三层操作 / 分析输出模板 六节骨架
@@ -248,7 +315,8 @@ Trigger when the user asks for a holiday consumption / travel spending data repo
 ## Usage Notes
 
 - **参数确认优先**：运行前先按「Parameter Resolution」解析 [年份][节日][地域]；任一无法默认（尤其节日）则主动提示用户，绝不臆造。
-- **按需调用 fetch**（共识 2）：阶段一先做 **AtomGit 命中判定**——**命中则不调用 fetch 的采集能力**（走 A 线基线消费），**未命中才调用** `bundled/holiday-data-fetch` 完整 F0→F5（B 线）。fetch 已随包整合，公开市场单点安装 report 即可运行；report 只验三契约，不重复采集细则。
+- **D1–D4 采集流水线**（阶段一，v1.5.0）：**D1** 半命中下载至用户本地工作空间 `data_set/holiday_data/`（只取 `holiday-data-fetch.json` + `采集日志.csv`，禁拉 `snapshots/`）→ **D2** 备妥 fetch（本地已装则启动；否则从 atomgit 安装，**装完必跑术语自检 `--fix`**）→ **D3** 安装失败则降级内置 `bundled/holiday-data-fetch/` → **D4** 全命中判定：**有全命中 → 增量 3 轮（以该目录为历史版本输入）；无全命中 → 联网 5 轮**。
+  > **命中也调 fetch**（D4 覆盖旧版共识 2 的「命中即跳过采集」）：只降轮数，不跳采集——半命中集厚度普遍低于门禁（如 2024 暑期仅 100 条 L1），纯消费基线撑不起一份报告。
 - **年度可变 / 节假日可变**：将【目标年度】【节假日】替换即可复用；查阅 `holiday-config.md` 获取该节假日的属性卡/口径地图/锚点日历。
 - **城市模式须先有全国 SSOT**：域名为城市时，确保本次已生成或用户已提供对应全国数据集。
 - **按需裁剪**：用户只要四件套中的某几件时可裁剪，但报告取数仍须来自数据集。

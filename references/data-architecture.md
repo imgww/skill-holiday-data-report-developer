@@ -88,8 +88,8 @@ data/
 > **单一事实来源（SSOT）**：`holiday-data-fetch.json` 是全部数字的唯一来源；`消费数据集.csv` 与 `现象素材库.json/.md` 均为其按 `layer` 派生的视图，便于报告引用与人工核查，不参与独立采集。
 
 ### 2.2 目录即资产库（与历史基线同构）
-- 上述 `data/{年份}/{节假日}/` 结构与历史基线上游仓库 `g_ww/holiday_data_reports` 的 `{年份}/{节假日}/` 结构**完全同构**（v3.7 起技能包不内置快照，历史基线随调用实时拉取至 `.baseline-cache/`，见 `references/historical-data-source.md`）。
-- 每期完成后，将本期 `holiday-data-fetch.json` 同步至历史基线上游（atomgit 仓库 `g_ww/holiday_data_reports`），实现**持续沉淀**：下期纵向分析直接读取，无需重新采集历史。
+- 上述 `data/{年份}/{节假日}/` 结构与历史基线上游仓库 `g_ww/holiday_data` 的 `{年份}/{节假日}/` 结构**完全同构**（v3.7 起技能包不内置快照，历史基线随调用实时拉取至 `data_set/holiday_data/`，见 `references/historical-data-source.md`）。
+- 每期完成后，将本期 `holiday-data-fetch.json` 同步至历史基线上游（atomgit 仓库 `g_ww/holiday_data`），实现**持续沉淀**：下期纵向分析直接读取，无需重新采集历史。
 - 跨期聚合（跨年纵向专题/现象字典）＝扫描所有 `data/{年份}/{节假日}/holiday-data-fetch.json` 后按 `layer` + canon/标签归并。
 
 ### 2.3 覆盖矩阵（沉淀追踪）
