@@ -1,6 +1,6 @@
 ---
 name: holiday-data-report-city
-description: "City-dimension extension of holiday-data-report. Produces a city/regional profile of Chinese holiday consumption data for any year and any Chinese holiday, built on the national SSOT: a 30-field city ledger (22 inherited national fields + 8 city fields) in which every row must link to a national indicator key, an Economist/FT-style single-file HTML report with inline-SVG visualizations (rankings, regional distribution, share donuts, divergence bars), a data provenance document, and a landing page. Reconciliation is mandatory and comes in two forms — additive indicators close to the national total (Σ ≤ 100% plus an undisclosed residual), flow indicators use an upper-bound multiple (1.5–2.5× normal, > 3× blocks). Hard blocks: R-CITY-1 share over 100% / abnormal multiple, R-CITY-2 caliber drift, R-CITY-3 orphan city row with no national linkage, R-CITY-4 fabricated residual. Delivered by holiday-data-report when [地域] resolves to a concrete city. Use when the user requests a city or regional breakdown of holiday consumption data."
+description: "City-dimension extension of holiday-data-report. Produces a city/regional profile of Chinese holiday consumption data for any year and any Chinese holiday, built on the national SSOT: city rows written into the same `holiday-data-fetch.json` (22 inherited national fields + 8 city fields, distinguished by the `地域粒度` field rather than a separate file), each linked to a national indicator key; an Economist/FT-style single-file HTML report with inline-SVG visualizations (rankings, regional distribution, share donuts, divergence bars), a data provenance document, and a landing page. Reconciliation is mandatory and comes in two forms — additive indicators close to the national total (Σ ≤ 100% plus an undisclosed residual), flow indicators use an upper-bound multiple (1.5–2.5× normal, > 3× blocks). Hard blocks: R-CITY-1 share over 100% / abnormal multiple, R-CITY-2 caliber drift, R-CITY-3 orphan city row with no national linkage, R-CITY-4 fabricated residual. Delivered by holiday-data-report when [地域] resolves to a concrete city. Use when the user requests a city or regional breakdown of holiday consumption data."
 version: 1.5.0
 author: workbuddy
 agent_created: true
@@ -23,7 +23,7 @@ agent_created: true
 |---|---|
 | 全国 22 字段口径字典 | 引用父技能 `references/caliber-dictionary.md`，本技能**不复制** |
 | 全国 A–J 数据源矩阵 | 引用父技能 `references/holiday-config.md`；城市增量见 `references/holiday-config-city.md` |
-| 全国数据集（SSOT） | **勾稽基准**：`holiday-data-reports/data_set/{年份}_{节假日}/holiday-data-fetch.json`，城市层**引用不重造** |
+| 全国数据集（SSOT） | **勾稽基准**：`holiday-data-reports/data_set/{年份}_{节假日}/holiday-data-fetch.json` 中 `地域粒度=全国` 的行；城市行写入同一文件，**引用不重造** |
 | 五阶段方法论 | 沿用父技能；城市增量见 `references/development-prompt-city.md` 与下方「五阶段增量」 |
 | 设计系统与模板 | 沿用父技能 `style-guide.md` + `report-template.html`；图表规范见 `references/style-guide-viz.md` |
 
@@ -55,17 +55,25 @@ agent_created: true
 
 ```
 holiday-data-reports/
-├── data_set/{年份}_{节假日}/    # 全国 SSOT（父技能产出）+ 城市层台账（30 字段）
-└── data_report/{年份}_{节假日}/ # 城市报告 + 真实性说明 + index.html
+├── data_set/{年份}_{节假日}/
+│   ├── holiday-data-fetch.json    # 全国行（地域粒度=全国）+ 城市行（地域粒度=城市）★ 同一 SSOT
+│   └── 采集日志.csv
+└── data_report/{年份}_{节假日}/
+    ├── 城市消费数据报告.html
+    ├── 数据真实性说明.html
+    └── index.html
 ```
 
 | 交付物 | 位置 | 用途 |
 |---|---|---|
-| 城市层台账（30 字段） | `data_set/` | 22 字段继承 + 8 城市增量；格式与父技能 SSOT 体系一致，派生视图不单独交付 |
+| **城市行**（30 字段） | `data_set/{年份}_{节假日}/holiday-data-fetch.json` | 与全国行**同一 SSOT**：`layer=L1` 且 `地域粒度`=城市/县域全称；22 字段继承 + 8 城市增量 |
+| 城市现象素材 | 同上（`layer=L2`） | 城市榜单/热点/定性素材，入正文标"现象级/定性素材" |
+| （勾稽基准）全国行 | 同上（`地域粒度=全国`） | 来自父技能，本技能**引用不重造** |
 | `城市消费数据报告.html` | `data_report/` | 含勾稽总表与可视化 |
 | `数据真实性说明.html` | `data_report/` | 逐条溯源 + 勾稽校验与覆盖率声明 |
 | `index.html` | `data_report/` | 门户入口 |
-| （勾稽基准）全国 SSOT | `data_set/` | 来自父技能，本技能**引用不重造** |
+
+> **不另建城市数据集 CSV**：城市行写入父技能 SSOT，随 F5 一并沉淀至上游；派生视图不单独交付。
 
 ## 勾稽铁律（本技能核心）
 
@@ -89,11 +97,11 @@ holiday-data-reports/
 
 沿用父技能五阶段，以下为城市增量：
 
-- **阶段一**：读全国 SSOT 锁定勾稽基准值 → 依 `holiday-config-city.md` 定城市集合（约 40 城基线）与七大区域分组 → 9 大主题 + 城市组合词检索 → 平台榜记 C 级并标"平台自身口径，非全市场"。
-- **阶段二**：30 字段填充（后 8 字段见 `caliber-dictionary-city.md` 第一节）→ 每条城市行须有 `关联全国指标`（R-CITY-3）→ 判可加性后算占比/倍数 → 建「其他/未披露」测算行 → R-CITY-1~4 全过。
+- **阶段一**：读全国行（`地域粒度=全国`）锁定勾稽基准 → 依 `holiday-config-city.md` 定城市集合（约 40 城基线）与七大区域分组 → 城市组合词并入 fetch 的 F1 检索矩阵，**由 fetch 执行采集**（城市层无上游基线 → 联网 5 轮）→ 平台榜记 C 级并标"平台自身口径，非全市场"。
+- **阶段二**：城市行写入 SSOT（`layer=L1` + `地域粒度`=城市名，后 8 字段见 `caliber-dictionary-city.md` 第一节）→ 每条须有 `关联全国指标`（R-CITY-3）→ 判可加性后算占比/倍数 → 建「其他/未披露」测算行 → R-CITY-1~4 全过。
 - **阶段三**：真实性说明增加「勾稽校验与覆盖率声明」节；溯源表按「全国指标 → 城市行」分组，附 `城市|区域|占比|勾稽状态`。
 - **阶段四**：套 `assets/report-template-city.html`，**必含**勾稽总表 + 排名图 C1 + 区域图 C2 + 对比图 C3，分区域各栏 ≥1 图；图表取自 `assets/chart-kit.html`。
-- **阶段五**：城市交付物齐备 + **三方勾稽校验**（城市层 ↔ 全国 SSOT ↔ 真实性说明）。
+- **阶段五**：城市交付物齐备 + **三方勾稽校验**（SSOT 城市行 ↔ SSOT 全国行 ↔ 真实性说明）。
 
 ## Resources
 
@@ -111,6 +119,7 @@ holiday-data-reports/
 ## Usage Notes
 
 - **前置条件**：地域=城市时，先确认全国 SSOT 已存在（本次已生成或用户已提供）。缺失则先走父技能全国流程，本技能不重造总量。
+- **采集由 fetch 承担**：城市组合检索词并入 fetch 的 F1 检索矩阵，本技能不自行检索；城市层无上游基线可复用 → 联网 5 轮。
 - **零虚构**：城市值缺失只做测算占位行，禁止编造；残差行一律 `数据性质=推算` + D 级。
 - **平台榜纪律**：携程/同程/美团城市榜一律 C 级 + 备注"平台自身口径，非全市场"，不得替代官方城市接待量。
 - **预览**：交付后打开城市报告、真实性说明与 `index.html` 供读者预览。

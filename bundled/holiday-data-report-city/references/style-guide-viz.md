@@ -1,7 +1,7 @@
-# 城市数据可视化规范（Style Guide · Visualization）v1.0
+# 城市数据可视化规范（Style Guide · Visualization）v1.1.0
 
-> 本文件为 `holiday-data-report-city` 技能的**城市数据可视化专项规范**，与父技能《经济学人/FT 排版规范 v?》共用同一设计令牌（米白暖底、暗红点缀、衬线字体、明暗双主题）。此处仅增量定义**图表类型选择、配色、口径标注与 SVG 组件约定**，确保城市报告"图文并茂、数据清晰可读"。
-> 设计令牌（`:root` CSS 变量）与组件库（报头/数字带/徽章/预测卡/表格）直接套用 `assets/report-template.html`，**勿手动改写颜色**。
+> 本文件为 `holiday-data-report-city` 技能的**城市数据可视化专项规范**，与父技能《经济学人/FT 排版规范》共用同一设计令牌（米白暖底、暗红点缀、衬线字体、明暗双主题）。此处仅增量定义**图表类型选择、配色、口径标注与 SVG 组件约定**，确保城市报告"图文并茂、数据清晰可读"。
+> 设计令牌（`:root` CSS 变量）与组件库（报头/数字带/徽章/预测卡/表格）直接套用 `assets/report-template-city.html`，**勿手动改写颜色**。
 
 ---
 
@@ -35,7 +35,7 @@
 | 测算/预计 | 浅色 + 虚线/斜体 + `--ink3` | 与实测同图时弱化，不得同色 |
 | 残差/未披露 | `--paper3` 填充 + 斜纹 | 占比环的"其他/未披露"扇区 |
 
-> 暗色主题下令牌自动切换（见 report-template.html `data-theme="dark"`），SVG 须用 `currentColor` 或 `var(--xxx)` 引用令牌，**禁止写死 # 颜色**，保证明暗双主题一致。
+> 暗色主题下令牌自动切换（见 report-template-city.html `data-theme="dark"`），SVG 须用 `currentColor` 或 `var(--xxx)` 引用令牌，**禁止写死 # 颜色**，保证明暗双主题一致。
 
 ---
 
@@ -43,7 +43,7 @@
 
 每张图四件套注记（缺一即返工）：
 1. **标题**：明确指标（如「重点旅游城市出游人次 TOP 10」）；
-2. **副标题**：口径版本 + 统计窗口 + 可比城市集合（如「7天口径 · 纳入 36 城 · 官方+平台混合口径」）；
+2. **副标题**：口径版本 + 统计窗口 + 可比城市集合（如「7天口径 · 纳入 40 城 · 官方+平台混合口径」，城市数与 `holiday-config-city.md` 一致）；
 3. **图例**：多系列/多区域须图例，颜色与令牌一致；
 4. **脚注来源**：`数据来源：机构名（等级）· 报告名 · 年份`；测算值脚注加「测算（D 级）」。
 
@@ -54,7 +54,7 @@
 ## 四、SVG 组件约定（无外链、内联、可访问）
 
 - 全部 SVG 内联于单文件 HTML；`width:100%` 自适应，`viewBox` 固定坐标；
-- 窄屏 `min-width:420px` + 外层 `.chart{overflow-x:auto}`（见 report-template.html 响应式）；
+- 窄屏 `min-width:420px` + 外层 `.chart{overflow-x:auto}`（见 report-template-city.html 响应式）；
 - 文本用 `font-family:var(--ui-stack)`，字号 ≥ 11px，确保可读；
 - 可访问性：`<svg role="img" aria-label="...">`；关键数值同步在下方数据表呈现（图表与表格双轨，满足无障碍与核验）；
 - 交互（可选渐进增强）：条形 hover 高亮、表格排序，零 JS 时图仍完整可读。
@@ -70,4 +70,4 @@
 
 ---
 
-*城市可视化规范版本：v1.0 | 更新日期：2026-08-19 | 配套：report-template.html（设计系统+图表容器）、chart-kit.html（可直接复制的 SVG 片段 C1–C6）、templates.md（组件清单）。排版基础继承自 holiday-data-report 的 style-guide.md。*
+*城市可视化规范版本：v1.1.0 | 更新日期：2026-09-15 | 本次修订（v1.1.0）：模板引用统一指向 city assets；副标题城市数示例与 holiday-config-city.md 对齐。配套：report-template-city.html（设计系统 + 图表容器）、chart-kit.html（可直接复制的 SVG 片段 C1–C6）、templates-city.md（组件清单）。排版基础继承自 holiday-data-report 的 style-guide.md。*
