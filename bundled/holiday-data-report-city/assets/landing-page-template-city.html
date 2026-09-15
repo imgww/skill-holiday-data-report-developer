@@ -9,7 +9,7 @@
    节假日消费数据报告 · 首页统一设计系统 (Design System)  v1.4.0
    - 单一设计令牌（含明暗双主题，自动 + 手动切换）
    - 无吸顶导航（v1.4.0 移除 appbar）：首页自报头开篇，便于整体嵌入任意主页框架
-   - 组件库（报头 / 连续性高亮条 / 三卡片入口 / CSV 预览 / 页脚导航）
+   - 组件库（报头 / 连续性高亮条 / 三卡片入口 / 数据预览 / 页脚导航）
    - 核心体验零 JS 可用，交互层渐进增强（暗色自动生效，按钮仅切换偏好）
    使用说明见文件末尾注释。
    ============================================================ */
@@ -114,7 +114,7 @@ code{font-family:var(--mono);background:var(--paper3);border:1px solid var(--lin
 .card-cta:hover{background:var(--red2);color:#fff;}
 .card-cta-wrap{margin-top:auto;padding-top:8px;}
 
-/* CSV 预览表 */
+/* 数据预览表 */
 .csv-preview-wrap{overflow-x:auto;margin-bottom:12px;}
 table.csv-preview{width:100%;border-collapse:collapse;font-size:11.5px;min-width:480px;}
 table.csv-preview th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:6px 7px;text-align:left;font-size:10.5px;letter-spacing:.5px;color:var(--ink2);white-space:nowrap;background:var(--paper3);}
@@ -284,7 +284,7 @@ table.csv-preview .badge.d{background:var(--ink3);}
       </div>
       <div class="card-body">
         <div class="csv-preview-wrap">
-          <!-- CSV 前5行预览（含表头），按实际数据集内容填充 -->
+          <!-- 前 5 条数据预览（含表头），按实际 SSOT 内容填充 -->
           <table class="csv-preview">
             <thead>
               <tr>
@@ -322,7 +322,7 @@ table.csv-preview .badge.d{background:var(--ink3);}
             </tbody>
           </table>
         </div>
-        <div class="src-note">摘自《<b>【目标年度】【节假日】城市消费数据集</b>》前 5 行（共 N 条记录）</div>
+        <div class="src-note">摘自 <b>holiday-data-fetch.json</b> 的城市行（<code>items[layer=L1]</code> 且 <code>地域粒度</code>≠<code>全国</code>）前 5 条（共 N 条记录）</div>
       </div>
       <div class="card-cta-wrap">
         <!-- download 属性触发文件下载；文件名按实际数据集名替换 -->
@@ -397,7 +397,7 @@ table.csv-preview .badge.d{background:var(--ink3);}
      可整体嵌入任意主页框架；明暗切换按钮位于报头右端。
    - 明暗双主题：无 JS 自动跟随系统偏好；点击报头右端「明暗」按钮手动切换并记忆。
    - 可达性：skip-link、焦点环、语义化标签、min-width 防御移动端溢出。
-   - 组件库：报头 / 简介条 / 连续性高亮条 / 三卡片入口 / CSV 预览 / 页脚导航 / 浮动回顶。
+   - 组件库：报头 / 简介条 / 连续性高亮条 / 三卡片入口 / 数据预览 / 页脚导航 / 浮动回顶。
 2. 替换占位符：
    - 【目标年度】【节假日】【生成日期】→ 实际值；
    - XX.X / XXXX / [年度] / N → 数据集真实值；

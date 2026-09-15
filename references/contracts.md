@@ -10,11 +10,11 @@
 
 | 契约 | 产物 | schema 权威 | 生产者 | 消费方 |
 | --- | --- | --- | --- | --- |
-| 契约一 | L1 结构化数据集（22 字段 CSV，`items[layer=L1]` 派生视图） | `caliber-dictionary.md` | fetch F1–F5 | report 阶段二/三/四 |
-| 契约二 | L2 现象素材库（`items[layer=L2]` + 派生 `.json/.md`） | `data-architecture.md` | fetch F2 同源双录 | report 阶段四（丰度栏目） |
+| 契约一 | L1 结构化数据集（22 字段，`items[layer=L1]`） | `caliber-dictionary.md` | fetch F1–F5 | report 阶段二/三/四 |
+| 契约二 | L2 现象素材（`items[layer=L2]`） | `data-architecture.md` | fetch F2 同源双录 | report 阶段四（丰度栏目） |
 | 契约三 | 纵向预测台账（预测 ID + 四元键） | `templates.md` + `caliber-dictionary.md` | report 阶段二第 10 步 / fetch 观测序列 | report 阶段四 2.4/2.5 |
 
-> 三者同源于**单一 `holiday-data-fetch.json`**（`schema/meta/items`，每条带 `layer` 字段，见 `data-architecture.md` v1.2.0）。CSV / 现象素材库 JSON/MD 仅为按 `layer` 派生的可读视图，SSOT 仍是 JSON。
+> 三者同源于**单一 `holiday-data-fetch.json`**（`schema/meta/items`，每条带 `layer` 字段，见 `data-architecture.md` v1.2.0）。按 `layer` 派生的可读视图仅为可读性服务、不作交付物，SSOT 仍是该 JSON。
 
 ---
 
@@ -34,7 +34,7 @@
 
 ---
 
-## 三、契约二 · L2 现象素材库（统一 JSON 的 layer=L2 分区）
+## 三、契约二 · L2 现象素材（统一 JSON 的 layer=L2 分区）
 
 ### Schema
 `现象标签 | 现象描述 | 主题归属(9类) | 来源URL | 采集日期 | 与L1指标键(可空)`

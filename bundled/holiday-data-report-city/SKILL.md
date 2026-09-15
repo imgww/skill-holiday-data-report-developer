@@ -73,7 +73,7 @@ holiday-data-reports/
 | `数据真实性说明.html` | `data_report/` | 逐条溯源 + 勾稽校验与覆盖率声明 |
 | `index.html` | `data_report/` | 门户入口 |
 
-> **不另建城市数据集 CSV**：城市行写入父技能 SSOT，随 F5 一并沉淀至上游；派生视图不单独交付。
+> **单一数据源**：城市行写入父技能 SSOT `holiday-data-fetch.json`，随 F5 一并沉淀至上游。
 
 ## 勾稽铁律（本技能核心）
 

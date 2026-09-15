@@ -4,7 +4,7 @@
 
 `holiday-data-mcp` 是节假日消费数据领域的**结构化实时检索入口**（MCP 协议, 已配置于 `~/.workbuddy/mcp.json`, 地址 `https://ai-x-ai.online/mcp`, Bearer 鉴权）。它查询的数据后端即本技能历史基线**同源数据**（`D:\AISpace\01-projects\260824_holiday_data_mcp\data\data_set`, 上游 atomgit 仓库 `g_ww/holiday_data` 的衍生索引）。
 
-> **不是替代**: atomgit `git clone/pull`（阶段一 4c, `holiday-data-reports/data_set/`）继续作为**原始 CSV 落盘与跨期沉淀（回写上游）**的唯一源;MCP 是其上的**结构化检索互补层**——无需 clone 即可即时按条件取数,且 `compare_across_years` 自带口径/单位不一致告警。三者（MCP + atomgit 基线 + 联网检索）**互为交叉验证**。
+> **不是替代**: atomgit `git clone/pull`（阶段一 4c, `holiday-data-reports/data_set/`）继续作为**原始落盘与跨期沉淀（回写上游）**的唯一源;MCP 是其上的**结构化检索互补层**——无需 clone 即可即时按条件取数,且 `compare_across_years` 自带口径/单位不一致告警。三者（MCP + atomgit 基线 + 联网检索）**互为交叉验证**。
 
 ## 2. 6 个工具与技能阶段映射
 
@@ -49,10 +49,10 @@
    ┌────────▼───────┐      ┌──────▼──────────────┐
    │  atomgit 基线   │      │   联网检索（≥8 轮）   │
    │ dataset/hdr/    │      │   9 大主题 + 探索性   │
-   │ 原始 CSV 落盘    │      │   同源双录 L1+L2      │
+   │ 原始落盘         │      │   同源双录 L1+L2      │
    └────────┬───────┘      └──────┬──────────────┘
             └──────────┬──────────┘
                        ▼
-              L1 数据集(22字段) + L2 现象素材库
+              L1 结构化数据(22字段) + L2 现象素材
               （三源交叉验证后定稿, 任一不可达均降级不中断）
 ```

@@ -64,7 +64,7 @@
 | 卡片标题（card-head） | 暗红衬线 18px 加粗 + 圆形描红图标 + 右置 tag 标签 |
 | 卡片预览正文（card-body） | 14.5px 正文,摘录 2-3 段,行高 1.68,颜色 ink2;含 lead-title / standfirst / src-note |
 | 卡片链接按钮（card-cta） | 暗红底白字,padding 11px 22px,UI 字体 14px,hover 变深红;圆角 2px |
-| CSV 预览表（csv-preview） | 同报告表格样式,缩小至 11.5px;水平滚动 overflow-x:auto;徽章 a=绿/b=蓝/c=金/d=灰 |
+| 数据预览表（`.csv-preview`） | 同报告表格样式,缩小至 11.5px;水平滚动 overflow-x:auto;徽章 a=绿/b=蓝/c=金/d=灰 |
 | 页脚导航（footer-nav） | 顶部 4px 双线;三列网格（返回/本门户文件/跨年专题）+ 回顶按钮 |
 | 页脚 | 同报告页脚,注明生成日期与来源机构 |
 | 浮动回顶（back-top-float） | 固定右下圆形暗红按钮,含刘海安全区;打印/移动端可达性一致 |
