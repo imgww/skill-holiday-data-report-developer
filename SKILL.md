@@ -149,59 +149,21 @@ holiday-data-reports/
 
 #### D1 · 半命中下载（不依赖 fetch，先于一切执行）
 
-0. **git 可用性前置（不可跳过）**：D1 依赖 git。按下述三级退避定位可执行文件，**三级全失败**才允许判"无全命中"：
+从 AtomGit 稀疏检出「纵向 + 横向」两个半命中系列至 `holiday-data-reports/data_set/{年份}_{节假日}/`。
+**完整规程见 `references/d1-half-hit-download.md`**（git 探测→安装→降级、系列构造、稀疏检出命令、三个坑、拉取后校验）。
 
-   1. `git --version`；
-   2. 绝对路径直连：Windows `%USERPROFILE%\.workbuddy\binaries\PortableGit\versions\*\cmd\git.exe`（或 `where git`）；macOS/Linux `which git`；
-   3. 用 Python `subprocess` 调用第 2 步找到的**绝对路径**执行 git 命令（绕开 shell）。
+**三条硬门禁**：
 
-   > 沙箱的 shell PATH 可能损坏（`dirname` / `cd` / `head` 报 `command not found`），
-   > 此时 `git` 命令看似不可用，**但 git 可执行文件本身完好**——必须走②③复核后再下结论。
-   > 误判代价：D4 由 **3 轮增量**退回 **5 轮联网**，凭空多出两轮全量检索。
-   > 确为 git 不可用时，须在采集日志与「数据真实性说明」写明 `D1 未执行：git 不可用（已尝试三级退避）`。
-
-1. 解析 [年份] Y、[节日] F、[地域]。
-
-2. 构造**两个半命中系列**并取并集（交叉格只计一次）：
-   - **纵向系列** `{y}_{F}`，y ∈ [Y−4, Y]（回溯**不超过 5 年**）
-   - **横向系列** `{Y}_{f}`，f ∈ 六节日
-   - `{Y}_{F}` 同时属于两系列 → 去重后只下载一次
-
-3. **存在性探针**（逐目录，不下载 blob）：
-   `git ls-tree --name-only "HEAD:{目录}"` 返回含 `holiday-data-fetch.json` = 该格存在。
-
-4. **稀疏检出**至用户本地工作空间 `holiday-data-reports/data_set/{年份}_{节假日}/`，
-   **只拉两个文件**：`holiday-data-fetch.json` + `采集日志.csv`；**禁拉 `snapshots/`**（每条记录自带 `snapshot` 相对路径，按需单点补拉）。
-
-```bash
-git clone --depth 1 --filter=blob:none --sparse \
-  https://atomgit.com/g_ww/holiday_data holiday-data-reports/data_set
-cd holiday-data-reports/data_set
-
-# 逐格判定存在性（不下载 blob）
-git ls-tree --name-only "HEAD:{Y}_{F}"
-
-# 只拉两个文件（路径必须带前导斜杠）
-git sparse-checkout init --no-cone
-git sparse-checkout set --no-cone \
-  "/{Y}_{F}/holiday-data-fetch.json"   "/{Y}_{F}/采集日志.csv" \
-  "/{Y-1}_{F}/holiday-data-fetch.json" "/{Y-1}_{F}/采集日志.csv" \
-  "/{Y}_{f1}/holiday-data-fetch.json"  "/{Y}_{f1}/采集日志.csv"
-```
-
-   > 坑 1：`--sparse` **必须在 clone 时声明**，事后补加会报 `unable to read sha1 file`。
-   > 坑 2：必须 `init --no-cone` 且路径带**前导斜杠**，否则 cone 模式把 `snapshots/` 一起拉下。
-   > 坑 3：**只用 `set` 全量重列，禁用 `add`**——实测 `add` 在此 Git 版本下静默失效；且 `set` 是覆盖式，重列时漏项会把上次已拉文件移走。
-
-5. **拉取后强制校验（不可省）**：逐目录断言「两文件均存在 且 L1 行数 > 0」，不满足即判该格未命中。
-   > **退出码 0 不得当作成功**：目录名写错时 `sparse-checkout` 仍返回 0、工作区为空、零警告——本流程最危险的静默失败点。
-
-**产出**：半命中数据集（可为空）+ 命中/未命中清单（须写入采集日志）。
+- ① git 不可用**须先安装**，安装失败才判"无全命中"，并在采集日志与「数据真实性说明」写明 `D1 未执行：git 不可用（探测 + 安装均失败：<原因>）`；
+- ② **只拉两个文件** `holiday-data-fetch.json` + `采集日志.csv`，**禁拉 `snapshots/`**；
+- ③ **拉取后逐目录断言**「两文件均存在 且 L1 行数 > 0」——**退出码 0 不等于成功**。
 
 #### D2 · 备妥 SKILL holiday-data-fetch
 
+> git 决议**复用 D1**，不重复探测（见 `references/d1-half-hit-download.md` 第 0 步）：D1 已判 git 不可用（安装失败）→ 跳过本步，直接进 D3。
+
 1. 检测本地是否已安装：存在 `~/.workbuddy/skills/holiday-data-fetch/SKILL.md` → 直接启动，跳到第 3 步。
-2. 未安装 → 从 AtomGit 安装：
+2. 未安装 → 从 AtomGit 安装（clone 须用 D1 **已验证可用的 git 路径**，PATH 损坏时用绝对路径或 Python `subprocess`）：
    `git clone --depth 1 https://atomgit.com/g_ww/holiday-data-fetch.git <skills 目录>/holiday-data-fetch`
 3. **装完必跑术语自检 + 自动补丁（不可省）**：
 
@@ -213,7 +175,7 @@ python scripts/verify_holiday_terms.py <fetch 目录> --fix
 
 #### D3 · 降级到内置 fetch
 
-D2 安装失败（网络 / 权限 / 仓库不可达）→ 启动内置 `bundled/holiday-data-fetch/`。
+D2 安装失败（git 不可用 / 网络 / 权限 / 仓库不可达）→ 启动内置 `bundled/holiday-data-fetch/`。
 内置副本与安装版同源，出厂已通过术语自检。
 
 #### D4 · 全命中判定与轮数分派
@@ -291,7 +253,7 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 
 ## Anti-Patterns · 反模式索引
 
-完整 15 条反模式（含后果与修正步骤）见 `references/anti-patterns.md`。**最关键 6 条**：① 编造数据 → D 级弱溯源或剔除；② 推算当实测 → 测算标记并分栏；③ 口径冲突擅自二选一 → 官方优先/无法判定并列说明；④ 跳过全量对照校验 → 强制三向对照；⑤ 预测无台账 → 凡预测必入账，偏差 > ±10% 标"失准"并三类归因；⑥ shell 报 `command not found` 就放弃 D1 → 必须走 git 三级退避复核（见 D1 第 0 步）。
+完整 15 条反模式（含后果与修正步骤）见 `references/anti-patterns.md`。**最关键 6 条**：① 编造数据 → D 级弱溯源或剔除；② 推算当实测 → 测算标记并分栏；③ 口径冲突擅自二选一 → 官方优先/无法判定并列说明；④ 跳过全量对照校验 → 强制三向对照；⑤ 预测无台账 → 凡预测必入账，偏差 > ±10% 标"失准"并三类归因；⑥ git 探测失败就放弃 D1 → 必须走完「探测 → 安装 git → 降级」三步（见 `references/d1-half-hit-download.md` 第 0 步）。
 
 ## FAQ · 常见问题索引
 
@@ -306,11 +268,14 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 - `scripts/verify_holiday_terms.py` -- **术语自检 + 自动补丁**：D2 安装 fetch 后**必跑**。用法 `python scripts/verify_holiday_terms.py <fetch 目录> --fix`（`--json` 机器可读）；退出码 0=通过 / 1=有问题 / 2=路径非法。保护词「暑运」不替换
 - `bundled/holiday-data-fetch/` -- **随包整合的采集技能**（12 文件）：D2 未安装时的安装来源（atomgit `g_ww/holiday-data-fetch`），D3 降级时的内置兜底
 
+### 采集规程
+- `references/d1-half-hit-download.md` -- **D1 半命中下载完整规程**：git 探测→安装→降级、半命中系列构造、存在性探针、稀疏检出命令与三个坑、拉取后强制校验
+
 ### 三契约与分析内核
 - `references/contracts.md` -- **三契约 v1.1.0**：L1 结构化数据 / L2 现象素材 / 纵向台账 schema + 验收标准 + 分工红线；report 只验契约不验过程
 - `references/analysis-methodology.md` -- **分析内核 v1.1.0**：口径地图 / 叙事批判 / 报告层三变量 / 节日属性语义 / 三层操作 / 分析输出模板 六节骨架
 - `references/faq.md` -- **FAQ v1.1.0**：12 条常见问答（单一弱来源 / 假期跨年 / 口径冲突 / 探索性主题 / 预测复盘 / 历史基线 / 双轨架构等）
-- `references/anti-patterns.md` -- **反模式 v1.2.0**：15 条不可逾越反模式
+- `references/anti-patterns.md` -- **反模式 v1.3.0**：15 条不可逾越反模式
 
 ### 配置 / 口径 / 数据架构
 - `references/caliber-dictionary.md` -- **口径字典 v1.2.2（强制）**：22 字段 schema 权威（契约一）、统一主题字典(9类)、指标口径字典、口径类型取值表、预测台账与缺口标记
