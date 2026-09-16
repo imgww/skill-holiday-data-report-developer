@@ -20,7 +20,7 @@ Produces a **holiday consumption data report package** for Chinese holiday consu
 **报告侧**（`data_report/{年份}_{节假日}/`）
 4. `消费数据报告.html` -- 单文件 HTML，Economist/FT 风格。
 5. `数据真实性说明.html` -- 单文件 HTML，逐条溯源与质量声明。
-6. `index.html` -- 门户入口，可发布到静态托管。
+6. `index.html` -- 门户入口。
 
 > **单一数据源**：全部数字取自 `holiday-data-fetch.json`（SSOT），L1/L2 由 `layer` 字段区分；不设其它数据交付物。
 
@@ -77,7 +77,7 @@ holiday-data-reports/
 | `snapshots/` | `data_set/` | 原文快照，溯源证据 |
 | `消费数据报告.html` | `data_report/` | 经济学人/FT 风格 |
 | `数据真实性说明.html` | `data_report/` | 逐条溯源与质量声明 |
-| `index.html` | `data_report/` | 门户入口，可发布到静态托管 |
+| `index.html` | `data_report/` | 门户入口 |
 
 > **双轨原则**：L1/L2 分栏呈现、不混同；L2 入正文须标"现象级/定性素材"。详见 `references/data-architecture.md`。
 
@@ -303,4 +303,3 @@ F0 历史数据询问**必须执行**（有全命中时，由 D1 产出的 `holi
 - **城市模式交接**：地域=城市时，先确认全国 SSOT 已存在（本次已生成或用户已提供），再启动 `bundled/holiday-data-report-city/`；勾稽基准不得重造。
 - **按需裁剪**：用户只要交付物中的某几件时可裁剪（如只要报告 HTML），但报告取数仍须来自 `holiday-data-fetch.json`。
 - **预览**：交付后用 `present_files` 打开 HTML 文件（首页、报告与真实性说明）供读者预览；数据集与说明文档以卡片列出。
-- **静态托管**：若需发布到静态托管平台，将整个报告目录作为静态站点部署，首页 `index.html` 自动作为默认入口。

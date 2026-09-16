@@ -188,7 +188,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
 .footer-nav .back-top:hover{background:var(--red);color:var(--paper);}
 .footer{border-top:4px double var(--ink);margin-top:30px;padding:20px 0 50px;font-size:12px;color:var(--ink3);line-height:1.8;}
 .footer b{color:var(--ink2);}
-.footer .deploy-note{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3);}
+.footer .gen-note{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink3);}
 .noscript-note{background:var(--gold-soft);border:1px solid var(--gold);border-left:5px solid var(--gold);padding:10px 16px;margin:10px 0;font-size:13px;color:var(--ink2);font-family:var(--ui-stack);}
 .noscript-note b{color:var(--red);}
 .back-top-float{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:150;width:44px;height:44px;border-radius:50%;background:var(--red);color:var(--paper);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:19px;line-height:1;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.28);font-family:var(--ui-stack);}
@@ -576,7 +576,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
     <p><b>数据来源：</b>各市文旅局/市监/商务局（A/B）&middot; 携程/同程/美团城市榜（C，平台自身口径）&middot; 全国 SSOT（<code>holiday-data-fetch.json</code>）</p>
     <p><b>说明：</b>标注"测算"的指标为推算值；城市数据已与全国数据集勾稽闭合，详细溯源见《数据真实性说明》。</p>
     <p>本报告城市数据来自互联网公开来源，每条数据均可在《数据真实性说明》中追溯至原始页面；占比含未披露残差。</p>
-    <p class="deploy-note">本报告为单文件 HTML，全部资源内联、无外链，可直接部署至任意静态托管。</p>
+    <p class="gen-note">本报告为单文件 HTML，全部资源内联、无外链，可离线直接打开。</p>
   </footer>
 
 </div>
@@ -620,7 +620,7 @@ th.sortable.sort-desc::after{content:" ↓";color:var(--red);}
    （图表直观、表格可核验）。
 6. 平台城市榜标 C 级 + "平台自身口径，非全市场"；覆盖率 < 40% 排名标"局部样本"。
 7. 内容整洁原则（v1.4.0 硬性）：正文与页脚只出现与本节假日城市消费数据相关的内容，
-   禁止保留站点门户品牌、外部数据系统、部署平台名、技能内部代号等无关字眼。
+   禁止保留站点门户品牌、外部数据系统、技能内部代号等无关字眼。
 8. 面包屑（BREADCRUMB 注释块）为可选：同目录存在首页时指向 index.html；
    纯单页或需整体嵌入主页时整段删除。
 9. 技术约束：全部 CSS/JS 内联、无外链、无 emoji、简体中文、响应式、明暗双主题。
