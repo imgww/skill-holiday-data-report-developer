@@ -47,6 +47,34 @@
 
 未发版。以下为已提交至主干的变更，按时间倒序。
 
+#### `9a70806` · 2026-09-16 · refactor(D1)：规程抽离 + git「探测 → 安装 → 降级」
+
+**两项改动**（`ffcad18` 的延续与收口）。
+
+1. **D1 规程抽离**：`SKILL.md` 的 D1 由 **54 行压至 10 行**——正文只留「干什么 + 指向规程 + 三条硬门禁」，
+   完整操作步骤（git 前置、半命中系列构造、存在性探针、稀疏检出命令与三个坑、拉取后强制校验）
+   移入新建 `references/d1-half-hit-download.md`（66 行 / 3,939 B）。
+   三条硬门禁仍留在正文，因其属门禁性质、移走易被跳过：
+   ① git 不可用须先安装，安装失败才判无全命中；② 禁拉 `snapshots/`；③ 逐目录断言「两文件均在 且 L1 > 0」。
+2. **git 可用性：三级退避 → 探测 → 安装 → 降级**：原条文「三级全失败即判无全命中」跳过了"把 git 装上"这一步，
+   等于在 git 真缺失时直接放弃历史基线。现为：探测三级全失败 → **安装 git**
+   （Windows 优先环境自带二进制安装能力，其次 `winget install --id Git.Git -e --source winget --accept-package-agreements
+   --accept-source-agreements --disable-interactivity`，再其次便携版解压至 `~/.workbuddy/binaries/PortableGit/versions/<ver>/`；
+   macOS `xcode-select --install` → `brew`；Linux `apt-get` / `yum` / `apk`）→
+   装后按**绝对路径**复验 rc=0（新装 git 通常未进 PATH，勿再依赖 `git --version`）→
+   安装仍失败才降级，并在采集日志与真实性说明写明 `D1 未执行：git 不可用（探测 + 安装均失败：<原因>）`。
+
+**实测依据**：`winget show --id Git.Git -e --source winget` rc=0（版本 2.55.0.3），命令与包 ID 均真实有效，
+非纸面推定。本机 git 位实测：托管版 `C:\Users\wingw\.workbuddy\binaries\PortableGit\versions\1.2.0\cmd\git.exe`
+（**`cmd\` 非 `bin\`**）、系统版 `C:\Program Files\Git\cmd\git.exe`；`choco` / `scoop` 未安装。
+
+**联动改动**：D2 改为**复用 D1 的 git 决议**（不重复探测），D1 判不可用则直接进 D3 内置 fetch；
+`anti-patterns` 第 15 条更名「未走完『探测 → 安装 → 降级』就判 D1 不可执行」，v1.2.0 → **v1.3.0**；
+`SKILL.md` 反模式索引 ⑥ 与 Resources 新增「采集规程」小节同步指向新文件。
+
+**校验**：术语自检 report + city 双 PASS；`SKILL.md` 306 行、代码块围栏 4（平衡）；
+「D1 第 0 步」旧引用残留 0。
+
 #### `ffcad18` · 2026-09-15 · fix(D1)：git 可用性三级退避
 
 **来源于一次真实调用故障**（`@skill:holiday-data-report` 生成 2026 年暑期数据报告）。
