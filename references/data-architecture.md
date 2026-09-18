@@ -174,7 +174,7 @@ holiday-data-reports/
 | 阶段二·整理 | 22 字段口径治理（L1 记录）；非 L1 素材整理为 L2 记录（贴标签、归主题、记 URL/快照/关联键）；**全部写入同一 `items` 数组，标 `layer`**，不被 22 字段门槛拒绝 |
 | 阶段三·输出 | 真实性说明：L1 逐条溯源 + 「现象素材清单」节（L2 条目来源 URL，声明"现象级素材,非统计口径"），两节同源同一 JSON |
 | 阶段四·报告 | 纵向延续与前瞻（L1 严谨叙事）+ 本期现象/热门新消费/目的地热点/政策速览（L2 丰度叙事），引用时标素材属性 |
-| 阶段五·交付 | `holiday-data-fetch.json` + `采集日志.csv` + `snapshots/` 入 `data_set/`；三份 HTML 入 `data_report/`；**派生视图不进交付清单**（按需从 SSOT 现算）；交付说明登记 L1/L2/快照数量 |
+| 阶段五·交付 | `holiday-data-fetch.json` + `采集日志.csv` + `snapshots/` 入 `data_set/`；三份 HTML 入 `data_report/`；**派生视图（CSV / 素材库等）不再产出、也不进交付清单**（按需从 SSOT 按 `layer` 现算）；交付说明登记 L1/L2/快照数量 |
 
 ---
 
@@ -189,4 +189,4 @@ holiday-data-reports/
 
 ---
 
-*数据架构版本：v1.2.0 | 更新日期：2026-09-03 | 变更：L1/L2 由「双文件分轨」改为「单一 holiday-data-fetch.json（items 合并 + layer 判别）」，派生 CSV/MD 视图；配套：templates.md（第 2/8 节统一 JSON 模板）、SKILL.md（v1.4.1 统一采集）、historical-data-source.md（历史基线同构沉淀）、caliber-dictionary.md（L1 口径权威 + L2 轻量字段）。*
+*数据架构版本：v1.2.0 | 更新日期：2026-09-03 | 变更：L1/L2 由「双文件分轨」改为「单一 holiday-data-fetch.json（items 合并 + layer 判别）」，派生 CSV/MD 视图；配套：templates.md（第 2/8 节统一 JSON 模板）、SKILL.md（v1.4.1 统一采集）、historical-data-source.md（历史基线同构沉淀）、caliber-dictionary.md（L1 口径权威 + L2 轻量字段）。**v1.5.1 追加**：派生视图（CSV / 素材库等）彻底废止、不再产出，SSOT `holiday-data-fetch.json` 为唯一出口。*

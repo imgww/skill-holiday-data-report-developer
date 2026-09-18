@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-import_history.py — 历史数据导入器（v1.2 新增）
+import_history.py — 历史数据导入器（v1.2 新增，v1.3 收敛为纯 JSON 输入）
 
 将历史版数据导入主工作区 JSON，作为"存量基线"（观测批次=H{n}）叠加，防"越采越少"。
 
-支持输入：
-  - 历史版 CSV（22 字段：`*消费数据集*.csv` / `节假日消费数据集_总览.csv`）
-  - v1.0 / v1.1 JSON（`holiday-data-fetch.json`，schema=holiday-data-fetch-v1）
-  - L2 现象素材库 JSON（schema=phenomena-library-v1）
-  - 目录（自动扫描上述文件，跳过 round_*.json 中间产物）
+支持输入（v1.3 起只认 JSON，不再消费任何 CSV）：
+  - 现行 / v1.1 / v1.0 `holiday-data-fetch.json`（schema=holiday-data-fetch-v1）
+  - L2 现象素材库 JSON（schema=phenomena-library-v1，仅旧版遗留文件的输入兜底）
+  - 目录（自动扫描上述 JSON，跳过 round_*.json 中间产物）
+
+> v1.3 说明：SSOT `holiday-data-fetch.json` 是唯一数据出口，本技能不再产出
+> 也不再消费 `消费数据集.csv` 一类 22 字段 CSV 派生视图。历史基线一律来自
+> 历史目录下的 `holiday-data-fetch.json`（见 holiday-data-report 阶段一 D1 稀疏检出）。
 
 用法：
     python import_history.py --workspace <主JSON> --source <历史文件或目录> [--batch H1] [--dry-run] [--keep-snapshots]
 
 流程：
-    1. 格式识别（CSV / v1.0/v1.1 JSON / 现象素材库 JSON）
+    1. 格式识别（v1.0/v1.1 JSON / 现象素材库 JSON）
     2. 质量过滤（剔除 待核 / 数值类型污染 / 无URL / 非目标年度节假日）
     3. 格式归一化 + 字段补齐（数值类型/单位粒度/数据性质/地域粒度 归一，缺字段补默认）
     4. 批次标注（数据来源=历史导入, 观测批次=H{n}, round=历史导入, 采集时间=导入时刻）
@@ -23,11 +26,9 @@ import_history.py — 历史数据导入器（v1.2 新增）
     6. 输出导入报告（读取/过滤/归一化/去重/新增/关联 条数）
 """
 import argparse
-import csv
 import json
 import re
 import sys
-from datetime import datetime
 from pathlib import Path
 
 try:
@@ -43,18 +44,6 @@ PROVINCE_NAMES = ["广东", "浙江", "江苏", "四川", "山东", "河南", "�
 CITY_NAMES = ["北京", "上海", "广州", "成都", "重庆", "杭州", "西安", "武汉", "南京", "深圳",
               "长沙", "郑州", "青岛", "天津", "苏州", "三亚", "厦门", "昆明", "哈尔滨", "长春"]
 
-# 合法数值类型（v1.1 收敛为 4 类 + 复合）
-VALID_VALUE_TYPE = {"水平值", "增长率", "指数", "定性", "复合"}
-VALUE_TYPE_NORM = {"复合值": "复合", "增速": "增长率", "倍数": "增长率", "占比": "水平值", "区间": "定性"}
-# 明确的单位粒度污染值（应归一到 单位 或置 "—"）
-GRANULARITY_POLLUTION = {"水平值", "增长率", "定性", "复合", "总量", "全国总量", "总计", "清单", "日均",
-                         "日度", "比率", "%增长", "倍数", "%占比", "占比", "日均量", "指数", "水平(计数)",
-                         "水平(区间)", "指数(2019=100)", "元(单价)", "元(单房收益)"}
-GRANULARITY_FROM_UNIT = {"亿人次": "人次", "万人次": "人次", "人次": "人次", "亿元": "亿元", "万亿元": "亿元",
-                         "万元": "亿元", "%": "百分比", "百分比": "百分比", "元": "元", "元/间夜": "元/间夜",
-                         "间夜": "间夜", "元/人次": "人均trip", "元/人天": "人均day", "辆次": "辆次",
-                         "万场": "场次", "亿公里": "公里", "万列": "列", "亿笔": "笔"}
-
 # 历史版主题别名 → 统一主题白名单（R2：消除双写）
 THEME_NORM = {
     "酒店": "酒店住宿", "平台": "平台渠道", "交通": "交通出行",
@@ -66,9 +55,7 @@ THEME_NORM = {
 
 
 def detect_format(path):
-    """返回 ('csv_l1' | 'json_fetch' | 'json_l2' | None)"""
-    if path.suffix.lower() == ".csv":
-        return "csv_l1"
+    """返回 ('json_fetch' | 'json_l2' | None)。v1.3 起不再识别 CSV。"""
     if path.suffix.lower() == ".json":
         try:
             with path.open("r", encoding="utf-8-sig") as f:
@@ -89,48 +76,6 @@ def _norm_text(v):
     return str(v).strip()
 
 
-def _norm_caliber(cal):
-    """口径类型去重净化 + 历史版本别名归一：
-    '官方营业性(不含自驾),官方营业性(不含自驾)' → 取首段
-    实测→官方总量, 平台披露→平台自披露（2023 系历史错版 schema）"""
-    cal = _norm_text(cal)
-    if "," in cal:
-        parts = [p.strip() for p in cal.split(",")]
-        seen = []
-        for p in parts:
-            if p and p not in seen:
-                seen.append(p)
-        cal = seen[0] if seen else cal
-    return CALIBER_ALIAS.get(cal, cal)
-
-
-CALIBER_ALIAS = {"实测": "官方总量", "平台披露": "平台自披露", "官方边检": "官方总量"}
-
-
-def _norm_value_type(vt):
-    vt = _norm_text(vt)
-    if vt in VALUE_TYPE_NORM:
-        return VALUE_TYPE_NORM[vt]
-    return vt if vt in VALID_VALUE_TYPE else ""
-
-
-def _norm_granularity(unit_gran, unit):
-    ug = _norm_text(unit_gran)
-    if ug and ug not in GRANULARITY_POLLUTION and ug != "":
-        # 已是合理粒度（含 / 或常见单位词）
-        return ug
-    # 从单位推断
-    if unit in GRANULARITY_FROM_UNIT:
-        return GRANULARITY_FROM_UNIT[unit]
-    if unit and unit.endswith("人次"):
-        return "人次"
-    if unit and unit.endswith("亿元"):
-        return "亿元"
-    if unit == "%" or unit == "百分比":
-        return "百分比"
-    return "—"
-
-
 def _infer_region(data_point, org):
     text = f"{data_point} {org}"
     for prov in PROVINCE_NAMES:
@@ -142,18 +87,6 @@ def _infer_region(data_point, org):
     if "景区" in text or "景点" in text or "商圈" in text:
         return "景区商圈级"
     return "全国"
-
-
-def _norm_nature(nature, value_type):
-    n = _norm_text(nature)
-    if n == "定性":
-        # 定性观察归为实际（数值类型=定性 强制 D）
-        return "实际"
-    if n in ("实际", "预计", "推算"):
-        return n
-    if n in ("无(水平值)", ""):
-        return "实际"
-    return n
 
 
 def quality_problem(row, target_year, target_holiday):
@@ -177,66 +110,6 @@ def quality_problem(row, target_year, target_holiday):
     if vt in ("5", "40天(春运)", "春节销售季"):
         return f"数值类型污染({vt})"
     return None
-
-
-def csv_to_items(path, target_year, target_holiday, region):
-    """历史版 22 字段 CSV → 归一化 L1 条目列表 + (read, filtered)"""
-    items = []
-    read = 0
-    filtered = []
-    with path.open("r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        for raw in reader:
-            read += 1
-            row = {k: _norm_text(v) for k, v in raw.items()}
-            problem = quality_problem(row, target_year, target_holiday)
-            if problem:
-                filtered.append((row.get("数据点", ""), problem))
-                continue
-            region_guess = _infer_region(row.get("数据点", ""), row.get("来源机构", ""))
-            theme = row.get("主题", "")
-            theme = THEME_NORM.get(theme, theme)
-            gap = row.get("缺口标记", "空") or "空"
-            note = row.get("备注", "")
-            if row.get("数据性质") == "预计" and gap == "空":
-                gap = "预判待回填"
-            if not note:
-                note = "历史导入"
-            it = {
-                "layer": "L1",
-                "主题": theme,
-                "数据点": row.get("数据点", ""),
-                "数值": row.get("数值", ""),
-                "单位": row.get("单位", ""),
-                "单位粒度": _norm_granularity(row.get("单位粒度", ""), row.get("单位", "")),
-                "统计起止日": row.get("统计起止日", ""),
-                "统计窗口": row.get("统计窗口", ""),
-                "口径版本": row.get("口径版本", ""),
-                "指标口径类型": row.get("指标口径类型", ""),
-                "口径类型": _norm_caliber(row.get("口径类型", "")),
-                "数据性质": _norm_nature(row.get("数据性质", ""), row.get("数值类型", "")),
-                "基期": row.get("基期", "—") or "—",
-                "假期天数": row.get("假期天数", ""),
-                "数值类型": _norm_value_type(row.get("数值类型", "")),
-                "采集日期": row.get("采集日期", "") or datetime.now().strftime("%Y-%m-%d"),
-                "缺口标记": gap,
-                "来源机构": row.get("来源机构", ""),
-                "报告/资料名": row.get("报告/资料名", ""),
-                "发布时间": row.get("发布时间", ""),
-                "可信度等级": row.get("可信度等级", "D"),
-                "URL": row.get("URL", ""),
-                "备注": note,
-                "内容摘录": row.get("备注", ""),
-                "地域粒度": region_guess,
-            }
-            # 推算行补推算依据（备注含公式时）
-            if it["数据性质"] == "推算" and not it.get("推算依据"):
-                it["推算依据"] = ""
-            # 可信度纪律: 推算/测算/弱溯源/定性 强制 D（与 v1.1 门禁一致，历史脏等级降级）
-            if (it["数据性质"] == "推算" or it["口径类型"] in ("测算", "弱溯源") or it["数值类型"] == "定性"):
-                it["可信度等级"] = "D"
-            items.append(it)
-    return items, read, filtered
 
 
 def json_fetch_to_items(path, target_year, target_holiday, keep_snapshots):
@@ -311,14 +184,14 @@ def json_l2_to_items(path, target_year, target_holiday):
 
 
 def collect_sources(source):
-    """返回待导入文件列表（目录自动扫描）"""
+    """返回待导入文件列表（目录自动扫描 JSON；v1.3 起不再扫 CSV）"""
     src = Path(source)
     if src.is_file():
         return [src]
     if src.is_dir():
         files = []
         for f in sorted(src.rglob("*")):
-            if f.suffix.lower() in (".csv", ".json"):
+            if f.suffix.lower() in (".json",):
                 name = f.name
                 if name.startswith("round_") or name.startswith("采集日志"):
                     continue  # 跳过中间产物
@@ -365,7 +238,6 @@ def main():
     meta = ws["meta"]
     year = meta.get("year")
     holiday = meta.get("holiday", "")
-    region = meta.get("region", "全国")
 
     # 批次码
     used = [batch_of(i) for i in ws.get("items", [])]
@@ -391,9 +263,7 @@ def main():
         fmt = detect_format(src)
         if fmt is None:
             continue
-        if fmt == "csv_l1":
-            items, read, filtered = csv_to_items(src, year, holiday, region)
-        elif fmt == "json_fetch":
+        if fmt == "json_fetch":
             items, read, filtered = json_fetch_to_items(src, year, holiday, args.keep_snapshots)
             if args.keep_snapshots:
                 copied = copy_snapshot_files(src, ws_path.parent)

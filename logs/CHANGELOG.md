@@ -29,6 +29,7 @@
 
 | 版本 | commit | 日期 | 主题 | 状态 |
 |---|---|---|---|---|
+| 1.5.1 | — | 2026-09-18 | 数据出口收敛（Dev01）：取消 `消费数据集.csv` 生成与引用 | **开发中（未发版）** |
 | 1.5.0 | `626e3c4` | 2026-09-15 | 阶段一 D1–D4 采集流水线 | **开发中（未发版）** |
 | 1.4.1 | `d2ae007` | 2026-09-11（tag） | 分拆框架重构（减法） | 已发布 |
 | 1.4.0 | `5c66b0b` | 2026-09-11（tag） | 模板样式变更 | 已发布 |
@@ -42,6 +43,52 @@
 ---
 
 ## 四、变更详情
+
+### 1.5.1（开发中）
+
+未发版。以下为已完成的开发条目。
+
+#### Dev01 · 2026-09-18 · 取消 `消费数据集.csv` 的生成与引用，全部改为调用 `holiday-data-fetch.json`
+
+**背景**：v1.5.0 已在 report 侧声明"派生视图不单独交付"，但 fetch 侧仍保留 `--export-csv` 能力，
+会落盘 `{年份}{节日}消费数据集.csv`；`import_history.py` 也仍把"历史版 CSV"当作一等输入。
+两处并存导致 SSOT 不唯一：同一份数据既有 JSON 又有 CSV，下游取数时无法判定谁权威。
+
+**本条目把数据出口收敛为唯一：`holiday-data-fetch.json`（SSOT）。**
+
+1. **`scripts/validate_fetch.py`（fetch，v1.2 → v1.3）**
+   - 删除 `export_csv()` / `export_l2()` 两个函数、`--export-csv` / `--export-l2` / `--out` 三个参数、
+     第 9 步导出分支，以及 docstring 中的导出用法。
+   - 删除 `import csv`（该文件内 `csv` 模块仅服务于导出）。`L1_FIELDS` 保留——字段完整性校验仍用。
+   - 第 9 步改为**数据出口声明**：打印 SSOT 文件名与 L1/L2 条数，明示"按 layer 过滤直读，不导出派生视图"。
+
+2. **`scripts/import_history.py`（fetch，v1.2 → v1.3）**
+   - 删除 CSV 输入分支：`csv_to_items()`、`detect_format()` 的 `csv_l1` 返回值、`collect_sources()` 的 `.csv` 扫描。
+   - 删除仅服务于历史 CSV 脏数据清洗的工具：`_norm_caliber` / `CALIBER_ALIAS` / `_norm_value_type` /
+     `_norm_granularity` / `_norm_nature`，以及 `VALID_VALUE_TYPE` / `VALUE_TYPE_NORM` /
+     `GRANULARITY_POLLUTION` / `GRANULARITY_FROM_UNIT` 四个常量表；`import csv` 与 `from datetime import datetime` 一并删。
+   - `main()` 中移除 `region` 局部变量（仅 CSV 分支使用）。
+   - 历史基线输入只剩：`holiday-data-fetch.json`（现行 / v1.1 / v1.0）+ 旧版现象素材库 JSON（遗留文件输入兜底，不产出）。
+
+3. **文档同步（fetch）**
+   - `SKILL.md`：F5 交付产物收敛为三件并标注"无其他产物"；脚本表两行去导出；兼容性说明改写为「SSOT 单一出口（v1.3 硬性）」；
+     交互检查点话术与参数表去掉"历史版 CSV"，改为"旧版 `holiday-data-fetch.json` / 历史采集目录"；版本脚注 v1.2 → v1.3。
+   - `references/json-schema.md`：与 report 的接口表由"导出 CSV / 映射素材库"改为"SSOT 内过滤视图，不落成文件"；
+     `history_imports` 示例路径由 `data_set/2024春节/合并.csv` 改为 `data_set/2024_春节/holiday-data-fetch.json`；
+     历史导入章节与格式归一化行去 CSV；兼容原则补「单一出口（v1.3 硬性）」。
+   - `references/collection-log.md`、`references/holiday-keywords.md`：历史数据来源去 CSV。
+
+4. **report 侧**：`SKILL.md` 版本号 1.5.0 → 1.5.1，正文无需改动（v1.5.0 已是 SSOT 口径）；
+   `references/data-architecture.md` 两处口径收紧——阶段五·交付行由"派生视图不进交付清单"改为
+   "**不再产出、也不进交付清单**"，v1.2.0 版本脚注追加"v1.5.1 起派生视图彻底废止"。
+
+**验证**
+- `py_compile` 双脚本通过。
+- `validate_fetch.py` 以 `assets/sample-fetch.json` 冒烟：门禁 9 项正常输出，新增"数据出口"行正确打印（结论 FAIL 系样本仅 7 行 < 基础线 35，属预期）。
+- `import_history.py` 冒烟：目录导入仅识别 `holiday-data-fetch.json`（7 条读满）；同目录放置 `2026十一消费数据集.csv` 干扰项确认被忽略。
+- 全包检索：除 CHANGELOG 历史记述与本次新增的否定句（"不再/禁止"）外，`消费数据集.csv` / `--export-csv` / `--export-l2` / "历史版 CSV" 归零。
+- 已知保留项：`references/historical-data-source.md` 第 3 行的"节假日消费数据集"指**抽象数据集合**，非 CSV 文件，不改；
+  `import_history.py` 保留旧版现象素材库 JSON 的**读取**兼容（输入兜底，本技能不再产出）。
 
 ### 1.5.0（开发中）
 

@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-validate_fetch.py — 采集门禁自检 + 导出兼容 (v1.2)
+validate_fetch.py — 采集门禁自检 (v1.3)
 
 用法:
     python validate_fetch.py --workspace <主JSON> [--min-rows 35] [--check-snapshots]
-    python validate_fetch.py --workspace <主JSON> --export-csv --out <目录>
-    python validate_fetch.py --workspace <主JSON> --export-l2 --out <目录>
 
 校验项 (对齐 references/collection-log.md 与 holiday-keywords.md v1.2):
   1. 字段完整性: L1 必备 22 字段 / L2 必备字段; 可信度纪律
@@ -22,12 +20,12 @@ validate_fetch.py — 采集门禁自检 + 导出兼容 (v1.2)
   8. 丰富度评分 (0-100): 行数30(仅计本轮) + 维度30 + 地域20 + 来源20
   9. 观测序列化统计 (v1.2): 本轮新增占比<40% WARN; 预计/实测对照未回填 WARN; 同源同载体重复率 WARN
 
-导出:
-  --export-csv : 筛 layer=L1, 导出标准 22 字段 CSV
-  --export-l2  : 筛 layer=L2, 导出现象素材库 JSON
+数据出口 (v1.3 起):
+  本脚本只做门禁自检, 不产出任何文件。SSOT `holiday-data-fetch.json` 是唯一数据出口:
+  下游 (holiday-data-report 阶段二) 直接按 `layer` 过滤读取 `items[]`,
+  不再派生 `消费数据集.csv` / `现象素材库.json` 等中间视图。
 """
 import argparse
-import csv
 import json
 import re
 import sys
@@ -291,39 +289,11 @@ def richness_score(current_rows, min_rows, rich_rows, dims_covered, region_dist,
     return min(100, score_rows + score_dims + score_region + score_src)
 
 
-def export_csv(items, out_path):
-    l1 = [i for i in items if i.get("layer") == "L1"]
-    with out_path.open("w", encoding="utf-8-sig", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=L1_FIELDS, extrasaction="ignore")
-        w.writeheader()
-        for it in l1:
-            w.writerow({k: it.get(k, "") for k in L1_FIELDS})
-    return len(l1)
-
-
-def export_l2(items, out_path, meta):
-    l2 = [i for i in items if i.get("layer") == "L2"]
-    lib = {
-        "schema": "phenomena-library-v1",
-        "year": meta.get("year"),
-        "holiday": meta.get("holiday"),
-        "region": meta.get("region"),
-        "collected_at": meta.get("updated_at"),
-        "items": l2,
-    }
-    with out_path.open("w", encoding="utf-8") as f:
-        json.dump(lib, f, ensure_ascii=False, indent=2)
-    return len(l2)
-
-
 def main():
-    ap = argparse.ArgumentParser(description="采集门禁自检 + 导出 (v1.2)")
+    ap = argparse.ArgumentParser(description="采集门禁自检 (v1.3)")
     ap.add_argument("--workspace", required=True, help="主 JSON 路径")
     ap.add_argument("--min-rows", type=int, default=None, help="覆盖基础线")
     ap.add_argument("--check-snapshots", action="store_true", help="校验快照文件存在性")
-    ap.add_argument("--export-csv", action="store_true", help="导出 L1 为 22 字段 CSV")
-    ap.add_argument("--export-l2", action="store_true", help="导出 L2 为现象素材库 JSON")
-    ap.add_argument("--out", default=".", help="导出目录 (默认当前目录)")
     args = ap.parse_args()
 
     ws_path = Path(args.workspace)
@@ -445,17 +415,11 @@ def main():
     score = richness_score(obs["n_current"], min_rows, rich_rows, covered, list(rdist.keys()), len(org_set))
     print(f"  [INFO] 丰富度评分={score}/100 (本轮行数+维度+地域+来源; 历史导入不计行数分)")
 
-    # 9 导出
-    if args.export_csv:
-        out_dir = Path(args.out)
-        out_dir.mkdir(parents=True, exist_ok=True)
-        n = export_csv(items, out_dir / f"{meta.get('year')}{holiday}消费数据集.csv")
-        print(f"  [导出] L1 -> {out_dir / (str(meta.get('year')) + holiday + '消费数据集.csv')} ({n} 行 22 字段)")
-    if args.export_l2:
-        out_dir = Path(args.out)
-        out_dir.mkdir(parents=True, exist_ok=True)
-        n = export_l2(items, out_dir / "现象素材库.json", meta)
-        print(f"  [导出] L2 -> {out_dir / '现象素材库.json'} ({n} 条)")
+    # 9 数据出口声明 (v1.3: 不再派生 CSV / 素材库视图)
+    n_l1 = sum(1 for i in items if i.get("layer") == "L1")
+    n_l2 = sum(1 for i in items if i.get("layer") == "L2")
+    print(f"  [INFO] 数据出口: {ws_path.name}（SSOT，L1={n_l1} / L2={n_l2}）"
+          f"——按 layer 过滤直读，不导出派生视图")
 
     print("=== 结论:", "PASS" if ok else "FAIL (见上方缺口) ===")
     return 0 if ok else 2
